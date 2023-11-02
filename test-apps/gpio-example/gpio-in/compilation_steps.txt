@@ -1,0 +1,49 @@
+**************************
+Build steps for BBB
+**************************
+Step 1:
+-----------
+1. Set the ARCH and CROSS_COMPILE environment Variables
+	$ export ARCH=arm
+	$ export CROSS_COMPILE=arm-linux-gnueabihf-
+
+2. Set the PATH to the Cross-Toolchain
+	$ export PATH=${HOME}/ela_lab_exercises/bbb-build/toolchain/gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf/bin/:$PATH
+	
+Step 2:
+-----------
+3. Issue the make command
+	$ make 
+	
+Step 3:
+-----------
+4. Copy the gpio-int executable to /usr of the RootFS
+
+Step 4:
+-----------
+5. Connect a M2M jumpwire between Pin-1 and Pin-15 on P9 header
+
+6. Boot the board and go to /usr directory
+
+***************************************
+Commands to run and test the application
+****************************************
+1. $ cd /usr
+2.echo 48 > /sys/class/gpio/export
+3.echo in > /sys/class/gpio/gpio48/direction 
+4.echo falling > /sys/class/gpio/gpio48/edge
+5. $ ./gpio-int
+
+Now Pull out and Connect back the Jump wire end from P1 (DGND) & observe the below outputs:
+
+# ./gpio-int
+Initial value value=0
+Waiting
+Button pressed: read 2 bytes, value=0
+Waiting                                                                                                     
+Button pressed: read 2 bytes, value=0                                                                       
+Waiting                                                                                                     
+Button pressed: read 2 bytes, value=1                                                                       
+Waiting    
+
+
