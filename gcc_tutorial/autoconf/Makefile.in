@@ -1,0 +1,21 @@
+
+CC = @CC@
+VERSION = @VERSION@
+
+CFLAGS = @CFLAGS@
+
+addsub: main.o add.o sub.o 
+	$(CC)  $(CFLAGS) -DVERSION=\"$(VERSION)\" main.o add.o sub.o -o addsub
+
+main.o: main.c
+	@$(CC) $(CFLAGS) -DVERSION=\"$(VERSION)\" -c main.c
+
+add.o: add.c
+	@$(CC) $(CFLAGS) -DVERSION=\"$(VERSION)\" -c add.c
+
+sub.o: sub.c
+	@$(CC) $(CFLAGS) -DVERSION=\"$(VERSION)\" -c sub.c
+
+
+clean:
+	rm -rf *.o ./addsub
