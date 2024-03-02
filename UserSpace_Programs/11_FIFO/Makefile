@@ -19,12 +19,16 @@ CFLAGS= -c -Wall
 .PHONY: clean
 
 # Explicit Rule
-all: Thread_IDs.c  
-#	$(CC)  -static Thread_IDs.c -o Thread_IDs
+all: FIFO server_fifo client_fifo
 
-# Implicit Rule
-all: Thread_IDs.o
-	$(CC)  Thread_IDs.o -o Thread_IDs
+FIFO:FIFO.c
+	$(CC) $(FLAGS) -o FIFO FIFO.c
+
+server_fifo:server_fifo.c
+	$(CC) $(FLAGS) -o server_fifo server_fifo.c
+
+client_fifo:client_fifo.c
+	$(CC) $(FLAGS) -o client_fifo client_fifo.c
 
 clean:
-	rm -rf *.o ./Thread_IDs
+	rm -rf *.o ./FIFO myfifo server_fifo client_fifo

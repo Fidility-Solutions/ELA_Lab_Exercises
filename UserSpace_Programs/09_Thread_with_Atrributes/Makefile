@@ -4,7 +4,7 @@
 ifdef ARCH
     ifeq ($(ARCH),arm)
         CC := arm-linux-gnueabihf-gcc
-        CFLAGS += -static
+        CFLAGS += -c -Wall
     endif
     ifeq ($(ARCH),aarch64)
         CC := aarch64-linux-gnu-gcc
@@ -19,12 +19,13 @@ CFLAGS= -c -Wall
 .PHONY: clean
 
 # Explicit Rule
-all: Orphan_Process.c  
-#	$(CC)  -static Orphan_Process.c -o Child_Process
+all: Thread_Attributes
 
-# Implicit Rule
-all: Orphan_Process.o
-	$(CC)  Orphan_Process.o -o Orphan_Process
+Thread_Attributes:Thread_Attributes.o
+	$(CC) $(FLAGS) -pthread Thread_Attributes.o -o Thread_Attributes
+
+Thread_Attributes.o:Thread_Attributes.c
+	$(CC) $(FLAGS) -c Thread_Attributes.c
 
 clean:
-	rm -rf *.o ./Orphan_Process
+	rm -rf ./Thread_Attributes Thread_Attributes.o

@@ -4,7 +4,7 @@
 ifdef ARCH
     ifeq ($(ARCH),arm)
         CC := arm-linux-gnueabihf-gcc
-        CFLAGS += -static
+        CFLAGS += -c -Wall
     endif
     ifeq ($(ARCH),aarch64)
         CC := aarch64-linux-gnu-gcc
@@ -19,12 +19,13 @@ CFLAGS= -c -Wall
 .PHONY: clean
 
 # Explicit Rule
-all: Thread_Creation.c  
-#	$(CC)  -static Thread_Creation.c -o Thread_Creation
+all: Thread_Creation
 
-# Implicit Rule
-all: Thread_Creation.o
-	$(CC)  Thread_Creation.o -o Thread_Creation
+Thread_Creation:Thread_Creation.o
+	$(CC) $(FLAGS) -pthread Thread_Creation.o -o Thread_Creation
+
+Thread_Creation.o:Thread_Creation.c
+	$(CC) $(FLAGS) -c Thread_Creation.c
 
 clean:
-	rm -rf *.o ./Thread_Creation
+	rm -f ./Thread_Creation Thread_Creation.o

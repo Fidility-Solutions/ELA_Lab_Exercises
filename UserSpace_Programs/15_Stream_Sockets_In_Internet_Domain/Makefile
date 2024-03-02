@@ -4,7 +4,7 @@
 ifdef ARCH
     ifeq ($(ARCH),arm)
         CC := arm-linux-gnueabihf-gcc
-        CFLAGS += -c -Wall
+        CFLAGS += -static
     endif
     ifeq ($(ARCH),aarch64)
         CC := aarch64-linux-gnu-gcc
@@ -19,13 +19,13 @@ CFLAGS= -c -Wall
 .PHONY: clean
 
 # Explicit Rule
-all: Thread_Termination
+all: server_socket client_socket
 
-Thread_Termination:Thread_Termination.o
-	$(CC) $(FLAGS) -pthread Thread_Termination.o -o Thread_Termination
+server_socket:server_socket.c
+	$(CC) $(FLAGS) -o server_socket server_socket.c
 
-Thread_Termination.o:Thread_Termination.c
-	$(CC) $(FLAGS) -c Thread_Termination.c
+client_socket:client_socket.c
+	$(CC) $(FLAGS) -o client_socket client_socket.c
 
 clean:
-	rm -f ./Thread_Termination Thread_Termination.o
+	rm -rf *.o server_socket client_socket

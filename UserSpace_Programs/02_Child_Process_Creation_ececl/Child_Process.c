@@ -50,8 +50,9 @@ int main(void)
 	else if(child == 0)
 	{
 		printf("Entered into child Process(PID)=%d,and parent Process id(PID)=%d\n",getpid(),getppid());
-		/* Execute the program with execve */
-		/* Replacing child process with new process using execl() system vall */
+		/* Execute the program with execl */
+		/* Replacing child process with new process using execl() system call */
+		printf("The child process is replaced with new process(ls command) executed by execl() system call \n");
 		if(execl("/bin/ls","ls","-l",NULL)== -1)
 		{
 			/* execl function returns only if an error occurs */
