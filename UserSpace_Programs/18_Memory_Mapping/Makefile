@@ -19,13 +19,13 @@ CFLAGS= -c -Wall
 .PHONY: clean
 
 # Explicit Rule
-all: shared_memory_writter shared_memory_reader
+all: private_memory_mapping shared_memory_mapping
 
-shared_memory_writter:shared_memory_writter.c
-	$(CC) $(FLAGS) -o shared_memory_writter shared_memory_writter.c
+private_memory_mapping:private_memory_mapping.c
+	$(CC) $(FLAGS) -o private_memory_mapping private_memory_mapping.c
 
-shared_memory_reader:shared_memory_reader.c
-	$(CC) $(FLAGS) -o shared_memory_reader shared_memory_reader.c
+shared_memory_mapping:shared_memory_mapping.c
+	$(CC) $(FLAGS) -o shared_memory_mapping shared_memory_mapping.c
 
 clean:
-	rm -rf *.o shared_memory_reader shared_memory_writter
+	rm -rf *.o shared_memory_mapping private_memory_mapping

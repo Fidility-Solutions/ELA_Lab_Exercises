@@ -19,10 +19,13 @@ CFLAGS= -c -Wall
 .PHONY: clean
 
 # Explicit Rule
-all: Message_Queue
+all: Message_Queue User_MsgQueue
 
 Message_Queue:Message_Queue.c
 	$(CC) $(FLAGS) -o Message_Queue Message_Queue.c
 
+User_MsgQueue:User_MsgQueue.c
+	$(CC) $(FLAGS) -o User_MsgQueue User_MsgQueue.c
+
 clean:
-	rm -rf *.o ./Message_Queue 
+	rm -rf *.o Message_Queue User_MsgQueue
