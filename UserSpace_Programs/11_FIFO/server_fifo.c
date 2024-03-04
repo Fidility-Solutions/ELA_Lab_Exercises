@@ -9,8 +9,16 @@
 #include <stdint.h>
 
 #define FIFO_SERVER_TO_CLIENT "fifo_server_to_client" // FIFO for server to client
-#define FIFO_CLIENT_TO_SERVER "fifo_client_to_server" // FIFO for client to server
+#define FIFO_CLIENT_TO_SERVER "fifo_client_to_server.%d" // FIFO for client to server
 #define BUF_SIZE 255
+
+typedef strcut{
+	pid_t client_pid;
+	int num_request;
+}Request;
+typedef struct{
+	int seqNum;
+}Response;
 
 int main() {
     	int8_t fd_server_to_client, fd_client_to_server;
