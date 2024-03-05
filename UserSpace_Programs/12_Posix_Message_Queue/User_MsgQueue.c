@@ -27,8 +27,20 @@
 #include <sys/wait.h>
 
 #define MAX_MSG_SIZE 256
-#define QUEUE_NAME "/my_queue"
+#define QUEUE_NAME "/USER_POSIX_MQ"
 #define PERMISSIONS 0660
+
+void errExit(const char *message) {
+    perror(message);
+    exit(EXIT_FAILURE);
+}
+
+void usageErr(const char *programName, const char *message) {
+    fprintf(stderr, "Usage: %s %s\n", programName, message);
+    exit(EXIT_FAILURE);
+}
+
+
 
 
 /* 
@@ -44,51 +56,46 @@
  * Returns:     0 upon successful execution of the program.
  */
 
-int main(){
+int main(void){
 	printf("Welcome POSIX Message Queue\n");
 	/* variable declaration */
-    	mqd_t mqd;
-    	struct mq_attr attr;
+    	mqd_t MsgQDescriptor;
+    	struct mq_attr StrAttr;
     	int8_t as8RecvBuffer[MAX_MSG_SIZE];
 	int8_t as8SendBuffer[MAX_MSG_SIZE];
     	pid_t pid;
 
     	/* Set up message queue attributes */
-    	attr.mq_flags = 0;
+    	StrAttr.mq_flags = 0;
 	/* Maximum number of messages in queue & maxim message size*/
-    	attr.mq_maxmsg = 10;
-    	attr.mq_msgsize = MAX_MSG_SIZE;
-    	attr.mq_curmsgs = 0;
+    	StrAttr.mq_maxmsg = 10;
+    	StrAttr.mq_msgsize = MAX_MSG_SIZE;
+    	StrAttr.mq_curmsgs = 0;
 
     	/* Create or open the message queue */
 	printf("The message Queue is created\n");
-    	mqd = mq_open(QUEUE_NAME, O_CREAT | O_RDWR, PERMISSIONS, &attr);
-    	if(mqd == (mqd_t)-1){
-        	perror("mq_open error");
-        	exit(EXIT_FAILURE);
-    	}
+    	MsgQDescriptor = mq_open(QUEUE_NAME, O_CREAT | O_RDWR, PERMISSIONS, &StrAttr);
+    	if(MsgQDescriptor == (mqd_t)-1)
+		errExit("message queue open error");
 
     	/* Forking the process */
     	pid = fork();
-    	if(pid == -1){
-        	perror("fork");
-        	exit(EXIT_FAILURE);
-    	}
-	
+    	if(pid == -1)
+		errExit("fork error");
+
 	/*child process */
     	if(pid == 0){
 		printf("\nchild Process created\n");
-        	while(1){
-            		if(mq_receive(mqd, as8RecvBuffer, MAX_MSG_SIZE, NULL) == -1){
-                		perror("mq_receive");
-                		exit(EXIT_FAILURE);
-            		}
+        	for(;;){
+            		if(mq_receive(MsgQDescriptor, as8RecvBuffer, MAX_MSG_SIZE, NULL) == -1)
+                		errExit("mq_receive error");
+
 			/* Check if the received message is "exit" */
 	    		if(strncmp(as8RecvBuffer, "exit", 4) == 0){
             			printf("Received 'exit' from parent, exiting...\n");
 	    			break;
         		}
-            		printf("Child received: %s\n", as8RecvBuffer);	
+            		printf("\nChild  process received: %s\n", as8RecvBuffer);	
     		}
 		exit(EXIT_SUCCESS);
 	}	
@@ -96,7 +103,8 @@ int main(){
 	else{
 	       printf("\nThis is Parent process it will send data to message queue \n");	
 	       printf("\nEnter a message:\n");
-        	while(1){
+        	for(;;){
+			/*Taking Input from User */
             		fgets(as8SendBuffer, MAX_MSG_SIZE, stdin);
 
             		/* Remove trailing newline character */
@@ -105,10 +113,9 @@ int main(){
                 		as8SendBuffer[LenOfMsg - 1] = '\0';
 
             		/* Send message to child */
-            		if(mq_send(mqd, as8SendBuffer, strlen(as8SendBuffer) + 1, 0) == -1){
-                		perror("mq_send error");
-                		exit(EXIT_FAILURE);
-            		}
+            		if(mq_send(MsgQDescriptor, as8SendBuffer, strlen(as8SendBuffer) + 1, 0) == -1)
+                		errExit("mq_send error");
+
 	    		if(strncmp(as8SendBuffer, "exit", 4) == 0){
             			printf("Received 'exit', exiting...\n");
 	    			break;
@@ -119,7 +126,7 @@ int main(){
     	}
 
     	/* Close and unlink the message queue */
-    	mq_close(mqd);
+    	mq_close(MsgQDescriptor);
     	mq_unlink(QUEUE_NAME);
 
     	return 0;

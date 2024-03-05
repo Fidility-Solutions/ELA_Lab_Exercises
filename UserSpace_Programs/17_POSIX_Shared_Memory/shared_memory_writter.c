@@ -18,7 +18,18 @@
 #include <sys/stat.h>
 
 #define SHARED_MEM_SIZE 1024
-#define SHARED_MEM_NAME "my_shared_memory"
+#define SHARED_MEM_NAME "POSIX_Shm_Rgn"
+
+void errExit(const char *message) {
+    perror(message);
+    exit(EXIT_FAILURE);
+}
+
+void usageErr(const char *programName, const char *message) {
+    fprintf(stderr, "Usage: %s %s\n", programName, message);
+    exit(EXIT_FAILURE);
+}
+
 /*
  * Function: main
  *
@@ -32,43 +43,35 @@
  *
  */
 int main() {
-	printf("\n\nYou have entered into Shared Memory writter Process!\n");
+	printf("\nThis is Shared Memory writter Process!\n");
 	printf("Welcome to POSIX Shared Memory writter Program\n");
 	printf("The Writter Process id(PID):%d\n",getpid());
     	/* Open existing shared memory object */
-	printf("Trying to open shared memory region...!\n");
-    	int8_t s8FileDescriptor = shm_open(SHARED_MEM_NAME, O_RDWR, 0666);
-    	if (s8FileDescriptor == -1) {
-        	perror("shm_open error");
-        	exit(EXIT_FAILURE);
-    	}
+	printf("Opening the shared memory region...!\n");
+    	int8_t s8FileDescriptor = shm_open(SHARED_MEM_NAME, O_CREAT|O_RDWR, 0666);
+    	if (s8FileDescriptor == -1)
+		errExit("shared memory open error");
 
     	/* Map the shared memory object into the address space */
 	printf("Mapping the shared memory object into the address space...\n"); 
     	int8_t *ps8SharedMemory = mmap(NULL, SHARED_MEM_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, s8FileDescriptor, 0);
-    	if (ps8SharedMemory == MAP_FAILED) {
-        	perror("mmap error");
-        	exit(EXIT_FAILURE);
-    	}
-	
+    	if (ps8SharedMemory == MAP_FAILED) 
+		errExit("shared memory mapping fail");	
+
 	/* write data to shared memory object */
-    	printf("Writing data to shared memory object...\n");
     	sprintf(ps8SharedMemory, "Hello from Shared Memory Writter Process");
     	printf("The Shared Memory Writter Process wrote: %s\n", ps8SharedMemory);
 
     	/* Unmap shared memory in the child process */
 	printf("\nUnmapping the shared memory object...\n");
-    	if (munmap(ps8SharedMemory, SHARED_MEM_SIZE) == -1) {
-        	perror("munmap error");
-        	exit(EXIT_FAILURE);
-    	}
+    	if (munmap(ps8SharedMemory, SHARED_MEM_SIZE) == -1) 
+        	errExit("unmapping error");
 
     	/* Close shared memory object */
 	printf("The shared memory object is closed from shared memory writter process\n");
-    	if (close(s8FileDescriptor) == -1) {
-        	perror("close error");
-        	exit(EXIT_FAILURE);
-    	}
+    	if (close(s8FileDescriptor) == -1)
+	       errExit("shared memory region close error");	
+
 	sleep(10);
     return 0;
 }

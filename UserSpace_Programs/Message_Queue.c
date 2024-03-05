@@ -27,11 +27,10 @@
 #include <signal.h>
 #include <errno.h>
 #include <stdint.h>
-#include <sys/wait.h>
 
-#define QUEUE_NAME "/POSIX_MQ"
+#define QUEUE_NAME "/my_queue"
 #define MAX_MSG_SIZE 256
-#define MAX_MSG_COUNT 5
+#define MAX_MSG_COUNT 10
 /*
  * Function: 	signal_handler
  * 
@@ -40,22 +39,9 @@
  * Argument:	s8SigNum:The signal number.
  *
  */
-void signal_handler(int32_t s8SigNum) {
+void signal_handler(int8_t s8SigNum) {
     printf("Notification received!\n");
 }
-
-
-/*Handle the error */
-void errExit(const char *message) {
-    perror(message);
-    exit(EXIT_FAILURE);
-}
-/* error with respect to variable */
-void usageErr(const char *programName, const char *message) {
-    fprintf(stderr, "Usage: %s %s\n", programName, message);
-    exit(EXIT_FAILURE);
-}
-
 /* 
  * Function: 	main
  *
@@ -68,6 +54,34 @@ void usageErr(const char *programName, const char *message) {
  * Returns:     0 upon successful execution of the program.
  */
 
+void MsgQHandler(){
+	mqd_t MsgQDescriptor;
+
+        /* Message queue attributes */
+        struct mq_attr StrAttr;
+
+        printf("Setting Attributes to Structure attr with SIZE and Maximum Message Count\n");
+        /* No special flags */
+        StrAttr.mq_flags = 0;
+
+        /* Max number of messages in the queue */
+        StrAttr.mq_maxmsg = MAX_MSG_COUNT;
+
+        /* Max message size */
+        StrAttr.mq_msgsize = MAX_MSG_SIZE;
+
+        /* Create a message queue with specified attributes */
+        printf("Creating Message Queue with specified attributes... \n");
+        MsgQDescriptor = mq_open(QUEUE_NAME, O_CREAT | O_RDWR, 0666, &StrAttr);
+        if (MsgQDescriptor == (mqd_t)-1) {
+                perror("mq_open error");
+                exit(EXIT_FAILURE);
+        }
+
+
+
+}
+
 int main(void) {
 	printf("Welcome to POSIX Message Queue Program\n");
     	mqd_t MsgQDescriptor;
@@ -75,92 +89,107 @@ int main(void) {
 	/* Message queue attributes */
     	struct mq_attr StrAttr;
     	
-	/* Setting Attributes to Structure attr with SIZE and Maximum Message Count\n*/
-
+	printf("Setting Attributes to Structure attr with SIZE and Maximum Message Count\n");
 	/* No special flags */
     	StrAttr.mq_flags = 0;    
+    
 	/* Max number of messages in the queue */
     	StrAttr.mq_maxmsg = MAX_MSG_COUNT; 
+    
 	/* Max message size */
     	StrAttr.mq_msgsize = MAX_MSG_SIZE;
-	printf("Specified atrributes to strcuture StrAttr with SIZE and Max Msg count\n");
 
     	/* Create a message queue with specified attributes */
+	printf("Creating Message Queue with specified attributes... \n");
     	MsgQDescriptor = mq_open(QUEUE_NAME, O_CREAT | O_RDWR, 0666, &StrAttr);
-    	if (MsgQDescriptor == (mqd_t)-1) 
-        	errExit("message queue open error");
-
-    	printf("Message queue is created with specified atrributes.\n");
+    	if (MsgQDescriptor == (mqd_t)-1) {
+        	perror("mq_open error");
+        	exit(EXIT_FAILURE);
+    	}
+    	printf("Message queue is created.\n");
 
     	/* Set up notification: allow a process to be notified when a message is available in a queue */
+    	printf("Setting Notification Mechanism to be notified when a message is available in a queue...\n");
+
     	struct sigevent sev;
+    
 	/* Type of notification by sending a signal */
     	sev.sigev_notify = SIGEV_SIGNAL;
+    
 	/* Signal value to be sent if notification type is SIGEV_SIGNAL */
     	sev.sigev_signo = SIGUSR1;
+    
 	/* Using 'mq_notify' to send a notification signal (SIGUSR1) when a message is available in the message queue */
-    	if (mq_notify(MsgQDescriptor, &sev) == -1)
-        	errExit("message queue notifcatiion error");
-
-    	printf("Notification mechanism set up completed to notify when a message is available in a queue.\n");
+    	if (mq_notify(MsgQDescriptor, &sev) == -1) {
+        	perror("mq_notify error");
+        	exit(EXIT_FAILURE);
+    	}
+    	printf("Notification mechanism set up completed.\n");
 
     	/* Register signal handler for notification signal */
-    	struct sigaction StrSigAction;
-    	StrSigAction.sa_handler = signal_handler;
-    	StrSigAction.sa_flags = 0;
+    	struct sigaction sa;
+    	sa.sa_handler = signal_handler;
+    	sa.sa_flags = 0;
     	/* Clear signal mask during signal handler execution */
-    	sigemptyset(&StrSigAction.sa_mask); 
-    	if (sigaction(SIGUSR1, &StrSigAction, NULL) == -1)
-        	errExit("sinal action error");
-    
-    	printf("Signal handler registered for notification.\n");
+    	sigemptyset(&sa.sa_mask); 
+    	if (sigaction(SIGUSR1, &sa, NULL) == -1) {
+        	perror("sigaction");
+        	exit(EXIT_FAILURE);
+    	}
+    	printf("Signal handler registered.\n");
 
     	/* Fork a child process */
     	pid_t pid = fork();
-    	if (pid == -1) 
-		errExit("fork fail");
+    	if (pid == -1) {
+        	perror("fork");
+        	exit(EXIT_FAILURE);
+    	}	
 
     	/* Child process */
     	if (pid == 0) { 
         	/* Receive messages from queue */
-        	printf("\nThe Child Process created and child process waiting for messages...\n");
+        	printf("This is Child Process and child process waiting for messages...\n");
         	int8_t as8RecvMsgBuf[MAX_MSG_SIZE];
         	uint32_t u8Priority;
         	ssize_t RecvBytes = mq_receive(MsgQDescriptor, as8RecvMsgBuf, MAX_MSG_SIZE, &u8Priority);
-        	if (RecvBytes == -1) 
-			errExit("message queue receiveing error");
-        	
-		/* Null terminate the received message */
+        	if (RecvBytes == -1) {
+            		perror("mq_receive error");
+            		exit(EXIT_FAILURE);
+		}
+
+        	/* Null terminate the received message */
         	as8RecvMsgBuf[RecvBytes] = '\0'; 
         	printf("Received message in child process: %s\n", as8RecvMsgBuf);
-		exit(EXIT_SUCCESS);
     	}
        /* Parent Process */	
 	else{
   
 		/* Send a message to queue */
         	int8_t as8MsgToSend[] = "Hello, Message Queue from Parent!";
-        	if (mq_send(MsgQDescriptor, as8MsgToSend, strlen(as8MsgToSend) + 1, 0) == -1)
-		       errExit("Message Queue send error");
-
+        	if (mq_send(MsgQDescriptor, as8MsgToSend, strlen(as8MsgToSend) + 1, 0) == -1) {
+            		perror("mq_send error");
+            		exit(EXIT_FAILURE);
+        	}
         	printf("Message sent by parent process.\n");
-		wait(NULL);
     	}
 
     	/* Close the message queue */
-    	if(mq_close(MsgQDescriptor) == -1)
-	       errExit("message close error");	
-    	
-    	printf("\nMessage queue closed.\n");
+    	if(mq_close(MsgQDescriptor) == -1) {
+        	perror("mq_close error");
+        	exit(EXIT_FAILURE);
+    	}
+    	printf("Message queue closed.\n");
 
 	/* Introduce a short delay to ensure proper cleanup */
 	sleep(3); 
     
 	/* Unlink the message queue */
-    	if(mq_unlink("/POSIX_MQ") == -1)
-	       errExit("Message queue delete error");	
-    	
+    	if(mq_unlink("/my_queue") == -1) {
+        	perror("mq_unlink error");
+        	exit(EXIT_FAILURE);
+    	}
     	printf("Message queue unlinked.\n");
+
     	return 0;
 }
 

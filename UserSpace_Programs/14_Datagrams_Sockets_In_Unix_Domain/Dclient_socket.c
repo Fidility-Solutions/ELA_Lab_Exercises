@@ -22,8 +22,19 @@
 #include <sys/un.h>
 #include <string.h>
 
-#define SOCKET_PATH "/tmp/datagram_socket"
+#define SOCKET_PATH "/tmp/UNIX_Datagram_Socket"
 #define BUF_SIZE 256
+
+void errExit(const char *message) {
+    perror(message);
+    exit(EXIT_FAILURE);
+}
+
+void usageErr(const char *programName, const char *message) {
+    fprintf(stderr, "Usage: %s %s\n", programName, message);
+    exit(EXIT_FAILURE);
+}
+
 
 /* Function: main
  *
@@ -40,69 +51,67 @@ int main() {
 	printf("Welcome to client-server application that uses stream sockets in UNIX domain \n");
 
 	/* variable Declaration */
-    	int client_socket_fd;
+    	int s8SrvrSktFd;
 
-    	struct sockaddr_un server_addr, client_addr;
-    	socklen_t server_addr_len = sizeof(struct sockaddr_un);
-	/*buffer is used to take data from user and send it to server */
-    	char buffer[BUF_SIZE];
+    	struct sockaddr_un strSrvrAddr, strClntAddr;
+    	socklen_t strSrvrAddr_len = sizeof(struct sockaddr_un);
+	/*s8buffer is used to take data from user and send it to server */
+    	char s8buffer[BUF_SIZE];
 
 	/* storage is used to capture the data from server */
     	char storage[BUF_SIZE];
-    	ssize_t bytes_recived;
+    	ssize_t BytesRecv;
 
     	/* Create UNIX Domain Datagram client socket */
     	printf("Client socket created using socket () sys call ...\n");
-    	client_socket_fd = socket(AF_UNIX, SOCK_DGRAM, 0);
-    	if (client_socket_fd == -1) {
-        	perror("socket");
-        	exit(EXIT_FAILURE);
-    	}
+    	s8SrvrSktFd = socket(AF_UNIX, SOCK_DGRAM, 0);
+    	if (s8SrvrSktFd == -1) 
+        	errExit("socket creation fail");
+    	
 
     	/* Set up client address */
-    	memset(&client_addr, 0, sizeof(struct sockaddr_un));
-    	client_addr.sun_family = AF_UNIX;
-   	snprintf(client_addr.sun_path, sizeof(client_addr.sun_path),"SOCKET_PATH.%ld", (long) getpid());
+    	memset(&strClntAddr, 0, sizeof(struct sockaddr_un));
+    	strClntAddr.sun_family = AF_UNIX;
+   	snprintf(strClntAddr.sun_path, sizeof(strClntAddr.sun_path),"%s.%ld",SOCKET_PATH ,(long) getpid());
 
     	/* Bind the client socket with specified adress */
-    	if (bind(client_socket_fd, (struct sockaddr *) &client_addr, sizeof(struct sockaddr_un)) == -1)
-		perror("bind");
+    	if (bind(s8SrvrSktFd, (struct sockaddr *) &strClntAddr, sizeof(struct sockaddr_un)) == -1)
+		errExit("bind error");
 
     	/* Construct address of server */
-	memset(&server_addr, 0, sizeof(struct sockaddr_un));
-	server_addr.sun_family = AF_UNIX;
-	strncpy(server_addr.sun_path, SOCKET_PATH, sizeof(server_addr.sun_path) - 1);
+	memset(&strSrvrAddr, 0, sizeof(struct sockaddr_un));
+	strSrvrAddr.sun_family = AF_UNIX;
+	strncpy(strSrvrAddr.sun_path, SOCKET_PATH, sizeof(strSrvrAddr.sun_path) - 1);
 
     	while (1) {
         	printf("Enter message to send (type 'exit' to quit): ");
-        	fgets(buffer, sizeof(buffer), stdin);
+        	fgets(s8buffer, sizeof(s8buffer), stdin);
 
 
         	/* Send message to server */
-        	if (sendto(client_socket_fd, buffer, strlen(buffer), 0,(struct sockaddr *)&server_addr, sizeof(struct sockaddr_un)) != strlen(buffer)) {
-           		perror("sendto");
-            		exit(EXIT_FAILURE);
-        	}
+        	if (sendto(s8SrvrSktFd, s8buffer, strlen(s8buffer), 0,(struct sockaddr *)&strSrvrAddr, sizeof(struct sockaddr_un)) != strlen(s8buffer)) 
+           		errExit("sendto server fail");
 
 		/* Check if the user wants to exit */
-                if (strncmp(buffer, "exit", 4) == 0) {
+                if (strncmp(s8buffer, "exit", 4) == 0) {
                         printf("Exiting...\n");
                         break;
                 }
 		 printf("Message sent successfully.\n");
 
 		/* Receive messages from server */
-		bytes_recived=recvfrom(client_socket_fd,storage,BUF_SIZE,0,NULL,NULL);
-		if(bytes_recived==-1)
-			perror("recvfrom");
-		printf("Response from server  %.*s\n", (int) bytes_recived, storage);
+		BytesRecv=recvfrom(s8SrvrSktFd,storage,BUF_SIZE,0,NULL,NULL);
+		if(BytesRecv==-1)
+			errExit("receive fail.");
+
+		printf("Response from server  %.*s\n", (int) BytesRecv, storage);
 
     	}
-    	remove(client_addr.sun_path); /* Remove client socket pathname */
+    	remove(strClntAddr.sun_path); /* Remove client socket pathname */
 	exit(EXIT_SUCCESS);
 
     	/* Close client socket */
-	close(client_socket_fd);
+	close(s8SrvrSktFd);
 
     return 0;
 }
