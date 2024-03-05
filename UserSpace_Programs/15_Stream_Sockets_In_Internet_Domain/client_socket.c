@@ -41,12 +41,12 @@
 int main() {
 	printf("welcome to server-client application program In Intenet Domain stream socket\n");
 	/*variable Declaration */
-    	int sockfd;
-    	char buffer[BUFFER_SIZE];
-    	int seqLen;
+    	int s8SktFd;
+    	char as8Buffer[BUFFER_SIZE];
+    	int s8SeqLen;
 	char *reqLenStr; /* Requested length of sequence */
 	char seqNumStr[BUFFER_SIZE]; /* Start of granted sequence */
-	ssize_t numRead;
+	ssize_t NumRead;
 	struct addrinfo hints;
 	struct addrinfo *result, *rp;
 
@@ -62,32 +62,32 @@ int main() {
 
     	/* Get address info for TCP server */
     	if (getaddrinfo("localhost", PORT_NUM, &hints, &result) != 0) {
-        	perror("getaddrinfo");
+        	perror("getaddrinfo error");
         	exit(EXIT_FAILURE);
     	}
 	/* Walk through returned list until we find an address structure
 	that can be used to successfully connect a socket */
     	for (rp = result; rp != NULL; rp = rp->ai_next) {
         	/* Create socket */
-        	if ((sockfd = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol)) == -1) {
+        	if ((s8SktFd = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol)) == -1) {
             		perror("socket");
             		continue;
         	}
 
         	/* Connect to server */
-        	if (connect(sockfd, rp->ai_addr, rp->ai_addrlen)!= -1) {
+        	if (connect(s8SktFd, rp->ai_addr, rp->ai_addrlen)!= -1) {
             		perror("connect");
             		break;
         	}
 		/* Connect failed: close this socket and try next address */
-		close(sockfd);
+		close(s8SktFd);
     	}
 
 
     	/* Check if connection was successful */
     	if (rp == NULL) {
         	fprintf(stderr, "Failed to connect\n");
-//	exit(EXIT_FAILURE);
+		exit(EXIT_FAILURE);
 	}
         
 	/* Free address info */
@@ -97,25 +97,27 @@ int main() {
 
     	/* Ask client for the length of desired sequence */
     	printf("Enter the length of desired sequence: ");
-    	scanf("%d", &seqLen);
+    	scanf("%d", &s8SeqLen);
 
     	/* Send the length of desired sequence to server */
-    	sprintf(buffer, "%d\n", seqLen);
-    	if(write(sockfd, buffer, strlen(buffer))!=strlen(buffer))
+    	sprintf(as8Buffer, "%d\n", s8SeqLen);
+    	if(write(s8SktFd, as8Buffer, strlen(as8Buffer))!=strlen(as8Buffer))
 		fprintf(stderr,"Partial/failed write (newline)");
 	/* Read and display sequence number returned by server */
     	/* Receive sequence number from server */
-    	int num_bytes = recv(sockfd, buffer, BUFFER_SIZE - 1, 0);
-    	if (num_bytes == -1) 
-        	perror("recv");
-	if(num_bytes == 0)
+    	int u32BytesRecv = recv(s8SktFd, as8Buffer, BUFFER_SIZE - 1, 0);
+    	if (u32BytesRecv == -1) {
+        	perror("recv error");
+		exit(EXIT_FAILURE);
+	}
+	if(u32BytesRecv == 0)
 		fprintf(stderr,"Unexpected EOF from server");
 
     	/* Null-terminate received data */
-    	buffer[num_bytes] = '\0';
+    	as8Buffer[u32BytesRecv] = '\0';
 
     	/* Print sequence number received from server */
-    	printf("Received sequence number from server: %s\n", buffer);
+    	printf("Received sequence number from server: %s\n", as8Buffer);
 
     	/* Close socket */
     	exit(EXIT_SUCCESS);

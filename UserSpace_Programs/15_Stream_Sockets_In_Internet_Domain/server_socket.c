@@ -29,21 +29,22 @@
 #include <errno.h>
 #define PORT_NUM "9640"
 #define BUFFER_SIZE 50
-#define ADDRSTRLEN (NI_MAXHOST + NI_MAXSERV + 10)
+
+#define ADDRSTRLEN 4096
 
 int main() {
 	printf("welcome to server-client application program In Intenet Domain stream socket\n");
 	/*variable Declaration */
     	struct addrinfo hints, *res, *p;
-    	int sockfd, clientfd,optval;
-    	struct sockaddr_storage client_addr;
-    	socklen_t addr_len;
-	char buffer[BUFFER_SIZE];
-	char host[NI_MAXHOST];
-	char service[NI_MAXSERV];
-	char seqNumStr[BUFFER_SIZE];
-	char addrStr[ADDRSTRLEN];
-    	uint32_t seqNum=0;
+    	int s8SrvrFd, s8ClntFd,optval;
+    	struct sockaddr_storage strClntAddr;
+    	socklen_t AddrLen;
+	char as8Buffer[BUFFER_SIZE];
+	char as8Host[NI_MAXHOST];
+	char as8Service[NI_MAXSERV];
+	char as8SeqNum[BUFFER_SIZE];
+	char as8Addr[ADDRSTRLEN];
+    	uint32_t u32SrvrSeqNum=0;
     	/* Initialize hints */
     	memset(&hints, 0, sizeof(hints));
 	/* AF_UNSPEC allows IPV4 or IPV6 */
@@ -55,34 +56,33 @@ int main() {
     	/* Get address info for TCP socket */
     	if (getaddrinfo(NULL, PORT_NUM, &hints, &res) != 0) {
         	perror("getaddrinfo");
-        	exit(EXIT_FAILURE);
-    	}
+		exit(EXIT_FAILURE);
+	}
+    	
 	optval = 1;
     	/* Iterate through address info */
     	for (p = res; p != NULL; p = p->ai_next) {
         	/* Create socket */
-        	if ((sockfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1) {
-            		perror("socket");
+        	if ((s8SrvrFd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1) {
+            		perror("socket error");
 			printf("socket error number: %d\n", errno); // Print the error number
             		continue;/* On error, try next address */
         	}
 
         	/* Set socket option to reuse address */
-        	if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) == -1) {
-            		perror("setsockopt");
+        	if (setsockopt(s8SrvrFd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) == -1) {
+            		perror("setsockopt error");
 			printf("setsockopt error number: %d\n", errno); // Print the error number
             		exit(EXIT_FAILURE);
        	 	}
 
         	/* Bind socket to address */
-        	if (bind(sockfd, p->ai_addr, p->ai_addrlen) == 0) {
+        	if (bind(s8SrvrFd, p->ai_addr, p->ai_addrlen) == 0) {
             		perror("bind");
-			printf("bind error number: %d\n", errno); // Print the error number
-//			close(sockfd); // Close the socket in case of bind failure
+			printf("bind error number: %d\n", errno);
             		break;
         	}
-		/* bind() failed: close this socket and try next address */
-		close(sockfd);
+		close(s8SrvrFd);
 	}
 
     	/* Check if binding was successful */
@@ -90,12 +90,11 @@ int main() {
         	fprintf(stderr, "Failed to bind\n");
     	}
 	/* Listen for incoming connections */
-	printf("Before listen: sockfd = %d\n", sockfd); // Add this line for debugging
+	printf("Before listen: sockfd = %d\n", s8SrvrFd); // Add this line for debugging
     	/* Listen for incoming connections */
-    	if (listen(sockfd, 50) == -1) {
-        	perror("listen");
-		 printf("listen error number: %d\n", errno); // Print the error number
-        	exit(EXIT_FAILURE);
+    	if (listen(s8SrvrFd, 50) == -1) {
+		printf("listen error number: %d\n", errno); // Print the error number
+		perror("listen fail");
     	}
 	printf("After listen\n"); // Add this line for debugging
 
@@ -105,52 +104,50 @@ int main() {
 
     	/* Accept and handle clients incoming connections iteratively */
     	for (;;) { 
-        	addr_len = sizeof(client_addr);
+        	AddrLen = sizeof(strClntAddr);
 		/* Accept a client connection, obtaining client's address */
-        	clientfd = accept(sockfd, (struct sockaddr *)&client_addr, &addr_len);
-        	if (clientfd == -1) {
-        		perror("accept");
+        	s8ClntFd = accept(s8SrvrFd, (struct sockaddr *)&strClntAddr, &AddrLen);
+        	if (s8ClntFd == -1) {
+        		perror("accept failed");
         		continue;
         	}
-		if (getnameinfo((struct sockaddr *) &client_addr, addr_len,host,NI_MAXHOST, service, NI_MAXSERV, 0) == 0)
-			snprintf(addrStr, ADDRSTRLEN, "(%s, %s)", host, service);
+		if (getnameinfo((struct sockaddr *) &strClntAddr, AddrLen,as8Host,NI_MAXHOST, as8Service, NI_MAXSERV, 0) == 0)
+			snprintf(as8Addr, ADDRSTRLEN, "(%s, %s)", as8Host, as8Service);
 		else
-			snprintf(addrStr, ADDRSTRLEN, "(?UNKNOWN?)");
-		printf("Connection from %s\n", addrStr);
+			snprintf(as8Addr, ADDRSTRLEN, "(?UNKNOWN?)");
+		printf("Connection from %s\n", as8Addr);
 		/* Read client request, send sequence number back */
-        	int num_bytes = recv(clientfd, buffer, BUFFER_SIZE - 1, 0);
-        	if (num_bytes == -1) {
-        		perror("recv");
-        		close(clientfd);
+        	int s8BytesRecv = recv(s8ClntFd, as8Buffer, BUFFER_SIZE - 1, 0);
+        	if (s8BytesRecv == -1) {
+        		perror("recieve error");
+        		close(s8ClntFd);
         		continue;
         	}
 
         	/* Null-terminate received data */
-        	buffer[num_bytes] = '\0';
+        	as8Buffer[s8BytesRecv] = '\0';
         	/* Convert client's message to integer */
-        	int reqLen = atoi(buffer);
+        	int reqLen = atoi(as8Buffer);
 		if (reqLen <= 0) { /* Watch for misbehaving clients */
-			close(clientfd);
+			close(s8ClntFd);
 			continue; /* Bad request; skip it */
 		}	
 		
         	/* Send response to client with current sequence number */
-        	sprintf(seqNumStr, "%d\n", seqNum);
-        	if(send(clientfd, seqNumStr, strlen(seqNumStr),0) != strlen(seqNumStr))
+        	sprintf(as8SeqNum, "%d\n", u32SrvrSeqNum);
+        	if(send(s8ClntFd, as8SeqNum, strlen(as8SeqNum),0) != strlen(as8SeqNum))
 			fprintf(stderr, "Error on write");
 
         /* Update sequence number */
-        seqNum += reqLen;
-//        seqNum++;
+        u32SrvrSeqNum += reqLen;
 
         /* Print client's address */
-        printf("Client connected from address: %s\n", inet_ntoa(((struct sockaddr_in *)&client_addr)->sin_addr));
+        printf("Client connected from address: %s\n", inet_ntoa(((struct sockaddr_in *)&strClntAddr)->sin_addr));
 
-        close(clientfd);
+        close(s8ClntFd);
     	}
 
     	/* Close server socket */
-//    	close(sockfd);
 
     	return 0;
 }

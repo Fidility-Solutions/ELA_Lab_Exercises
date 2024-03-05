@@ -35,7 +35,7 @@ int main() {
 		exit(EXIT_FAILURE);
     	}
        inet_ntop(AF_INET6, &server_addr.sin6_addr, server_addr_str, INET6_ADDRSTRLEN);
-printf("Server address: %s\n", server_addr_str);       
+	printf("Server address: %s\n", server_addr_str);       
     	while (1) {
         	/* Get user input */
         	printf("Enter message to send: ");
@@ -43,7 +43,7 @@ printf("Server address: %s\n", server_addr_str);
         
         	/* Send message to server */
         	addr_len = sizeof(server_addr);
-        	if (sendto(sockfd, (char *)buffer, strlen(buffer), 0, (const struct sockaddr *)&server_addr, addr_len) == -1) {
+        	if (sendto(sockfd, (char *)buffer, strlen(buffer), 0, ( struct sockaddr *)&server_addr, addr_len) == -1) {
             		perror("Send failed");
             		exit(EXIT_FAILURE);
         	}

@@ -16,6 +16,7 @@ int main() {
     socklen_t addr_len;
     char buffer[BUF_SIZE];
     char client_addr_str[MAX_ADDR_LEN];
+    char server_addr_str[MAX_ADDR_LEN];
     
     /* Create socket */
     sockfd = socket(AF_INET6, SOCK_DGRAM, 0);
@@ -39,20 +40,24 @@ int main() {
         perror("Bind failed");
         exit(EXIT_FAILURE);
     }
+    if (inet_ntop(AF_INET6,&server_addr.sin6_addr,server_addr_str,INET6_ADDRSTRLEN) == NULL) {
+            perror("Address conversion failed");
+            exit(EXIT_FAILURE);
+        }
+	printf("the server adress %s\n",server_addr_str);
     
     printf("Server listening on port %d\n", PORT);
     /* Receive messages from client, convert them to uppercase , & return to client */
     while (1) {
         /* Receive message from client */
         addr_len = sizeof(client_addr);
-        ssize_t recv_len = recvfrom(sockfd, buffer,BUF_SIZE, MSG_WAITALL, (struct sockaddr *)&client_addr, &addr_len);
+        ssize_t recv_len = recvfrom(sockfd, buffer,BUF_SIZE,0, (struct sockaddr *)&client_addr, &addr_len);
 	buffer[recv_len]='\0';
         if (recv_len == -1) {
             perror("Receive failed");
             exit(EXIT_FAILURE);
         }
 	/* convert client address to string */
-	// Convert client address to string
        if (inet_ntop(AF_INET6,&client_addr.sin6_addr,client_addr_str,INET6_ADDRSTRLEN) == NULL) {
             perror("Address conversion failed");
             exit(EXIT_FAILURE);

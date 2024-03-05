@@ -23,6 +23,13 @@
 
 #define PORT 8080
 #define MAX_BUFFER_SIZE 1024
+
+
+void errExit(const char *as8RcvMsg) {
+    perror(as8RcvMsg);
+    exit(EXIT_FAILURE);
+}
+
 /* Function: main
  *
  * Description: Entry point of the server program. Creates a Internet domain datagram socket server,
@@ -34,64 +41,64 @@
  * Return:      0 on successful execution, non-zero value on failure.
  */
 
-int main() {
+int main(void) {
 	printf("Welcome to the server-client application program using datagram sockets in the internet domain\n");
 	/* Variable Declaration */
-    	int client_fd;
-    	struct sockaddr_in server_addr;
-    	char message[MAX_BUFFER_SIZE];
-    	char buffer[MAX_BUFFER_SIZE];
+    	int s8SktFd;
+    	struct sockaddr_in strSrvrAddr;
+    	char as8RcvMsg[MAX_BUFFER_SIZE];
+    	char as8Buffer[MAX_BUFFER_SIZE];
 
     	/* Create socket */
 	printf("Client socket is created \n");
-    	if ((client_fd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
+    	if ((s8SktFd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
         	perror("Socket creation error");
         	exit(EXIT_FAILURE);
     	}
 	/* clearing the structure before use */
-    	memset(&server_addr, 0, sizeof(server_addr));
+    	memset(&strSrvrAddr, 0, sizeof(strSrvrAddr));
 
     	/* Set server address */
-    	server_addr.sin_family = AF_INET;
-    	server_addr.sin_port = htons(PORT);
+    	strSrvrAddr.sin_family = AF_INET;
+    	strSrvrAddr.sin_port = htons(PORT);
 
     	/* Convert IPv4 address from text to binary form */
-    	if (inet_pton(AF_INET, "127.0.0.1", &server_addr.sin_addr) <= 0) {
+    	if (inet_pton(AF_INET, "127.0.0.1", &strSrvrAddr.sin_addr) <= 0) {
         	perror("inet_pton error");
         	exit(EXIT_FAILURE);
     	}
 
     	while (1) {
         	/* Take input from user */
-        	printf("Enter message to send to server (or type 'exit' to quit): ");
-        	if(fgets(message, MAX_BUFFER_SIZE, stdin)){
+        	printf("Enter as8RcvMsg to send to server (or type 'exit' to quit): ");
+        	if(fgets(as8RcvMsg, MAX_BUFFER_SIZE, stdin)){
 
-        		/* Send message to server */
-       			if (sendto(client_fd, message, strlen(message), 0, (struct sockaddr *)&server_addr, sizeof(server_addr))==-1){
+        		/* Send as8RcvMsg to server */
+       			if (sendto(s8SktFd, as8RcvMsg, strlen(as8RcvMsg), 0, (struct sockaddr *)&strSrvrAddr, sizeof(strSrvrAddr))==-1){
 				perror("Sendto server fail \n");
 				exit(EXIT_FAILURE);
 			}
 
 			/* Check if user wants to exit */
-                	if (strncmp(message, "exit",4) == 0) {
+                	if (strncmp(as8RcvMsg, "exit",4) == 0) {
                         	printf("User wants to exit\nExiting...\n");
                        	 	break;
                 	}
 		}
 
         	/* Receive response from server */
-        	ssize_t recv_len = recvfrom(client_fd,buffer, MAX_BUFFER_SIZE, 0, NULL, NULL);
-        	if (recv_len < 0) {
+        	ssize_t RecvLen = recvfrom(s8SktFd,as8Buffer, MAX_BUFFER_SIZE, 0, NULL, NULL);
+        	if (RecvLen < 0) {
             		perror("Receive failed");
             		exit(EXIT_FAILURE);
         	}
 
         	/* Print response from server along with server's address */
-        	buffer[recv_len] = '\0';
-        	printf("Received from server at %s:%d: %s\n", inet_ntoa(server_addr.sin_addr), ntohs(server_addr.sin_port), buffer);
+        	as8Buffer[RecvLen] = '\0';
+        	printf("Received from server at %s:%d: %s\n", inet_ntoa(strSrvrAddr.sin_addr), ntohs(strSrvrAddr.sin_port), as8Buffer);
     	}
 	/*Close client */
-    	close(client_fd);
+    	close(s8SktFd);
     	return 0;
 }
 
