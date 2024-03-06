@@ -19,13 +19,13 @@ CFLAGS= -c -Wall
 .PHONY: clean
 
 # Explicit Rule
-all: Thread_Termination
+all: Thread_IDs
 
-Thread_Termination:Thread_Termination.o
-	$(CC) $(FLAGS) -pthread Thread_Termination.o -o Thread_Termination
+Thread_IDs:Thread_IDs.o
+	$(CC) $(FLAGS) -pthread Thread_IDs.o -o Thread_IDs
 
-Thread_Termination.o:Thread_Termination.c
-	$(CC) $(FLAGS) -c Thread_Termination.c
+Thread_IDs.o:Thread_IDs.c
+	$(CC) $(FLAGS) -c Thread_IDs.c
 
 clean:
-	rm -f ./Thread_Termination Thread_Termination.o
+	rm -rf ./Thread_IDs Thread_IDs.o

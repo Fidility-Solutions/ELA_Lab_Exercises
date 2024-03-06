@@ -19,12 +19,13 @@ CFLAGS= -c -Wall
 .PHONY: clean
 
 # Explicit Rule
-all: Thread_IDs.c  
-#	$(CC)  -static Thread_IDs.c -o Thread_IDs
+all: shared_memory_writter shared_memory_reader
 
-# Implicit Rule
-all: Thread_IDs.o
-	$(CC)  Thread_IDs.o -o Thread_IDs
+shared_memory_writter:shared_memory_writter.c
+	$(CC) $(FLAGS) -o shared_memory_writter shared_memory_writter.c
+
+shared_memory_reader:shared_memory_reader.c
+	$(CC) $(FLAGS) -o shared_memory_reader shared_memory_reader.c
 
 clean:
-	rm -rf *.o ./Thread_IDs
+	rm -rf *.o shared_memory_reader shared_memory_writter
