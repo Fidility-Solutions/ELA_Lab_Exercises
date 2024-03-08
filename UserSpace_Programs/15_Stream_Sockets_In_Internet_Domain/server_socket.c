@@ -25,14 +25,15 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
-#include <arpa/inet.h> // Include this header for inet_ntoa()
+#include <arpa/inet.h>
 #include <errno.h>
+
 #define PORT_NUM "9640"
 #define BUFFER_SIZE 50
 
 #define ADDRSTRLEN 4096
 
-int main() {
+int main(void){
 	printf("welcome to server-client application program In Intenet Domain stream socket\n");
 	/*variable Declaration */
     	struct addrinfo hints, *res, *p;
@@ -65,23 +66,25 @@ int main() {
         	/* Create socket */
         	if ((s8SrvrFd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1) {
             		perror("socket error");
-			printf("socket error number: %d\n", errno); // Print the error number
+			printf("socket error number: %d\n", errno);
             		continue;/* On error, try next address */
         	}
+		printf("The server socket is created\n");
 
         	/* Set socket option to reuse address */
         	if (setsockopt(s8SrvrFd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) == -1) {
             		perror("setsockopt error");
-			printf("setsockopt error number: %d\n", errno); // Print the error number
+			printf("setsockopt error number: %d\n", errno);
             		exit(EXIT_FAILURE);
        	 	}
 
         	/* Bind socket to address */
-        	if (bind(s8SrvrFd, p->ai_addr, p->ai_addrlen) == 0) {
+        	if (bind(s8SrvrFd, p->ai_addr, p->ai_addrlen) == -1) {
             		perror("bind");
 			printf("bind error number: %d\n", errno);
             		break;
         	}
+		printf("The server socket Bind with specified Atrributes\n");
 		close(s8SrvrFd);
 	}
 

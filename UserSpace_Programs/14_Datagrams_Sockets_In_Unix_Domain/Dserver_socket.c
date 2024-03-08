@@ -104,8 +104,8 @@ int main() {
 
         	/* Check if the client wants to exit */
         	if (strncmp(s8buffer, "exit", 4) == 0) {
-            		printf("Client requested to exit. Exiting...\n");
-            		break;
+            		printf("Client %s exited.\n",strClntAddr.sun_path);
+            		continue;
         	}
 		/* Processing Received data: Converting the message to uppercase */
 		for (int j = 0; j < BytesRecv; j++)
