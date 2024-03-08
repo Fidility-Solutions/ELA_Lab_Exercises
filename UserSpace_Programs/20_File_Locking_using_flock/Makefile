@@ -19,12 +19,11 @@ CFLAGS= -c -Wall
 .PHONY: clean
 
 # Explicit Rule
-all: child_process_execve.c  
-#	$(CC)  -static child_process_execve.c -o child_process_execve
+all: filelocking_flock
 
-# Implicit Rule
-all: child_process_execve.o
-	$(CC)  child_process_execve.o -o child_process_execve
+filelocking_flock:filelocking_flock.c
+	$(CC) $(FLAGS) -o filelocking_flock filelocking_flock.c
+
 
 clean:
-	rm -rf *.o ./child_process_execve
+	rm -rf *.o filelocking_flock

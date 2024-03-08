@@ -53,19 +53,19 @@ void *threadfunction(void *arg) {
     	switch (StrTArgs->u8ThreadNum) {
         case 1:
 		/* if u8ThreadNum is 1 it will execute */
-            	printf("Thread %d received message: %s and respective thread id(TID) is %ld\n", StrTArgs->u8ThreadNum, StrTArgs->s8Msg,syscall(SYS_gettid));
+            	printf("Thread %d received message %s and its respective thread id(TID) is %ld\n", StrTArgs->u8ThreadNum, StrTArgs->s8Msg,syscall(SYS_gettid));
             	printf("Size received: %lu bytes\n", StrTArgs->MsgSize);
 		sleep(10);
             	break;
         case 2:
 		/* if u8ThreadNum is 2 it will execute */
-            	printf("Thread %d received message: %s and respective thread id(TID) is %ld\n", StrTArgs->u8ThreadNum,StrTArgs->s8Msg,syscall(SYS_gettid));
+            	printf("Thread %d received message %s and its respective thread id(TID) is %ld\n", StrTArgs->u8ThreadNum,StrTArgs->s8Msg,syscall(SYS_gettid));
             	printf("Size received: %lu bytes\n", StrTArgs->MsgSize);
 		sleep(10);
             	break;
         case 3:
 		/* if u8ThreadNum is 3 it will execute */
-            	printf("Thread %d received message: %s and respective thread id(TID) is %ld\n", StrTArgs->u8ThreadNum,StrTArgs->s8Msg,syscall(SYS_gettid));
+            	printf("Thread %d received message %s and its respective thread id(TID) is %ld\n", StrTArgs->u8ThreadNum,StrTArgs->s8Msg,syscall(SYS_gettid));
             	printf("Size received: %lu bytes\n", StrTArgs->MsgSize);
 		sleep(10);
             	break;
@@ -89,7 +89,7 @@ void *threadfunction(void *arg) {
  * Returns:	0 upon successful execution of the program.
  */
 int main() {
-    printf("This program demonstates the use of Thread Attributes \n");
+    printf("This program demonstrates the use of Thread Attributes \n");
     pthread_t Threads[NUM_THREADS];
     pthread_attr_t ThreadAttr;
 
@@ -97,23 +97,23 @@ int main() {
     size_t stack_size = 1024 * 1024; 
 
     /* Initialize thread attributes */
-    printf("The function pthread_attr_init(&ThreadAttr); is used to initialize a pthread attribute object attr\n");
+    printf("The function pthread_attr_init(&ThreadAttr) is used to initialize a pthread attribute object attr\n");
     pthread_attr_init(&ThreadAttr);
 
 
     /*set the stack MsgSize to new thread */
-    printf("The pthread_attr_setstacksize(); sets the stack size attribute of the pthread attribute.\n");
+    printf("The pthread_attr_setstacksize() sets the stack size attribute of the pthread attribute.\n");
     pthread_attr_setstacksize(&ThreadAttr, stack_size);
 
     /* set thread as detached */
-    printf("Setting thread attribute detach state to detached.\n");
+    printf("Assigning the detach state of the thread attribute to detached.\n");
     pthread_attr_setdetachstate(&ThreadAttr, PTHREAD_CREATE_DETACHED);
 
     /* Create thread arguments and pass to new thread*/
     struct ThreadArgs Thread_StrTArgs[NUM_THREADS] = {
-        {1, "Hello from Thread 1", sizeof("Hello from Thread 1")},
-        {2, "Greetings from Thread 2",sizeof("Greetings from Thread 2")},
-        {3, "Hi there from Thread 3", sizeof("Hi there from Thread 3")}
+        {1, "Hello", sizeof("Hello from Thread 1")},
+        {2, "Greetings",sizeof("Greetings from Thread 2")},
+        {3, "Hi there", sizeof("Hi there from Thread 3")}
     };
 
     /* Creating multiple threads */
@@ -125,11 +125,11 @@ int main() {
     }
 
     /* Destroy thread attributes */
-    printf("Thread attributes can be destroyed using pthread_attr_destroy() system call,it won't effect to the threads \n");
+    printf("Thread attributes can be destroyed using pthread_attr_destroy() system call without affecting the threads.\n");
     pthread_attr_destroy(&ThreadAttr);
 
     /* Main thread exits without waiting for detached threads to finish */
-    printf("Main thread exited without waiting for threads to finish with TID:%ld\n",syscall(SYS_gettid));
+    printf("Main thread with TID:%ld exited without waiting for other threads to finish\n",syscall(SYS_gettid));
     pthread_exit(NULL);    
 }
 

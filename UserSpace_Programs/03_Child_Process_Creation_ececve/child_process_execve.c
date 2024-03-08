@@ -1,9 +1,9 @@
 /*******************************************************************************
- * File:        Child_Process_Creation.c
+ * File:        Child_Process.c
  *
  * Description: This program will create the child process using fork() system call 
  * 		and it replace the child process image with new process using execve() system call.
- *              
+ *
  * Author:      Fidility Solutions.
  *
  * Date:        23/02/2024.
@@ -11,12 +11,11 @@
  * Reference    The Linux Programming Interface book
 
 * *******************************************************************************/
+
 #include<stdio.h>
 #include<stdlib.h>
 #include<unistd.h>
 #include<sys/wait.h>
-
-
 /*
  * Function: main()
  *
@@ -24,7 +23,7 @@
  *              to create a child process.The parent process waits for the child to finish executing.
  *              If the fork operation succeeds, two separate processes are created: the parent process
  *              and the child process. The child process replaces its own process image with a new program
- *              image specified by the execl() function, effectively executing the "/bin/ls -l" command.
+ *              image specified by the execve() function, effectively executing the "/bin/echo Hello, World!" command.
  *              Meanwhile, the parent process waits for the child to complete its execution before printing
  *              a message indicating that the child process has finished.
  *
@@ -34,10 +33,11 @@
  *
  */
 
-
-int main(void)
-{ 
+int main()
+{
+        /* Parent Process */
 	printf("Entered into the main() function\n");
+	printf("Entered into Parent Process with Process ID(PID)=%d\n",getpid());
 	/* Create a Child Process using fork() system call  */
 	pid_t child = fork();
 	int status;
@@ -49,13 +49,17 @@ int main(void)
 	/* This is Child Process because the fork() returns zero */
 	else if(child == 0)
 	{
-		printf("Entered into child Process(PID)=%d,and parent Process id(PID)=%d\n",getpid(),getppid());
-		/* Execute the program with execl */
-		/* Replacing child process with new process using execl() system call */
-		printf("The child process is replaced with new process(ls command) executed by execl() system call \n");
-		if(execl("/bin/ls","ls","-l",NULL)== -1)
+		printf("Entered into child Process with process ID(PID)=%d with the parent Process ID(PID)=%d\n",getpid(),getppid());
+		/* Command-line arguments to be passed */
+		printf("The Command-line arguments are passed\n");
+		char *args[]={"/bin/echo","Welcome to New Program!\n",NULL};
+		/* Environment variables to be passed */
+    		char *env_vars[] = {"VAR1=value1", "VAR2=value2", NULL};
+		/* Execute the program with execve */
+		/* Replacing child process with new process using execve() system vall */
+		if(execve("/bin/echo",args,env_vars)== -1)
 		{
-			/* execl function returns only if an error occurs */
+			/* execve function returns only if an error occurs */
 			perror("execl failure");
 			exit(EXIT_FAILURE);
 		}

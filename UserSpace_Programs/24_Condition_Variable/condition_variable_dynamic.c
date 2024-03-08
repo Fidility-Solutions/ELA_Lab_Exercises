@@ -1,94 +1,127 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
+#include <sys/wait.h>
+#include <sys/syscall.h>
+#include <fcntl.h>
+#include <unistd.h>
 
-// Structure to hold data shared between threads
+void errExit(const char *ps8Msg){
+	perror(ps8Msg);
+	exit(EXIT_FAILURE);
+}
+void errMsg(const char *msg,pid_t Tid){
+	fprintf(stderr, "%s: %d\n", msg, Tid);
+	exit(EXIT_FAILURE);
+}
+
+/* Structure to hold data shared between threads */
 struct SharedData {
-    int value;
-    pthread_mutex_t* mutex;     // Pointer to dynamically allocated mutex
-    pthread_cond_t* cond;       // Pointer to dynamically allocated condition variable
+    	int value;
+    	/* Pointer to dynamically allocated mutex */
+    	pthread_mutex_t* mutex;   
+ 	/* Pointer to dynamically allocated condition variable */				
+    	pthread_cond_t* cond;   
 };
 
-// Function executed by threads
-void* thread_func(void* arg) {
-    struct SharedData* shared_data = (struct SharedData*)arg;
+/* Function executed by threads */
+void* ThreadFunc(void* arg){
+    	struct SharedData* strSharedData = (struct SharedData*)arg;
+    	int state;
+	pid_t ThreadId = syscall(SYS_gettid);
+    	/* Lock the mutex */
+	sleep(1);
+    	state = pthread_mutex_lock(strSharedData->mutex);
+	if(state !=0)
+		errMsg("Aquiring mutex lock failed for Thread %d",ThreadId);
+	printf("\nThread %d: locked mutex\n",ThreadId);
 
-    // Lock the mutex
-    pthread_mutex_lock(shared_data->mutex);
+    	strSharedData->value = strSharedData->value+100;
+    	printf("Thread %d: Incremeted the value of variable to : %d\n",ThreadId, strSharedData->value);
 
-    // Wait for the condition variable to be signaled
-    pthread_cond_wait(shared_data->cond, shared_data->mutex);
+	/* Here sleep is to complete thread operation */
+	sleep(1);
+	/* Signal the condition variable to wake up waiting threads */
+        printf("Thread %d sent signal to wake up waiting thread\n",ThreadId);
+        if(pthread_cond_signal(strSharedData->cond) !=0)
+                errExit("signal condition failed");
+	/* Unlock the mutex */
+        state = pthread_mutex_unlock(strSharedData->mutex);
+        printf("Thread %d Mutex is released(unlocked)\n",ThreadId);
+        if(state != 0)
+                errMsg("mutex unlocked failed from Thread %d",ThreadId);
 
-    // Condition variable has been signaled, perform some action
-    printf("Thread %ld: Value after condition signal: %d\n", pthread_self(), shared_data->value);
 
-    // Unlock the mutex
-    pthread_mutex_unlock(shared_data->mutex);
 
     return NULL;
 }
 
-int main() {
-    // Initialize shared data
-    struct SharedData shared_data;
-    shared_data.value = 0;
+int main(void){
+	printf("Welcome to Dynaically initalized condition variable and mutex in Inter-process communication\n");
+	int state;
+    	/* Initialize shared data */
+    	struct SharedData strSharedData;
+    	strSharedData.value = 0;
 
-    // Dynamically allocate memory for mutex
-    shared_data.mutex = (pthread_mutex_t*)malloc(sizeof(pthread_mutex_t));
-    if (shared_data.mutex == NULL) {
-        perror("malloc failed");
-        exit(EXIT_FAILURE);
-    }
+    	/* Dynamically allocate memory for mutex */
+    	printf("Dynamically allocating memory to mutex & condition variable\n");
+    	strSharedData.mutex = (pthread_mutex_t*)malloc(sizeof(pthread_mutex_t));
+    	/* Dynamically allocate memory for condition variable */
 
-    // Dynamically allocate memory for condition variable
-    shared_data.cond = (pthread_cond_t*)malloc(sizeof(pthread_cond_t));
-    if (shared_data.cond == NULL) {
-        perror("malloc failed");
-        exit(EXIT_FAILURE);
-    }
+    	strSharedData.cond = (pthread_cond_t*)malloc(sizeof(pthread_cond_t));
+    	if(strSharedData.cond == NULL || strSharedData.mutex == NULL)
+        	errExit("malloc failed");
 
-    // Initialize mutex
-    if (pthread_mutex_init(shared_data.mutex, NULL) != 0) {
-        perror("pthread_mutex_init failed");
-        exit(EXIT_FAILURE);
-    }
+    	/* Initialize mutex */
+    	printf("Mutex is intialized\n");
+    	if(pthread_mutex_init(strSharedData.mutex, NULL) != 0) 
+        	errExit("pthread_mutex_init failed");
 
-    // Initialize condition variable
-    if (pthread_cond_init(shared_data.cond, NULL) != 0) {
-        perror("pthread_cond_init failed");
-        exit(EXIT_FAILURE);
-    }
+    	/* Initialize condition variable */
+    	if(pthread_cond_init(strSharedData.cond, NULL) != 0)
+       	 	errExit("pthread_cond_init failed");
 
-    // Create threads
-    pthread_t thread1, thread2;
-    if (pthread_create(&thread1, NULL, thread_func, &shared_data) != 0 ||
-        pthread_create(&thread2, NULL, thread_func, &shared_data) != 0) {
-        perror("pthread_create failed");
-        exit(EXIT_FAILURE);
-    }
+    	/* Create threads */
+    	pthread_t thread1, thread2;
+    	if(pthread_create(&thread1, NULL, ThreadFunc, &strSharedData) != 0 ||
+        	pthread_create(&thread2, NULL, ThreadFunc, &strSharedData) != 0)
+        	errExit("pthread_create failed");
 
-    // Lock the mutex
-    pthread_mutex_lock(shared_data.mutex);
+    	/* Lock the mutex */
+    	printf("\nMutex locked from Main Thread\n");
+    	if(pthread_mutex_lock(strSharedData.mutex) !=0)
+	    	errExit("mutex lock error from main thread");
+	
+    	/* Wait for the condition variable to be signaled */
+    	printf("The mutex lock is released from main thread when the cond_wait sys call executed\n");
+    	pthread_cond_wait(strSharedData.cond, strSharedData.mutex);
 
-    // Signal the condition variable to wake up waiting threads
-    shared_data.value = 42;
-    pthread_cond_signal(shared_data.cond);
+    	printf("\nThe value after operation from thread1 is :%d\n",strSharedData.value);
+	/* Again wait to get signal from another thread */
+	pthread_cond_wait(strSharedData.cond, strSharedData.mutex);
+	printf("\nThe value after operation from thread2 is :%d\n",strSharedData.value);
+    	/* Terminate the threads */
+    	if(pthread_join(thread1, NULL) !=0|| pthread_join(thread2, NULL) !=0)
+	    	errExit("Thread termination failed");
+    	printf("\nThreads Terminared\n");
+	
+    	/* Unlock the mutex from main thread */
+	if(pthread_mutex_unlock(strSharedData.mutex) !=0)
+            	errExit("mutex unlock from main thread failed");
+    	printf("Mutex is released(unlocked) from main thread\n");
 
-    // Unlock the mutex
-    pthread_mutex_unlock(shared_data.mutex);
+    	/* Destroy mutex and condition variable */
+    	if(pthread_mutex_destroy(strSharedData.mutex) !=0)
+	    	errExit("Mutex destroy failed");
+    
+    	if(pthread_cond_destroy(strSharedData.cond) !=0)
+	    	errExit("condition variable destroy failed");
+    	printf("Condition variable and mutex destroyed\n");
 
-    // Wait for threads to finish
-    pthread_join(thread1, NULL);
-    pthread_join(thread2, NULL);
+    	/* Free memory */
+    	free(strSharedData.mutex);
+    	free(strSharedData.cond);
 
-    // Destroy mutex and condition variable
-    pthread_mutex_destroy(shared_data.mutex);
-    pthread_cond_destroy(shared_data.cond);
-
-    // Free memory
-    free(shared_data.mutex);
-    free(shared_data.cond);
-
-    return 0;
+    	return 0;
 }
 

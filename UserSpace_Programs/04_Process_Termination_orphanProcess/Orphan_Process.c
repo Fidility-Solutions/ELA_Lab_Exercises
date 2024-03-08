@@ -46,17 +46,20 @@ int main()
 	/* This is Child Process because the fork() returns zero */
 	else if (pid == 0)
 	{
-        	printf("Child process (PID): %d created with parent Process (PID): %d\n", getpid(), getppid());
-		printf("Child Process Entering into sleep\n");
+        	printf("\nChild Process Entering into sleep\n");
 		/* Child process sleeps for a longer time to simulate longer execution time */
-        	sleep(15);
+        	sleep(5);
+		printf("\nHere the Child Process is reassigned to a special Process called the init Process which becomes the Parent Process");
         	printf("\nAfter sleep Child process (PID): %d and parent Process (PID):%d\n", getpid(),getppid());
+		exit(0);
 	}
 	 /*  Parent of Child Process */
 	else
 	{
         	/* The parent process terminates immediately after creating the child */
 		printf("Parent process ID (PID): %d \n", getpid());
+		printf("Parent Process is terminated\n Thus the child Process becomes Orphan\n");
+
 	}
     return 0;
 }
