@@ -51,7 +51,7 @@ void usageErr(const char *programName, const char *message) {
  *
  * Return:      0 on successful execution, non-zero value on failure.
  */
-int main() {
+int main(void) {
 	printf("Welcome to client-server application that uses stream sockets in UNIX domain \n");
 
 	/* variable declaration */
@@ -84,9 +84,9 @@ int main() {
     	strncpy(strSrvrAddr.sun_path, SOCKET_PATH, sizeof(strSrvrAddr.sun_path) - 1);
 
     	/* Bind server socket to address */
-	printf("Binding the server socket to its well known address ...\n");
     	if (bind(s8ServerSocketFd, (struct sockaddr *)&strSrvrAddr, sizeof(strSrvrAddr)) == -1) 
         	errExit("bind error");
+	printf("The server socket bind to its well known address\n");
 
     	/* Listen incoming connection from other socket to connect */
 	printf("The Server socket is ready to listen from client sockets ..\n");
@@ -101,8 +101,8 @@ int main() {
         	int s8ClientSocketFd = accept(s8ServerSocketFd, (struct sockaddr *)&strClntAddr, &ClntAddrLen);
         	if (s8ClientSocketFd == -1) 
            		errExit("accept");
-
         	printf("Client connected:%d\n", s8ClientSocketFd);
+		printf("Enter exit to 'quit' from serever\n");
 
         	/* Receive and echo messages from/to the client */
         	ssize_t BytesRecv;
@@ -111,6 +111,10 @@ int main() {
             		/* Null-terminate received data to print as string */
             		s8buffer[BytesRecv] = '\0';
             		printf("The Data received from client: %s\n", s8buffer);
+			if(strncmp(s8buffer,"exit\n",4)==0){
+					printf("Client %d Disconneted\n",s8ClientSocketFd);
+					continue;
+			}
 			/* Processing Received data: Converting the message to uppercase */
     			for (int i = 0; i < strlen(s8buffer); i++) 
         			s8buffer[i] = toupper(s8buffer[i]);
@@ -119,15 +123,11 @@ int main() {
     			/* Null-terminate the string */
     			s8buffer[BytesRecv] = '\0';
 			/* Echo back to client with uppercase letters to know the server received correct Data */
-			printf("Sending back to client changing the letters to  uppercase letters...\n");
             		if (send(s8ClientSocketFd, s8buffer, BytesRecv, 0) == -1) 
                 		errExit("send fail");
-        	}
-		fgets(s8UserData, sizeof(s8UserData), stdin);
-        	/* if user message is 'exit' then exit */
-        	if(strncmp(s8UserData, "exit\n",4) == 0)
-                  	break;
+			printf("Sent back to client:Changed the message to  uppercase letters\n");
 
+        	}
 
 		/*If byte_received from client is zero :Client closed the connection */
         	if (BytesRecv == 0) 

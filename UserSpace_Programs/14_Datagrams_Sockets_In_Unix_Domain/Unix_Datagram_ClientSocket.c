@@ -89,7 +89,7 @@ int main() {
 
 
         	/* Send message to server */
-        	if (sendto(s8SrvrSktFd, s8buffer, strlen(s8buffer), 0,(struct sockaddr *)&strSrvrAddr, sizeof(struct sockaddr_un)) != strlen(s8buffer)) 
+        	if (sendto(s8SrvrSktFd, s8buffer, strlen(s8buffer), 0,(struct sockaddr *)&strSrvrAddr, strSrvrAddr_len) != strlen(s8buffer)) 
            		errExit("sendto server fail");
 
 		/* Check if the user wants to exit */

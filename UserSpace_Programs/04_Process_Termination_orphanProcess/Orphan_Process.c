@@ -48,8 +48,8 @@ int main()
 	{
         	printf("\nChild Process Entering into sleep\n");
 		/* Child process sleeps for a longer time to simulate longer execution time */
-        	sleep(5);
-		printf("\nHere the Child Process is reassigned to a special Process called the init Process which becomes the Parent Process");
+        	sleep(15);
+		printf("Here the Child Process is reassigned to a special Process called the init Process which becomes the Parent Process");
         	printf("\nAfter sleep Child process (PID): %d and parent Process (PID):%d\n", getpid(),getppid());
 		exit(0);
 	}

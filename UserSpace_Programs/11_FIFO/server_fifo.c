@@ -1,44 +1,71 @@
 #include <signal.h>
-#include "fifo.h"
+#include "common.h"
+
 int main(int argc, char *argv[])
 {
+	printf("Welcome to server-client application using FIFOs\n");
+	/* variable declaration*/
 	int serverFd, dummyFd, clientFd;
 	char clientFifo[CLIENT_FIFO_NAME_LEN];
 	struct request req;
 	struct response resp;
-	int seqNum = 0;
+	resp.RespNum = 0;
 
 	/* Create well-known FIFO, and open it for reading */
-	umask(0); /* So we get the permissions we want */
-	if (mkfifo(SERVER_FIFO, S_IRUSR | S_IWUSR | S_IWGRP) == -1 && errno != EEXIST)
+	/* Using umask(0) we can get the permissions we want */
+	umask(0);
+	/* creating server FIFO */
+	printf("Server FIFO is created\n");
+	if (mkfifo(SERVER_FIFO, S_IRUSR | S_IWUSR | S_IWGRP) == -1 && errno != EEXIST){
 		fprintf(stderr,"mkfifo %s", SERVER_FIFO);
-		serverFd = open(SERVER_FIFO, O_RDONLY);
-	if (serverFd == -1)
+		exit(EXIT_FAILURE);
+	}
+
+	/* Open server fifo to Read the requests from client */
+	printf("Server FIFO opened to read from clients\n");
+	serverFd = open(SERVER_FIFO, O_RDONLY);
+	if (serverFd == -1){
 		fprintf(stderr,"open %s", SERVER_FIFO);
+		exit(EXIT_FAILURE);
+	}
 	/* Open an extra write descriptor, so that we never see EOF */
 	dummyFd = open(SERVER_FIFO, O_WRONLY);
 	if (dummyFd == -1)
 		fprintf(stderr,"open %s", SERVER_FIFO);
- 	if (signal(SIGPIPE, SIG_IGN) == SIG_ERR)
+	/* Ignore SIGPIPE signal to prevent process termination 
+	 * SIGPIPE is generated when writing to a closed FIFO (named pipe).
+	 * By ignoring SIGPIPE, we ensure that the process does not terminate
+	 * if the writing end of the FIFO is closed before all data is written.
+	 */
+
+	if(signal(SIGPIPE, SIG_IGN) == SIG_ERR)
 		perror("signal");
-	for (;;) { /* Read requests and send responses */
-		if (read(serverFd, &req, sizeof(struct request)) != sizeof(struct request)) {
-		fprintf(stderr, "Error reading request; discarding\n");
-		continue; /* Either partial read or error */
-	}
-	/* Open client FIFO (previously created by client) */
-	snprintf(clientFifo, CLIENT_FIFO_NAME_LEN, CLIENT_FIFO_TEMPLATE,(long) req.pid);
-	clientFd = open(clientFifo, O_WRONLY);
-	if (clientFd == -1) { /* Open failed, give up on client */
-		fprintf(stderr,"open %s", clientFifo);
-		continue;
-	}
-	/* Send response and close FIFO */
-	resp.seqNum = seqNum;
-	if (write(clientFd, &resp, sizeof(struct response)) != sizeof(struct response))
-		fprintf(stderr, "Error writing to FIFO %s\n", clientFifo);
+	for(;;){ 	
+		/* Read requests and send responses */
+		if (read(serverFd, &req, sizeof(struct request)) != sizeof(struct request)){
+			fprintf(stderr, "Error reading request; discarding\n");
+			continue;
+		}
+		/* Open client FIFO (previously createstrtold by client) to write only mode */
+		printf("Received data from client(PID %d): Request Number %d\n", req.pid, req.ReqNum);
+		snprintf(clientFifo, CLIENT_FIFO_NAME_LEN, CLIENT_FIFO_TEMPLATE,(long) req.pid);
+		clientFd = open(clientFifo, O_WRONLY);
+		
+		/* Open failed, give up on client */
+		if(clientFd == -1){ 
+			fprintf(stderr,"open %s", clientFifo);
+			continue;
+		}
+		/* Send response and close FIFO */
+		resp.RespNum = resp.RespNum+req.ReqNum;
+
+		if (write(clientFd, &resp, sizeof(struct response)) != sizeof(struct response))
+			fprintf(stderr, "Error writing to FIFO %s\n", clientFifo);
+		printf("Sent response to client\n");
+		resp.RespNum=0;
+		/*close client fifo */
 	if (close(clientFd) == -1)
 		perror("close");
-	seqNum += req.seqLen; /* Update our sequence number */
+	//seqNum += req.seqLen; /* Update our sequence number */
 	}
 }
