@@ -19,13 +19,13 @@ CFLAGS= -c -Wall
 .PHONY: clean
 
 # Explicit Rule
-all: Dserver_socket Dclient_socket
+all: Unix_Datagram_ServerSocket Unix_Datagram_ClientSocket
 
-Dserver_socket:Dserver_socket.c
-	$(CC) $(FLAGS) -o Dserver_socket Dserver_socket.c
+Unix_Datagram_ServerSocket:Unix_Datagram_ServerSocket.c
+	$(CC) $(FLAGS) -o Unix_Datagram_ServerSocket Unix_Datagram_ServerSocket.c
 
-Dclient_socket:Dclient_socket.c
-	$(CC) $(FLAGS) -o Dclient_socket Dclient_socket.c
+Unix_Datagram_ClientSocket:Unix_Datagram_ClientSocket.c
+	$(CC) $(FLAGS) -o Unix_Datagram_ClientSocket Unix_Datagram_ClientSocket.c
 
 clean:
-	rm -rf *.o Dserver_socket Dclient_socket
+	rm -rf *.o Unix_Datagram_ServerSocket Unix_Datagram_ClientSocket

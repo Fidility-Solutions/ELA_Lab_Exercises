@@ -38,7 +38,7 @@
  * Return:      0 on successful execution, non-zero value on failure.
  */
 
-int main() {
+int main(void) {
 	printf("welcome to server-client application program In Intenet Domain stream socket\n");
 	/*variable Declaration */
     	int s8SktFd;

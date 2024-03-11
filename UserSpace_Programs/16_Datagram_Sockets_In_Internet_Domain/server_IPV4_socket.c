@@ -85,7 +85,7 @@ int main(void) {
 	printf("Server is ready to take data from clients\n");
     	while (1) {
         	/* Receive message from client */
-        	ssize_t RecvLen = recvfrom(s8SrvrFd, s8ClntBuff, MAX_BUFFER_SIZE, 0, (struct sockaddr *)&strClntAdrr, &ClntAddrLen);
+        	ssize_t RecvLen = recvfrom(s8SrvrFd, s8ClntBuff, MAX_BUFFER_SIZE, MSG_WAITALL, (struct sockaddr *)&strClntAdrr, &ClntAddrLen);
         	if (RecvLen < 0) {
             		perror("Receive failed");
             		exit(EXIT_FAILURE);
@@ -94,30 +94,21 @@ int main(void) {
         	s8ClntBuff[RecvLen] = '\0';
         	/* Print client's message */
         	printf("Received from client at %s:%d: %s\n", inet_ntoa(strClntAdrr.sin_addr), ntohs(strClntAdrr.sin_port), s8ClntBuff);
-		if(strncmp(s8ClntBuff,"exit",4)==0)
-			printf("Client %s exited\n",inet_ntoa(strClntAdrr.sin_addr));
+		if(strncmp(s8ClntBuff,"exit\n",4)==0){
+			printf("Client %s disconnected\n",inet_ntoa(strClntAdrr.sin_addr));
+			continue;
+		}
 		else{
         		/* Change message to uppercase */
         		for (int i = 0;s8ClntBuff[i] != '\0'; ++i) {
             			s8ClntBuff[i] = toupper(s8ClntBuff[i]);
         		}
         		/* Send uppercase message back to client */
-        		if(sendto(s8SrvrFd,s8ClntBuff, strlen(s8ClntBuff), 0, (struct sockaddr *)&strClntAdrr, ClntAddrLen)!=RecvLen){
+        		if(sendto(s8SrvrFd,s8ClntBuff, strlen(s8ClntBuff), MSG_CONFIRM, (struct sockaddr *)&strClntAdrr, ClntAddrLen)!=RecvLen){
 				perror("sendto:unable to send\n");
+				continue;
 			}
-		}
-        	/* Check if server wants any information from client */
-        	//printf("Enter message to send to client (or type 'exit' to quit): ");
-        	if(fgets(s8SrvrBuff, MAX_BUFFER_SIZE, stdin)){
-        	if (strncmp(s8SrvrBuff, "exit",4) == 0) {
-            		printf("User Requested to exit\nExiting...\n");
-            		break;
-        	} 
-		else {
-            		if(sendto(s8SrvrFd, s8SrvrBuff, strlen(s8SrvrBuff), 0, (struct sockaddr *)&strClntAdrr, ClntAddrLen)==-1){
-				perror("Request fail to client\n");
-        		}
-    		}
+			
 		}
 	}
 

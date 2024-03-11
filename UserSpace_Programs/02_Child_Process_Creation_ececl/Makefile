@@ -19,12 +19,12 @@ CFLAGS= -c -Wall
 .PHONY: clean
 
 # Explicit Rule
-all: Child_Process.c  
+all: Child_Process_execl.c  
 #	$(CC)  -static Child_Process.c -o Child_Process
 
 # Implicit Rule
-all: Child_Process.o
-	$(CC)  Child_Process.o -o Child_Process
+all: Child_Process_execl.o
+	$(CC)  Child_Process_execl.o -o Child_Process_execl
 
 clean:
-	rm -rf *.o ./Child_Process
+	rm -rf *.o ./Child_Process_execl

@@ -1,0 +1,124 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/wait.h>
+#include <pthread.h>
+#include <string.h>
+
+/* static memory allocation to mutex(ThreadMutex) and cond var(ThreadDied) */
+static pthread_cond_t ThreadDied = PTHREAD_COND_INITIALIZER;
+static pthread_mutex_t ThreadMutex = PTHREAD_MUTEX_INITIALIZER;
+
+/* Error function to notify error and exit */
+void errExit(char *s8Msg){
+	perror(s8Msg);
+	exit(EXIT_FAILURE);
+}
+/* global static variables */
+static int TotThreads = 0;
+static int NumLive = 0;
+static int NumUnJoind = 0;
+
+/* To indentify the state of thread */
+enum Tstate{
+	TS_ALIVE,
+	TS_TERMINATED,
+	TS_JOINED
+};
+/* structure to store the thread id, state, sleeptime */
+static struct ThreadInfo{
+	pthread_t Tid;
+	enum Tstate state;
+	int SleepTime;
+} *ThreadArray;
+
+static void* threadfunc(void *args){
+	int ThreadID = *((int *)args);
+	int s;
+	sleep(ThreadArray[ThreadID].SleepTime);
+	/* lock the mutex */
+	s= pthread_mutex_lock(&ThreadMutex);
+	if(s!=0)
+		errExit("pthread_mutex_lock error");
+	/* critical section(shared resource) */
+	printf("Thread %d acuquired lock \n",ThreadID);
+	printf("Thread%d accessed shared resource\n",ThreadID);
+	/* Inc variable */
+	NumUnJoind++;
+	/* storing the state of the thread */
+	ThreadArray[ThreadID].state=TS_TERMINATED;
+	/* unlock the mutex */
+	s=pthread_mutex_unlock(&ThreadMutex);
+	if(s!=0)
+		fprintf(stderr,"pthread mutex unlock error %d",s);
+	printf("thread %d released lock \n",ThreadID);
+	/* send the signal to waiting thread, then waiting thread resume the operation*/
+	s= pthread_cond_signal(&ThreadDied);
+	if(s!=0)
+		errExit("pthread condition signal error");
+	return NULL;
+}
+int main(int argc,char *argv[]){
+	printf("Welcome to Thread synchronization using condition varibale and mutex\n");
+	/*variable declaration */
+	int s, index;
+	int ThreadArgs[argc-1];
+	/* check the no. of arguments passed from user and any help */
+	if(argc<2 || strcmp(argv[1],"--help") == 0)
+		fprintf(stderr,"%s nsec...\n",argv[0]);
+	/* memory allocation to structure array to store the status of thread */
+	ThreadArray = calloc(argc - 1, sizeof(struct ThreadInfo));
+	/*create Threads */
+	for(index=0;index<argc-1;index++){
+		ThreadArgs[index]=index;
+		s= pthread_create(&ThreadArray[index].Tid,NULL, threadfunc,&ThreadArgs[index]);
+		if(s!=0)
+			errExit("pthread_create error");
+		/* storing sleep time this will help when the thread want to sleep */
+		ThreadArray[index].SleepTime=atoi(argv[index+1]);
+		ThreadArray[index].state=TS_ALIVE;
+	}
+	TotThreads = argc-1;
+	NumLive = TotThreads;
+	/*wait for all threads to terminate */
+	while(NumLive>0){
+		/* lock the mutex from main thread */
+		s=pthread_mutex_lock(&ThreadMutex);
+		if(s!=0)
+			errExit("ptherad_mutex_lock error");
+		printf("The main thread locked the mutex\n");
+		/* this will check the no of thread joined */
+		while(NumUnJoind ==0){
+			printf("released\n");
+			/* waiting for signal to resume the opeation: when the wait executed the mutex lock 
+			 * release from main thread so other thread will aquire the lock and when the signal 
+			 * send form the thread again main thread resume the operation*/
+			s= pthread_cond_wait(&ThreadDied,&ThreadMutex);
+			if(s!=0)
+				errExit("pthread_cond_wait error");
+			printf("The main thread called wait condition so it released mutex lock\n");
+		}
+		/* waiting for thread to terminated */
+		for(index=0;index<TotThreads;index++){
+			if(ThreadArray[index].state == TS_TERMINATED){
+				s=pthread_join(ThreadArray[index].Tid,NULL);
+				if(s!=0)
+					errExit("pthread join error");
+				ThreadArray[index].state= TS_JOINED;
+				NumLive--;
+				NumUnJoind--;
+				printf("Reaped Thread %d(NumLive =%d)\n",index,NumLive);
+			}
+		}
+		/* unlock the mutex after threads joined */
+		s=pthread_mutex_unlock(&ThreadMutex);
+		if(s!=0)
+			errExit("pthread_mutex_unlock error");
+		printf("The main thread released the mutex\n");
+	}
+		printf("All threads completed\n");
+		exit(EXIT_SUCCESS);
+}
+
+
+	

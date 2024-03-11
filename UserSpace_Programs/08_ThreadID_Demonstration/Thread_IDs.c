@@ -114,6 +114,7 @@ int main() {
 				 if ((threadend = pthread_join(threads[i], NULL)) == 0)
 				{
 				printf("Thread %d is exited\n",i);
+				sleep(3);
 				}
 		else {
             	fprintf(stderr, "Error joining thread %d.\n", i + 1);

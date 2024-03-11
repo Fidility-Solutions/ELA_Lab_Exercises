@@ -80,13 +80,14 @@ int main() {
         /* Read message from user */
 	printf("Please Enter message to send (type 'exit' to quit):");
         fgets(s8Buffer, sizeof(s8Buffer), stdin);
-	/* if user message is 'exit' then exit */
-        if(strncmp(s8Buffer, "exit\n",4) == 0) 
-          	  break;
 
         /* Send message to server */
         if(send(s8ClntSktFd, s8Buffer, strlen(s8Buffer), 0) == -1) 
             	errExit("send");
+
+	/* if user message is 'exit' then exit */
+        if(strncmp(s8Buffer, "exit\n",4) == 0)
+                  break;
 
         /* Receive message from server */
         ssize_t BytesRecv = recv(s8ClntSktFd, s8Buffer, BUF_SIZE, 0);

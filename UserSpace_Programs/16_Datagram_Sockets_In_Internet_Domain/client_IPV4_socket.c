@@ -20,6 +20,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <arpa/inet.h>
+#include <stdint.h>
 
 #define PORT 8080
 #define MAX_BUFFER_SIZE 1024
@@ -44,7 +45,7 @@ void errExit(const char *as8RcvMsg) {
 int main(void) {
 	printf("Welcome to the server-client application program using datagram sockets in the internet domain\n");
 	/* Variable Declaration */
-    	int s8SktFd;
+    	int8_t s8SktFd;
     	struct sockaddr_in strSrvrAddr;
     	char as8RcvMsg[MAX_BUFFER_SIZE];
     	char as8Buffer[MAX_BUFFER_SIZE];
@@ -61,20 +62,21 @@ int main(void) {
     	/* Set server address */
     	strSrvrAddr.sin_family = AF_INET;
     	strSrvrAddr.sin_port = htons(PORT);
+//	strSrvrAddr.sin_addr.s_addr= INADDR_ANY;
 
     	/* Convert IPv4 address from text to binary form */
-    	if (inet_pton(AF_INET, "127.0.0.1", &strSrvrAddr.sin_addr) <= 0) {
+    	if (inet_pton(AF_INET, "0.0.0.0", &strSrvrAddr.sin_addr) <= 0) {
         	perror("inet_pton error");
         	exit(EXIT_FAILURE);
     	}
 
     	while (1) {
         	/* Take input from user */
-        	printf("Enter as8RcvMsg to send to server (or type 'exit' to quit): ");
+        	printf("Enter data to send to server (or type 'exit' to quit): ");
         	if(fgets(as8RcvMsg, MAX_BUFFER_SIZE, stdin)){
 
         		/* Send as8RcvMsg to server */
-       			if (sendto(s8SktFd, as8RcvMsg, strlen(as8RcvMsg), 0, (struct sockaddr *)&strSrvrAddr, sizeof(strSrvrAddr))==-1){
+       			if (sendto(s8SktFd, as8RcvMsg, strlen(as8RcvMsg), MSG_CONFIRM, (struct sockaddr *)&strSrvrAddr, sizeof(strSrvrAddr))==-1){
 				perror("Sendto server fail \n");
 				exit(EXIT_FAILURE);
 			}
@@ -85,9 +87,9 @@ int main(void) {
                        	 	break;
                 	}
 		}
-
+		int len;
         	/* Receive response from server */
-        	ssize_t RecvLen = recvfrom(s8SktFd,as8Buffer, MAX_BUFFER_SIZE, 0, NULL, NULL);
+        	ssize_t RecvLen = recvfrom(s8SktFd,as8Buffer, MAX_BUFFER_SIZE, MSG_WAITALL,(struct sockaddr *)&strSrvrAddr,&len);
         	if (RecvLen < 0) {
             		perror("Receive failed");
             		exit(EXIT_FAILURE);

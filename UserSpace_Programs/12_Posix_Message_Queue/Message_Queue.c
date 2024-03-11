@@ -83,7 +83,7 @@ int main(void) {
     	StrAttr.mq_maxmsg = MAX_MSG_COUNT; 
 	/* Max message size */
     	StrAttr.mq_msgsize = MAX_MSG_SIZE;
-	printf("Specified atrributes to strcuture StrAttr with SIZE and Max Msg count\n");
+	printf("Defined atrributes SIZE and Max Msg count within the structure StrAttr\n");
 
     	/* Create a message queue with specified attributes */
     	MsgQDescriptor = mq_open(QUEUE_NAME, O_CREAT | O_RDWR, 0666, &StrAttr);
@@ -123,8 +123,8 @@ int main(void) {
     	/* Child process */
     	if (pid == 0) { 
         	/* Receive messages from queue */
-        	printf("\nThe Child Process created and child process waiting for messages...\n");
-        	int8_t as8RecvMsgBuf[MAX_MSG_SIZE];
+        	printf("\nThe Child Process is created and waiting for messages from the Parent Process...\n");
+		int8_t as8RecvMsgBuf[MAX_MSG_SIZE];
         	uint32_t u8Priority;
         	ssize_t RecvBytes = mq_receive(MsgQDescriptor, as8RecvMsgBuf, MAX_MSG_SIZE, &u8Priority);
         	if (RecvBytes == -1) 
@@ -132,7 +132,7 @@ int main(void) {
         	
 		/* Null terminate the received message */
         	as8RecvMsgBuf[RecvBytes] = '\0'; 
-        	printf("Received message in child process: %s\n", as8RecvMsgBuf);
+        	printf("Message received by child process: %s\n", as8RecvMsgBuf);
 		exit(EXIT_SUCCESS);
     	}
        /* Parent Process */	
@@ -143,7 +143,7 @@ int main(void) {
         	if (mq_send(MsgQDescriptor, as8MsgToSend, strlen(as8MsgToSend) + 1, 0) == -1)
 		       errExit("Message Queue send error");
 
-        	printf("Message sent by parent process.\n");
+        	printf("A Message is sent by the parent process.\n");
 		wait(NULL);
     	}
 

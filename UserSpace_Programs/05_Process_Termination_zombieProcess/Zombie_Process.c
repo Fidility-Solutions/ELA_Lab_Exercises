@@ -45,7 +45,7 @@ int main()
 	{
         	printf("Child process ID(PID): %d created with parent process ID(PID): %d\n", getpid(), getppid());
 		/* Child process exits immediately after printing */       
-		printf("Child Process completed its execution\n");
+		printf("The Child Process completes its execution\n");
 		exit(0);
 	}
        /*  Parent of Child Process */	
