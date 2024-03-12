@@ -1,3 +1,18 @@
+/******************************************************************************
+ * File:        named_semaphore_using_threads.c
+ *
+ * Description: This program demonstrates the usage of POSIX named semaphores for thread synchronization. 
+ *              It creates a named semaphore, spawns multiple threads, and each thread increments a shared variable
+ *              after acquiring the semaphore.
+ *
+ * Usage:       ./named_semaphore_using_threads
+ * 
+ * Author:      Fidility Solutions
+ *  
+ * Date:        6/03/2024
+ *
+ * Reference:   The Linux Programming Interface
+ ******************************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
@@ -6,9 +21,11 @@
 #include <errno.h>
 #include <string.h>
 #include <fcntl.h>
+#include <sys/types.h>
 
-#define NUM_THREADS 3
+#define NUM_THREADS 6
 #define SEM_NAME "/Named_Semaphore"
+
 /* Error notify and exit function */
 void errExit(const char *ps8Msg) {
     perror(ps8Msg);
@@ -19,7 +36,16 @@ sem_t *Semaphore;
 
 static int8_t s8Var=0;
 
-/* function representing the xritical section */
+/* 
+ * Function: 	threadfn
+ * -------------------
+ * Description: Represents the critical section accessed by multiple threads. Each thread increments a shared variable
+ *              after acquiring the semaphore.
+ *
+ * Parameters: 	args - Pointer to the argument passed to the thread function
+ *
+ * Returns: 	None
+ */
 void *threadfn(void *args){
 	int s8ThreadNum = *((int*)args);
 	/*wait for access to the critical section(shared resources) */
@@ -35,6 +61,16 @@ void *threadfn(void *args){
 	printf("Thread%d released semaphore and exiting...\n",s8ThreadNum);
 	pthread_exit(NULL);
 }
+/* 
+ * Function: main
+ * ---------------
+ * Description: The main function of the program. It initializes the named semaphore, spawns multiple threads,
+ *              and waits for them to finish their work.
+ *
+ * Parameters: None
+ *
+ * Returns:    0 upon successful execution of the program
+ */
 int main(void){
 	printf("Welcome to POSIX named semaphore explaing with Thread concept\n");
 	pthread_t Thread[NUM_THREADS];
@@ -47,8 +83,8 @@ int main(void){
 		errExit("sem-open fail");
 	/* create therads */
 	for(int i =0;i<NUM_THREADS;i++){
-		au8ThreadArgs[i]=i;
-		s8Thread=pthread_create(&Thread[i],NULL,threadfn,(void *)&au8ThreadArgs[i]);
+		sleep(1);
+		s8Thread=pthread_create(&Thread[i],NULL,threadfn,(void *)&i);
 		if(s8Thread!=0){
 			printf("ERROR:return code from pthread_create is %d\n",s8Thread);
 			errExit("thread_create error");

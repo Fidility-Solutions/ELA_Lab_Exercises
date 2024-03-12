@@ -1,15 +1,19 @@
 /*****************************************************************************************
  * File Name: 	shared_memory_reader.c
  *
- * Description: This program demonstrates reading data from a POSIX shared memory object.
+ * Description: This program demonstrates creation/opening of shared memory and maps into memory address.
+ * 		Create the child process and from child process it replaced with writter programs after
+ * 		it will read the data from a POSIX shared memory object which is written by writter program.
  *
  * Author: 	Fidillity Solutions
  *
  * Usage: 	./shared_memory_reader
  *
+ * Date:	29/02/2024
+ *
  * Reference: 	The Linux Interface Programming book.
  *
- */
+ ****************************************************************************************/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -22,18 +26,20 @@
 
 #define SHARED_MEM_SIZE 1024
 #define SHARED_MEM_NAME "/POSIX_Shm_Rgn"
-
+/*
+ * function:	errExit
+ *
+ * Description:	This function will notify the error which is cased by the program and exit from the program 
+ *
+ * parameter:	constant char types pointer variable.
+ *
+ * Return:	None
+ *
+ */
 void errExit(const char *message) {
     perror(message);
     exit(EXIT_FAILURE);
 }
-
-void usageErr(const char *programName, const char *message) {
-    fprintf(stderr, "Usage: %s %s\n", programName, message);
-    exit(EXIT_FAILURE);
-}
-
-
 
 
 /*
@@ -47,6 +53,7 @@ void usageErr(const char *programName, const char *message) {
  * Parameters: None
  *
  * Returns: 	int - exit status
+ *
  */
 int  main(void){
 	printf("Welcome to POSIX Shared Memory Reader Process Program \n");
@@ -89,10 +96,10 @@ int  main(void){
 	/* Parent Process */
 	else {
 		wait(NULL);
-		printf("The Writter Process is Terminated!\n");
+		printf("\nThe Writter Process is Terminated!\n");
 		printf("The Reader process id(PID):%d\n",getpid());
-        	printf("\nReader process reading from shared memory...\n");
-        	printf("Reader process read: %s \n", ps8addr);
+        	printf("Reader process reading from shared memory...\n");
+        	printf("Reader process read: \"%s\" \n", ps8addr);
     	}
 	printf("\nUnmapping Shared Memory in Shared Memory Reader Process\n");
     	/* Unmap shared memory in the parent process */

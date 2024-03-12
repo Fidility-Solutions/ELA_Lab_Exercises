@@ -25,7 +25,7 @@
 #include <sys/socket.h>
 #include <netdb.h>
 
-#define PORT_NUM "9640"
+#define PORT_NUM "964000"
 #define BUFFER_SIZE 50
 /* Function: main
  *

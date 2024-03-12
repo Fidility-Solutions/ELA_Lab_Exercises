@@ -76,7 +76,7 @@ int main(void)
 
         	/* execute the consumer filter(eg. wc commond) */
 		printf("The child process is replacing with wc -l command using execl () sytem call \n");
-	       	printf("The child process take input passed from parent process is ls then it perform opeation(ls|wc -l)\nNumber of word count in current directory is:\n");
+	       	printf("The child process take input passed from parent process is 'ls' then it perform opeation(ls|wc -l)\nNumber of word count in current directory is:\n");
 		
 	       	execlp("/bin/wc","wc","-l",NULL);
 		

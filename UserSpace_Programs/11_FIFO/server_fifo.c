@@ -1,5 +1,37 @@
+
+/******************************************************************************
+
+ * File:        server_fifo.c
+ *
+ * Description: This program serves as a server in a client-server application using FIFOs.
+ *              It creates a server FIFO for inter-process communication, listens for
+ *              requests from clients, processes the requests, and sends responses back
+ *              to the clients.
+ *
+ * Usage:       ./server_fifo
+ * 
+ * Author:      Fidility Solutions.
+ *  
+ * Date:        04/03/2024.
+ *
+ * Reference:   The Linux Programming Interface book.
+
+ ******************************************************************************/
+
 #include <signal.h>
 #include "common.h"
+
+/*
+ * Function: 	main
+ * 
+ * Description: Entry point of the server program. Create and initializes the server FIFO,
+ *              listens for requests from clients, processes the requests, and
+ *              sends responses back to the clients.
+ *
+ * Arguments:   None
+ *
+ * Returns:     0 upon successful execution of the program.
+ */
 
 int main(int argc, char *argv[])
 {
@@ -66,6 +98,5 @@ int main(int argc, char *argv[])
 		/*close client fifo */
 	if (close(clientFd) == -1)
 		perror("close");
-	//seqNum += req.seqLen; /* Update our sequence number */
 	}
 }

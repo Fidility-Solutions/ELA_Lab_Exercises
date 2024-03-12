@@ -1,14 +1,18 @@
-/*
+/*********************************************************************************************
  * File Name: 	shared_memory_writer.c
  *
- * Description: This program demonstrates writing data to a POSIX shared memory object.
+ * Description: This progragram  create/open the shared memory object and writing data to a 
+ * 		POSIX shared memory object. It maps the shared memory object into memory and 
+ * 		then write data to shared memory object then unmap and close the shared memory object.
  *
  * Author: 	Fidility Solutions
  *
  * Usage: 	./shared_memory_writer
  *
+ * Date: 	29/02/2024
+ *
  * Reference: 	The Linux Interface Programming book.
- */
+ **********************************************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -20,11 +24,12 @@
 #define SHARED_MEM_SIZE 1024
 #define SHARED_MEM_NAME "POSIX_Shm_Rgn"
 
+/* Error notification and exit program */
 void errExit(const char *message) {
     perror(message);
     exit(EXIT_FAILURE);
 }
-
+/* Error notification along with program name and exit the program */
 void usageErr(const char *programName, const char *message) {
     fprintf(stderr, "Usage: %s %s\n", programName, message);
     exit(EXIT_FAILURE);
@@ -37,9 +42,9 @@ void usageErr(const char *programName, const char *message) {
  *              maps it into the address space, writes data to it, and then closes
  *              the shared memory object.
  *
- * Parameters: None
+ * Parameters: 	None
  *
- * Returns: int - exit status
+ * Returns: 	int - exit status
  *
  */
 int main() {
@@ -60,7 +65,7 @@ int main() {
 
 	/* write data to shared memory object */
     	sprintf(ps8SharedMemory, "Hello from Shared Memory Writter Process");
-    	printf("The Shared Memory Writter Process wrote: %s\n", ps8SharedMemory);
+    	printf("The Shared Memory Writter Process wrote:\" %s\"\n", ps8SharedMemory);
 
     	/* Unmap shared memory in the child process */
 	printf("\nUnmapping the shared memory object...\n");

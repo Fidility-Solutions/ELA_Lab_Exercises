@@ -1,12 +1,10 @@
 /******************************************************************************
  * File:        message_queue.c
  *
- * Description: This program demonstrates inter-process communication using
- *              POSIX message queues. It creates a message queue, sets up
- *              a notification mechanism for message arrival, forks a child
- *              process, sends a message from the parent process to the
- *              message queue, receives the message in the child process,
- *              and finally closes and unlinks the message queue.
+ * Description: This program demonstrates inter-process communication using POSIX message queues. 
+ * 		It creates a message queue, sets up a notification mechanism for message arrival, 
+ * 		forks a child process, sends a message from the parent process to the message queue, 
+ * 		receives the message in the child process, and finally closes and unlinks the message queue.
  *
  * Usage:       ./message_queue
  * 
@@ -133,6 +131,7 @@ int main(void) {
 		/* Null terminate the received message */
         	as8RecvMsgBuf[RecvBytes] = '\0'; 
         	printf("Message received by child process: %s\n", as8RecvMsgBuf);
+		sleep(3);
 		exit(EXIT_SUCCESS);
     	}
        /* Parent Process */	
@@ -144,6 +143,7 @@ int main(void) {
 		       errExit("Message Queue send error");
 
         	printf("A Message is sent by the parent process.\n");
+		sleep(3);
 		wait(NULL);
     	}
 

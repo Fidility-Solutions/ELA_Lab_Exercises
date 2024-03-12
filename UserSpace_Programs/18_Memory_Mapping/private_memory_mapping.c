@@ -72,8 +72,7 @@ void ParentProcess(void) {
    	 }
 
     	/* Write data to the mapped memory */
-	printf("Writting data to mapped file\n");
-    	strcpy(ps8addr, "Hello welcome to memory mapping in IPC");
+    	strcpy(ps8addr, "\"Hello welcome to private memory mapping from IPC\"");
 	printf("Written data from Parent Process:%s\n",ps8addr);
     	/* Wait for the child process to finish */
     	wait(NULL);
@@ -100,6 +99,7 @@ void ParentProcess(void) {
  * Return: None
  */
 void ChildProcess(void) {
+	sleep(2);
 	printf("\nEntered into child process \n");
     	int s8FileDescriptor;
     	int8_t *ps8addr;
@@ -121,13 +121,14 @@ void ChildProcess(void) {
 
     	/* Print data from the mapped memory */
 	printf("Trying to read data from mapped file...\n");
+	sleep(3);
     	if(ps8addr == NULL)
 	{
 		printf("Data from shared memory:%s\n",ps8addr);
 	}
 	else{
-		printf("Error:The content from the mapped file is not accessed by child process because it is private shared memory \n");
-		printf("Note:Parent only access to read and write to mapped file\n");
+		printf("Error:\"The content from the mapped file is not accessed by child process because it is private memory mapping\"\n");
+		printf("Note:\'Parent only access to read and write to mapped file\'\n");
 	}
 
     	/* Unmap the memory */
