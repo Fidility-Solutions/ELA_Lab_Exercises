@@ -59,7 +59,7 @@ int main() {
     	char s8Buffer[256];
 
     	/* Create UNIX Domain stream client socket */
-	printf("Client socket created using socket () sys call ...\n");
+	printf("Client socket created using socket() sys call ...\n");
     	s8ClntSktFd = socket(AF_UNIX, SOCK_STREAM, 0);
     	if (s8ClntSktFd == -1) 
         	errExit("socket creation failed");
@@ -78,7 +78,7 @@ int main() {
 
     	while (1) {
         /* Read message from user */
-	printf("Please Enter message to send (type 'exit' to quit):");
+	printf("Please enter message to send (type 'exit' to quit):");
         fgets(s8Buffer, sizeof(s8Buffer), stdin);
 
         /* Send message to server */

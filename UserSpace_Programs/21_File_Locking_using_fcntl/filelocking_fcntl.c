@@ -8,20 +8,50 @@
 
 
 #define MAX_LINE 100
+
+/*
+ * Function:    errExit
+ * ------------------
+ * Description: Prints the error message corresponding to the given system error number using perror(),
+ *              and exits the program.
+ *
+ * Parameters:  message - The error message to be printed.
+ *
+ * Returns:     None
+ */
+
 void errExit(const char *Msg){
 	perror(Msg);
 	exit(EXIT_FAILURE);
 }
-//void usageErr(const char Msg,char *Var){
-//	fprintf(stderr,Msg,Var);
-//	exit(EXIT_FAILURE);
-//}
+/*
+ * Function: 	usageErr
+ *
+ * Description: Print a formatted error message to stderr and exit the program.
+ *
+ * Parameters:
+ *  		format: Format string for the error message
+ *  		...   : Variable number of arguments corresponding to the format string
+ *
+ * Return: None
+ *
+ */
 void usageErr(const char *format, ...) {
     va_list args;
     va_start(args, format);
     vfprintf(stderr, format, args);
     va_end(args);
 }
+/*
+ * Function: 	DisplayCmdFrmt
+ *
+ * Description: Display the format of commands for interacting with the program.
+ *
+ * Parameters: 	None
+ *
+ * Return: 	None
+ *
+ */
 static void DisplayCmdFrmt(void){
 	printf("\n Format: cmd lock start length [whence]\n\n");
 	printf("cmd   : 'g' (GETLK), 's' (SETLK), or 'w' (SETLKW)\n");
@@ -32,6 +62,17 @@ static void DisplayCmdFrmt(void){
     	printf("Example: s r 0 10 c\n");
 
 }
+/*
+ * Function: 	main
+ *
+ * Description: Entry point of the program. Opens a file specified by command line argument and 
+ * 		allows the user to interactively set and query file locks using the fcntl() system call.
+ * Parameters:
+ *   		argc: Number of command line arguments
+ *    		argv: Array of command line arguments
+ *
+ * Return: int
+ */
 int main(int argc, char *argv[]){
 	printf("Welcome to file locking program using fcntl () system call\n");
 	/* check no of arguments */

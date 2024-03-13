@@ -72,12 +72,12 @@ int main(void) {
 	/* Construct server socket address, bind socket to it, and make this a listening socket */
 
     	/* Create A UNIX Domain stream server socket */
-	printf("Server socket created using socket () sys call ...\n");
+	printf("Server socket created using socket() sys call ...\n");
     	s8ServerSocketFd = socket(AF_UNIX, SOCK_STREAM, 0);
     	if (s8ServerSocketFd == -1) 
         	errExit("socket creation fail");
 
-    	/* clearing the structure before use */
+	/* clearing the structure before use */
     	memset(&strSrvrAddr, 0, sizeof(strSrvrAddr));
    	/* Set up server address with socket family and path to the socket file in the file system */
     	strSrvrAddr.sun_family = AF_UNIX;
@@ -86,7 +86,7 @@ int main(void) {
     	/* Bind server socket to address */
     	if (bind(s8ServerSocketFd, (struct sockaddr *)&strSrvrAddr, sizeof(strSrvrAddr)) == -1) 
         	errExit("bind error");
-	printf("The server socket bind to its well known address\n");
+	printf("The server socket binds to its predetermined or specified address\n");
 
     	/* Listen incoming connection from other socket to connect */
 	printf("The Server socket is ready to listen from client sockets ..\n");
@@ -125,7 +125,8 @@ int main(void) {
 			/* Echo back to client with uppercase letters to know the server received correct Data */
             		if (send(s8ClientSocketFd, s8buffer, BytesRecv, 0) == -1) 
                 		errExit("send fail");
-			printf("Sent back to client:Changed the message to  uppercase letters\n");
+			printf("The input from the client is changed to Upper Case\n");
+			printf("Message sent back to client:%s\n",s8buffer);
 
         	}
 

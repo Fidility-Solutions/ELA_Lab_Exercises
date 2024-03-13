@@ -50,7 +50,7 @@ void errExit(const char *message) {
  *
  *Description:  Entry point of the program. It forks a child process, takes data from user and
                 sends it from the parent process to the message queue, the child process recieves the message 
-                from message queue when it available, finally when user enter 'exit' that closes the message queue, 
+                from message queue when it is available, finally when user enter 'exit' that closes the message queue 
 		and unlinks it.
  *
  *Parameters:   NONE 
@@ -59,7 +59,7 @@ void errExit(const char *message) {
  */
 
 int main(void){
-	printf("Welcome POSIX Message Queue\n");
+	printf("Welcome to POSIX Message Queue\n");
 	/* variable declaration */
     	mqd_t MsgQDescriptor;
     	struct mq_attr StrAttr;
@@ -87,7 +87,7 @@ int main(void){
 
 	/*child process */
     	if(pid == 0){
-		printf("\nchild Process created\n");
+		printf("\nChild Process created\n");
         	for(;;){
             		if(mq_receive(MsgQDescriptor, as8RecvBuffer, MAX_MSG_SIZE, NULL) == -1)
                 		errExit("mq_receive error");
@@ -104,7 +104,7 @@ int main(void){
 	/* parent process */
 	else{
 		sleep(1);
-	       printf("\nThis is Parent process it will send data to message queue \n");	
+	       printf("\nThis is Parent process which sends data to message queue \n");	
 //	       printf("\nEnter a message(exit to 'quit'):\n");
         	for(;;){
 			sleep(1);

@@ -2,7 +2,7 @@
 /*******************************************************************************************************
  * File:	client_fifo.c
  *
- * Description: Client program for a server-client application using FIFOs.This program sends a request to 
+ * Description: Client program for a server-client application using FIFO.This program sends a request to 
  * 		the server through a FIFO (named pipe) and receives a response from the server.
  *
  * Usage: 	client_fifo [ReqNum...]
@@ -32,7 +32,7 @@ static void removeFifo(void)
  * Function name: main
  *
  * Descripition: Entry point of the program. Responsible for handling command-line arguments, 
- * 		 creating the client FIFO, sending requests to the server, and receiving responses.
+ * 		 creating the client FIFO, sending requests to the server and receiving responses.
  *
  * Parameters:	- argc: Number of command-line arguments.
  * 		- argv: Array of pointers to command-line arguments.
@@ -47,12 +47,12 @@ static void removeFifo(void)
  *
 */
 int main(int argc, char *argv[]){
-	printf("Welcome to server-client application using FIFOs & This is client FIFO\n");
+	printf("Welcome to server-client application using FIFO\n This is client FIFO\n");
 	/* variable declaration */
 	int serverFd, clientFd;
 	struct request req;
 	struct response resp;
-	/* check the passed argument if user want any help */
+	/* check the passed argument if user need any help */
 	if (argc > 1 && strcmp(argv[1], "--help") == 0)
 		fprintf(stderr,"%s [ReqNum...]\n", argv[0]);
         /* check the passed arguments for ReqNum */
@@ -73,11 +73,11 @@ int main(int argc, char *argv[]){
 
 
         }
-	/* Construct request message, open server FIFO, and send request */
+	/* Construct request message, open server FIFO and send request */
         req.pid = getpid();
 
 	/* Create our FIFO (before sending request, to avoid a race) */
-	/* So we get the permissions we want */
+	/* So we get the permissions needed */
 	umask(0);
 	snprintf(clientFifo, CLIENT_FIFO_NAME_LEN, CLIENT_FIFO_TEMPLATE,(long) getpid());
 	if (mkfifo(clientFifo, S_IRUSR | S_IWUSR | S_IWGRP) == -1 && errno != EEXIST)
@@ -90,11 +90,11 @@ int main(int argc, char *argv[]){
 	if (serverFd == -1)
 		fprintf(stderr,"open %s", SERVER_FIFO);
 
-	/* sending requst to server fifo */
+	/* sending request to server fifo */
 	if (write(serverFd, &req, sizeof(struct request)) != sizeof(struct request))
 		perror("Can't write to server");
 	
-	/* Open client FIFO, read and display response if server wirte any response to client */
+	/* Open client FIFO, read and display response if server writes any response to client */
 	clientFd = open(clientFifo, O_RDONLY);
 	if(clientFd == -1)
 		fprintf(stderr,"open %s", clientFifo);
