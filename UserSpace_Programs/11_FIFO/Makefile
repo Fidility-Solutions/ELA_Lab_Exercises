@@ -24,7 +24,7 @@ all: $(TARGETS)
 FIFO:FIFO.c
 	$(CC) $(FLAGS) -o FIFO FIFO.c
 
-server_fifo:server_fifo.c error_handling.o
+server_fifo:server_fifo.c
 	$(CC) $(FLAGS) -o server_fifo server_fifo.c
 
 client_fifo:client_fifo.c

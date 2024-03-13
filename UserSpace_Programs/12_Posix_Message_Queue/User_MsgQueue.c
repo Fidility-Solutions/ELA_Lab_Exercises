@@ -29,18 +29,20 @@
 #define MAX_MSG_SIZE 256
 #define QUEUE_NAME "/USER_POSIX_MQ"
 #define PERMISSIONS 0660
-
+/*
+ * Function:	errExit
+ *
+ * Description:	This function will notify type of error which is  occured in the progarm and exit from program
+ *
+ * Parameters:	const char *message
+ *
+ * Return:	None
+ *
+ * */
 void errExit(const char *message) {
     perror(message);
     exit(EXIT_FAILURE);
 }
-
-void usageErr(const char *programName, const char *message) {
-    fprintf(stderr, "Usage: %s %s\n", programName, message);
-    exit(EXIT_FAILURE);
-}
-
-
 
 
 /* 
@@ -101,9 +103,13 @@ int main(void){
 	}	
 	/* parent process */
 	else{
+		sleep(1);
 	       printf("\nThis is Parent process it will send data to message queue \n");	
-	       printf("\nEnter a message:\n");
+//	       printf("\nEnter a message(exit to 'quit'):\n");
         	for(;;){
+			sleep(1);
+			printf("\nEnter a message(exit to 'quit'):");
+
 			/*Taking Input from User */
             		fgets(as8SendBuffer, MAX_MSG_SIZE, stdin);
 
@@ -117,12 +123,12 @@ int main(void){
                 		errExit("mq_send error");
 
 	    		if(strncmp(as8SendBuffer, "exit", 4) == 0){
-            			printf("Received 'exit', exiting...\n");
 	    			break;
         		}
         	}
 		/* wait for child to terminate */
 		wait(NULL);
+		printf("Exiting from parent process...\n");
     	}
 
     	/* Close and unlink the message queue */

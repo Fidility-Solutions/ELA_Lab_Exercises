@@ -28,7 +28,7 @@
 #include <arpa/inet.h>
 #include <errno.h>
 
-#define PORT_NUM "9640"
+#define PORT_NUM "964000"
 #define BUFFER_SIZE 50
 
 #define ADDRSTRLEN 4096
@@ -85,7 +85,7 @@ int main(void){
             		break;
         	}
 		printf("The server socket Bind with specified Atrributes\n");
-		close(s8SrvrFd);
+	//	close(s8SrvrFd);
 	}
 
     	/* Check if binding was successful */

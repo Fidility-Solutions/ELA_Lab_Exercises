@@ -1,14 +1,51 @@
 #include "common.h" 
-
+/*******************************************************************************************************
+ * File:	client_fifo.c
+ *
+ * Description: Client program for a server-client application using FIFOs.This program sends a request to 
+ * 		the server through a FIFO (named pipe) and receives a response from the server.
+ *
+ * Usage: 	client_fifo [ReqNum...]
+ *
+ * Author: 	Fidility Solutions
+ *
+ * Date: 	04/03/2024
+ *
+ * Reference: 	The Linux Programming Interface book.
+ *
+ *****************************************************************************************************/
 static char clientFifo[CLIENT_FIFO_NAME_LEN];
 
 /* Invoked on exit to delete client FIFO */
+/*
+Function Name: removeFifo
+Description: Invoked on exit to delete the client FIFO.
+*/
 static void removeFifo(void)
 {
 	//printf("Client FIFO removed\n");
 	unlink(clientFifo);
 	//printf("Client FiFO removed\n");
 }
+
+/* 
+ * Function name: main
+ *
+ * Descripition: Entry point of the program. Responsible for handling command-line arguments, 
+ * 		 creating the client FIFO, sending requests to the server, and receiving responses.
+ *
+ * Parameters:	- argc: Number of command-line arguments.
+ * 		- argv: Array of pointers to command-line arguments.
+ *
+ * Sending:
+ * 		- Constructs a request message containing the process ID and request number.
+ * 		- Creates a client FIFO and sends the request to the server through the server FIFO.
+ * Receiving:	- Opens the client FIFO to receive the response from the server
+ * 		- Reads the response message from the client FIFO and prints the response from the server.
+ *
+ * Returns:EXIT_SUCCESS: Program execution completed successfully.
+ *
+*/
 int main(int argc, char *argv[]){
 	printf("Welcome to server-client application using FIFOs & This is client FIFO\n");
 	/* variable declaration */
@@ -47,9 +84,8 @@ int main(int argc, char *argv[]){
 		fprintf(stderr,"mkfifo %s", clientFifo);
 	
 	/* Registering remove client fifo, this will call at end of the program*/
-//	if (atexit(removeFifo) != 0)
-//		perror("atexit");
-	//serverFd = open(SERVER_FIFO, O_WRONLY);
+	if (atexit(removeFifo) != 0)
+		perror("atexit");
 	serverFd = open(SERVER_FIFO, O_WRONLY);
 	if (serverFd == -1)
 		fprintf(stderr,"open %s", SERVER_FIFO);

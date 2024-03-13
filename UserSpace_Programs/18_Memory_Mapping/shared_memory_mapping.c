@@ -28,17 +28,20 @@
 
 #define FILE_PATH "Shared_Mapped_file.txt"
 #define FILE_SIZE 100
-
+/*
+ * function:    errExit
+ *
+ * Description: This function will notify the error which is cased by the program and exit from the program 
+ *
+ * parameter:   constant char types pointer variable.
+ *
+ * Return:      None
+ *
+ **/
 void errExit(const char *message) {
     errExit(message);
     exit(EXIT_FAILURE);
 }
-
-void usageErr(const char *programName, const char *message) {
-    fprintf(stderr, "Usage: %s %s\n", programName, message);
-    exit(EXIT_FAILURE);
-}
-
 
 /* Function: 	ParentProcess
  * Description: Creates a shared memory mapping of a file, writes data to the mapped memory,
@@ -77,8 +80,9 @@ void ParentProcess(void) {
         	errExit("mmap error");
 
     	/* Write data to the mapped memory */
-	printf("Writting data to mapped file\n");
     	strcpy(ps8addr, "Hello welcome to memory mapping in IPC");
+	printf("Written data to mapped file\n");
+
 
     	/* Wait for the child process to finish */
     	wait(NULL);
@@ -90,7 +94,7 @@ void ParentProcess(void) {
     	/* Close the file */
     	if (close(s8FileDescriptor) == -1) 
         	errExit("close error");
-    	
+    	wait(NULL);
 	printf("Exiting from parent process...\n");
 }
 
@@ -101,7 +105,8 @@ void ParentProcess(void) {
  *
  * Return: None
  */
-void ChildProcess(void) {
+void ChildProcess(void){
+	sleep(2);
 	printf("\nEntered into child process \n");
     	int s8FileDescriptor;
     	int8_t *ps8addr;
@@ -118,7 +123,7 @@ void ChildProcess(void) {
         	errExit("mmap error");
 
     	/* Print data from the mapped memory */
-    	printf("Data from parent process: %s\n", ps8addr);
+    	printf("Data from parent process: \"%s\"\n", ps8addr);
 
     	/* Unmap the memory */
     	if (munmap(ps8addr, FILE_SIZE) == -1) 
@@ -132,10 +137,13 @@ void ChildProcess(void) {
     	exit(EXIT_SUCCESS);
 }
 
-/* Function: main
+/* Function: 	main
+ *
  * Description: Creates a child process, where the child process reads from a shared memory mapping
  *              created by the parent process.
+ *
  * Return: 0 on successful execution, non-zero value on failure.
+ *
  */
 int main() {
 	printf("Welcome to Parent & Child shared memory mapping process\n");
