@@ -41,7 +41,7 @@ void ParentProcess(void) {
 	struct stat strinfo;
 
     	/* Open the file */
-	printf("Creating mapped file... \n");
+	printf("Creating a file for mapping... \n");
     	s8FileDescriptor = open(FILE_PATH, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
     	if (s8FileDescriptor == -1) {
         	perror("open error");
@@ -49,7 +49,7 @@ void ParentProcess(void) {
     	}
 
     	/* Truncate the file to the desired size */
-	printf("Allocating size to mapped file ...\n");
+	printf("Allocating size of the file to be mapped...\n");
     	if (ftruncate(s8FileDescriptor, FILE_SIZE) == -1) {
         	perror("ftruncate error");
         	exit(EXIT_FAILURE);
@@ -64,7 +64,7 @@ void ParentProcess(void) {
 
 
     	/* Map the file into memory */
-	printf("Mapping mapped file into memory...\n");
+	printf("Mapping the file into memory...\n");
     	ps8addr = mmap(NULL, FILE_SIZE, PROT_READ | PROT_WRITE, MAP_PRIVATE, s8FileDescriptor, 0);
     	if (ps8addr == MAP_FAILED) {
         	perror("mmap error");
@@ -73,7 +73,7 @@ void ParentProcess(void) {
 
     	/* Write data to the mapped memory */
     	strcpy(ps8addr, "\"Hello welcome to private memory mapping from IPC\"");
-	printf("Written data from Parent Process:%s\n",ps8addr);
+	printf("Data written by the Parent Process:%s\n",ps8addr);
     	/* Wait for the child process to finish */
     	wait(NULL);
 
@@ -93,8 +93,8 @@ void ParentProcess(void) {
 
 /* Function: 	ChildProcess
  *
- * Description: Creates a private shared memory mapping of a file, try to reads data from the mapped memory,
- *              if it fail to read print error message.
+ * Description: Creates a private shared memory mapping of a file, tries to read data from the mapped memory,
+ *              if it fails to read print error message.
  *
  * Return: None
  */
@@ -128,7 +128,7 @@ void ChildProcess(void) {
 	}
 	else{
 		printf("Error:\"The content from the mapped file is not accessed by child process because it is private memory mapping\"\n");
-		printf("Note:\'Parent only access to read and write to mapped file\'\n");
+		printf("Note:\'All processes that have the memory mapped can read from and write to their own private view of the mapped file.\n In this program, Only the Parent have access to read from and write to mapped file\'\n");
 	}
 
     	/* Unmap the memory */
