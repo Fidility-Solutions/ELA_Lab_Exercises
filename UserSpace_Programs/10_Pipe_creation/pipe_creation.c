@@ -63,7 +63,7 @@ int main(void)
 
         	/* Close unused write end */
         	close(as8PipeFd[1]);
-		printf("\nChild process is created and the child process id(PID):%d\n",getpid());
+		printf("\nChild process is created with child process id(PID):%d\n",getpid());
 		
 		/* Duplicate stdin on read end of pipe; close duplicated descriptor */
         	if(dup2(as8PipeFd[0], STDIN_FILENO) == -1){
@@ -75,8 +75,8 @@ int main(void)
         	close(as8PipeFd[0]);
 
         	/* execute the consumer filter(eg. wc commond) */
-		printf("The child process is replacing with wc -l command using execl () sytem call \n");
-	       	printf("The child process take input passed from parent process is 'ls' then it perform opeation(ls|wc -l)\nNumber of word count in current directory is:\n");
+		printf("The child process is executing the 'wc -l' command using execl() system call \n");
+		printf("The child process takes input 'ls' passed from parent process and then it performs operation(ls|wc -l)\nThis means the child process executes ls and then pipes that output to wc -l\nNumber of word count in current directory is:\n");
 		
 	       	execlp("/bin/wc","wc","-l",NULL);
 		
@@ -89,7 +89,7 @@ int main(void)
     /* Parent process */
     	else{
 		printf("\nThe parent process id(PID):%d\n",getpid());
-		printf("The parent process is replacing with ls command using execlp () system call\nNow ls commad passing input to child process \n");
+		printf("The parent process is replaced with ls command using execlp () system call\nNow 'ls' command is the input passed to child process \n");
 
         	/*  Close unused read end parent will only write */
         	close(as8PipeFd[0]);

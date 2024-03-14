@@ -3,9 +3,9 @@
 
  * File:        server_fifo.c
  *
- * Description: This program serves as a server in a client-server application using FIFOs.
+ * Description: This program serves as a server in a client-server application using FIFO.
  *              It creates a server FIFO for inter-process communication, listens for
- *              requests from clients, processes the requests, and sends responses back
+ *              requests from clients, process the requests, and responds back
  *              to the clients.
  *
  * Usage:       ./server_fifo
@@ -24,9 +24,9 @@
 /*
  * Function: 	main
  * 
- * Description: Entry point of the server program. Create and initializes the server FIFO,
- *              listens for requests from clients, processes the requests, and
- *              sends responses back to the clients.
+ * Description: Entry point of the server program. Creates and initializes the server FIFO,
+ *              listens for requests from clients, process the requests and
+ *              responds back to the clients.
  *
  * Arguments:   None
  *
@@ -35,7 +35,7 @@
 
 int main(int argc, char *argv[])
 {
-	printf("Welcome to server-client application using FIFOs\n");
+	printf("Welcome to server-client application using FIFO\n");
 	/* variable declaration*/
 	int serverFd, dummyFd, clientFd;
 	char clientFifo[CLIENT_FIFO_NAME_LEN];
@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
 	resp.RespNum = 0;
 
 	/* Create well-known FIFO, and open it for reading */
-	/* Using umask(0) we can get the permissions we want */
+	/* Using umask(0) we can get the permissions needed */
 	umask(0);
 	/* creating server FIFO */
 	printf("Server FIFO is created\n");
@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
 		exit(EXIT_FAILURE);
 	}
 
-	/* Open server fifo to Read the requests from client */
+	/* Open server fifo to Read the request from client */
 	printf("Server FIFO opened to read from clients\n");
 	serverFd = open(SERVER_FIFO, O_RDONLY);
 	if (serverFd == -1){
@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
 
 		if (write(clientFd, &resp, sizeof(struct response)) != sizeof(struct response))
 			fprintf(stderr, "Error writing to FIFO %s\n", clientFifo);
-		printf("Sent response to client\n");
+		printf("Sent response to the client\n");
 		resp.RespNum=0;
 		/*close client fifo */
 	if (close(clientFd) == -1)

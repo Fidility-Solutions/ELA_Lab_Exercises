@@ -19,13 +19,14 @@ CFLAGS= -c -Wall
 .PHONY: clean
 
 # Explicit Rule
-all: mutex_static mutex_dynamic
+all: pthread_mutex_static pthread_mutex_dynamic
 
-mutex_static:mutex_static.c
-	$(CC) $(FLAGS) -o mutex_static mutex_static.c
+pthread_mutex_static:pthread_mutex_static.c
+	$(CC) $(FLAGS) -o pthread_mutex_static pthread_mutex_static.c
 
-mutex_dynamic:mutex_dynamic.c
-	$(CC) $(FLAGS) -o mutex_dynamic mutex_dynamic.c
+
+pthread_mutex_dynamic:pthread_mutex_dynamic.c
+	$(CC) $(FLAGS) -o pthread_mutex_dynamic pthread_mutex_dynamic.c
 
 clean:
-	rm -rf *.o mutex_dynamic mutex_static
+	rm -rf *.o pthread_mutex_dynamic pthread_mutex_static

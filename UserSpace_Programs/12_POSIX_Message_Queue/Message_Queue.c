@@ -4,7 +4,7 @@
  * Description: This program demonstrates inter-process communication using POSIX message queues. 
  * 		It creates a message queue, sets up a notification mechanism for message arrival, 
  * 		forks a child process, sends a message from the parent process to the message queue, 
- * 		receives the message in the child process, and finally closes and unlinks the message queue.
+ * 		receives the message in the child process and finally closes and unlinks the message queue.
  *
  * Usage:       ./message_queue
  * 
@@ -59,7 +59,7 @@ void usageErr(const char *programName, const char *message) {
  *
  *Description:	Entry point of the program. It registers a signal handler, forks a child process, 
  		sends a message from the parent process to the message queue, receives the message 
-		in the child process, closes the message queue, and unlinks it.
+		in the child process, closes the message queue and unlinks it.
  *
  *Parameters: 	NONE 
 

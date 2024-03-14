@@ -1,3 +1,20 @@
+/*
+ * File name: pthread_mutex_dynamic.c
+ *
+ * Description: This program demonstrates thread synchronization using mutex (Dynamic Initialization).
+ *            	It creates multiple threads that attempt to acquire a mutex lock using different methods:
+ *           	one thread tries to acquire the lock using pthread_mutex_trylock(), and another thread
+ *            	tries to acquire the lock using pthread_mutex_timedlock(). It also dynamically initializes
+ *            	the mutex and destroys it when it is no longer needed.
+ *
+ * Usage: 	./pthread_mutex_dynamic
+ *
+ * Author: 	Fidility Solutions
+ *
+ * Date: 	10/03/2024
+ *
+ * Reference: The "Linux Programming Interface" book
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
@@ -8,7 +25,16 @@
 #define NUM_THREADS 2
 
 pthread_mutex_t mutex;
-
+/*
+ * Function   : ThreadFunc
+ *
+ * Description: Thread function that increments a global counter while holding a mutex lock.
+ *
+ * Parameters :
+ *   	        arg: Argument passed to the thread (thread number)
+ *
+ *return      : None
+ */
 void* ThreadFun(void* arg) {
 	long ThreadNum = (long)arg;
 
@@ -50,6 +76,16 @@ void* ThreadFun(void* arg) {
     	}
     return NULL;
 }
+/*
+ * Function   : main
+ *
+ * Description: Entry point of the program. Creates multiple threads to execute the ThreadFunc function,
+ *            	which increments a global counter while holding a mutex lock for synchronization.
+ *
+ * Parameters : None
+ *
+ * Return     : 0 on Successful.
+*/
 
 int main(void){
 	printf("Welcome to Dynamic intializing mutual exclusion(mutex)\n");

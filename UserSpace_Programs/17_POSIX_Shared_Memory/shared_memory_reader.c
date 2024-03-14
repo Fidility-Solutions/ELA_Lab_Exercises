@@ -1,9 +1,9 @@
 /*****************************************************************************************
  * File Name: 	shared_memory_reader.c
  *
- * Description: This program demonstrates creation/opening of shared memory and maps into memory address.
- * 		Create the child process and from child process it replaced with writter programs after
- * 		it will read the data from a POSIX shared memory object which is written by writter program.
+ * Description: This program demonstrates creation/opening of shared memory and mapping into memory address.
+ * 		Create the child process and from child process it replaces with writer programs.Then
+ * 		it will read the data from a POSIX shared memory object which is written by writer program.
  *
  * Author: 	Fidillity Solutions
  *
@@ -47,7 +47,7 @@ void errExit(const char *message) {
  *
  * Description: Entry point of the program. Creates a shared memory object, sets its size,
  *              maps it into the address space, creates a child process to replace itself
- *              with the writer process, reads data from the shared memory object, and then
+ *              with the writer process, reads data from the shared memory object. Then
  *              closes and unlinks the shared memory object.
  *
  * Parameters: None
@@ -65,13 +65,13 @@ int  main(void){
         	errExit("shm_open error");
 
 	/* Set the size of the shared memory object */
-        printf("Setting the Size to Shared Memory Object Using ftruncate () system call...\n");
+        printf("Setting the size of a shared memory object is accomplished by using the ftruncate() system call with the file descriptor.\n");
         if (ftruncate(s8FileDescriptor, SHARED_MEM_SIZE) == -1)
                 errExit("ftruncate error");
 	if (fstat(s8FileDescriptor, &StrSb) == -1)
 		errExit("fstat error");
 	printf("The file Size is:%ld\n",StrSb.st_size);
-	printf("The file permission:%d\n",StrSb.st_mode&0777);
+	printf("The file permission to read and write :%d\n",StrSb.st_mode&0777);
 
     	/* Map the shared memory object into the address space of the Reader process */
 	printf("Mapping the shared memory object into the address space ..\n");
@@ -80,7 +80,7 @@ int  main(void){
         	errExit("mmap error");
 
     	/* Create a child process */
-	printf("\nThe child process created from reader process it will replaced with writter process\n");
+	printf("\nThe child process created from reader process is replaced with writer process\n");
     	pid_t pid = fork();
 
     	if (pid < 0)
@@ -89,17 +89,16 @@ int  main(void){
 	/*child process */
     	else if (pid == 0) {
 		printf("The Child process id(PID):%d\n",getpid());
-		printf("The child process from shared memory reader process is replaced with shared memory writter process using execl system call\n");
+		printf("The child process from shared memory reader process is replaced with shared memory writer process using execl system call\n");
         	execl("./shared_memory_writter", "shared_memory_writter", (char *)NULL);
         	errExit("execl error");
     	} 
 	/* Parent Process */
 	else {
 		wait(NULL);
-		printf("\nThe Writter Process is Terminated!\n");
+		printf("\nThe Writer Process is Terminated!\n");
 		printf("The Reader process id(PID):%d\n",getpid());
-        	printf("Reader process reading from shared memory...\n");
-        	printf("Reader process read: \"%s\" \n", ps8addr);
+        	printf("Reader process reading from shared memory \"%s\" \n", ps8addr);
     	}
 	printf("\nUnmapping Shared Memory in Shared Memory Reader Process\n");
     	/* Unmap shared memory in the parent process */

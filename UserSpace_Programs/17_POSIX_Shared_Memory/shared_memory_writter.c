@@ -1,9 +1,9 @@
 /*********************************************************************************************
  * File Name: 	shared_memory_writer.c
  *
- * Description: This progragram  create/open the shared memory object and writing data to a 
+ * Description: This program  creates/opens the shared memory object and write data to a 
  * 		POSIX shared memory object. It maps the shared memory object into memory and 
- * 		then write data to shared memory object then unmap and close the shared memory object.
+ * 		write data to shared memory object. Then unmap and close the shared memory object.
  *
  * Author: 	Fidility Solutions
  *
@@ -39,7 +39,7 @@ void usageErr(const char *programName, const char *message) {
  * Function: main
  *
  * Description: Entry point of the program. Opens an existing shared memory object,
- *              maps it into the address space, writes data to it, and then closes
+ *              maps it into the address space, writes data to it and then closes
  *              the shared memory object.
  *
  * Parameters: 	None
@@ -48,9 +48,9 @@ void usageErr(const char *programName, const char *message) {
  *
  */
 int main() {
-	printf("\nThis is Shared Memory writter Process!\n");
-	printf("Welcome to POSIX Shared Memory writter Program\n");
-	printf("The Writter Process id(PID):%d\n",getpid());
+	printf("\nThis is Shared Memory writer Process!\n");
+	printf("Welcome to POSIX Shared Memory writer Program\n");
+	printf("The Writer Process id(PID):%d\n",getpid());
     	/* Open existing shared memory object */
 	printf("Opening the shared memory region...!\n");
     	int8_t s8FileDescriptor = shm_open(SHARED_MEM_NAME, O_CREAT|O_RDWR, 0666);
@@ -64,8 +64,8 @@ int main() {
 		errExit("shared memory mapping fail");	
 
 	/* write data to shared memory object */
-    	sprintf(ps8SharedMemory, "Hello from Shared Memory Writter Process");
-    	printf("The Shared Memory Writter Process wrote:\" %s\"\n", ps8SharedMemory);
+    	sprintf(ps8SharedMemory, "Hello from Shared Memory Writer Process");
+    	printf("The Shared Memory Writer Process writing:\" %s\"\n", ps8SharedMemory);
 
     	/* Unmap shared memory in the child process */
 	printf("\nUnmapping the shared memory object...\n");
@@ -73,7 +73,7 @@ int main() {
         	errExit("unmapping error");
 
     	/* Close shared memory object */
-	printf("The shared memory object is closed from shared memory writter process\n");
+	printf("The shared memory object is closed from shared memory writer process\n");
     	if (close(s8FileDescriptor) == -1)
 	       errExit("shared memory region close error");	
 

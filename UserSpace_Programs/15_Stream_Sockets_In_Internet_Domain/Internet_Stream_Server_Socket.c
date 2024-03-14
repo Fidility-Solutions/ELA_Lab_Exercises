@@ -93,14 +93,10 @@ int main(void){
         	fprintf(stderr, "Failed to bind\n");
     	}
 	/* Listen for incoming connections */
-	printf("Before listen: sockfd = %d\n", s8SrvrFd); // Add this line for debugging
-    	/* Listen for incoming connections */
     	if (listen(s8SrvrFd, 50) == -1) {
-		printf("listen error number: %d\n", errno); // Print the error number
+		printf("listen error number: %d\n", errno); 
 		perror("listen fail");
     	}
-	printf("After listen\n"); // Add this line for debugging
-
     	/* Free address info */
     	freeaddrinfo(res);
     	printf("Server listening on port %s...\n", PORT_NUM);
@@ -114,11 +110,13 @@ int main(void){
         		perror("accept failed");
         		continue;
         	}
-		if (getnameinfo((struct sockaddr *) &strClntAddr, AddrLen,as8Host,NI_MAXHOST, as8Service, NI_MAXSERV, 0) == 0)
+		if(getnameinfo((struct sockaddr *) &strClntAddr, AddrLen,as8Host,NI_MAXHOST, as8Service, NI_MAXSERV, 0) == 0)
 			snprintf(as8Addr, ADDRSTRLEN, "(%s, %s)", as8Host, as8Service);
 		else
 			snprintf(as8Addr, ADDRSTRLEN, "(?UNKNOWN?)");
+
 		printf("Connection from %s\n", as8Addr);
+
 		/* Read client request, send sequence number back */
         	int s8BytesRecv = recv(s8ClntFd, as8Buffer, BUFFER_SIZE - 1, 0);
         	if (s8BytesRecv == -1) {
@@ -137,7 +135,7 @@ int main(void){
 		}	
 		
         	/* Send response to client with current sequence number */
-        	sprintf(as8SeqNum, "%d\n", u32SrvrSeqNum);
+        	sprintf(as8SeqNum, "%d\n", reqLen);
         	if(send(s8ClntFd, as8SeqNum, strlen(as8SeqNum),0) != strlen(as8SeqNum))
 			fprintf(stderr, "Error on write");
 
@@ -154,4 +152,9 @@ int main(void){
 
     	return 0;
 }
-
+//int factNum(int Num) {
+//    if(Num == 0)
+//        return 1;
+//    else
+//        return Num* factorial(Num - 1);
+//}

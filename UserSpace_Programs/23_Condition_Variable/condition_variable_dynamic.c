@@ -1,3 +1,21 @@
+/*
+ * File		: pthread_mutex_cond_dynamic.c
+ *
+ * Description	: This program demonstrates the dynamic initialization of condition variables and mutexes 
+ * 		  for inter-process communication. It creates two threads that operate on a shared data 
+ * 		  structure while holding a mutex lock. The threads increment a shared variable and signal 
+ * 		  the condition variable to wake up waiting threads. The main thread waits for the condition 
+ * 		  variable to be signaled and prints the updated value of the shared variable after each thread 
+ * 		  has finished its operation.
+ *
+ * Usage	: ./pthread_mutex_cond_dynamic 		  
+ *
+ * Author:	  Fidility Solutions
+ *
+ * Date		: 10/03/2024
+ *
+ * Reference	: The "Linux Programming Interface" book.
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
@@ -5,7 +23,16 @@
 #include <sys/syscall.h>
 #include <fcntl.h>
 #include <unistd.h>
-
+/* 
+ * Function:    errExit
+ * ------------------
+ * Description: Prints the error message corresponding to the given system error number using perror(), 
+ *              and exits the program.
+ *
+ * Parameters:  message - The error message to be printed.
+ *
+ * Returns:     None
+ */
 void errExit(const char *ps8Msg){
 	perror(ps8Msg);
 	exit(EXIT_FAILURE);
@@ -15,7 +42,7 @@ void errMsg(const char *msg,pid_t Tid){
 	exit(EXIT_FAILURE);
 }
 
-/* Structure to hold data shared between threads */
+/*Structure to hold data shared between threads */
 struct SharedData {
     	int value;
     	/* Pointer to dynamically allocated mutex */
@@ -25,6 +52,18 @@ struct SharedData {
 };
 
 /* Function executed by threads */
+/*
+ * Function   : ThreadFunc
+ *
+ * Description: This function is executed by threads. It increments a shared variable by 100 
+ * 		while holding a mutex lock. It then signals the condition variable to wake up 
+ * 		waiting threads. After completing its operation, it unlocks the mutex.
+ *
+ * Parameters :
+ *     		arg: Argument passed to the thread (struct SharedData pointer)
+ *
+ * Return     : None
+ */
 void* ThreadFunc(void* arg){
     	struct SharedData* strSharedData = (struct SharedData*)arg;
     	int state;
@@ -55,7 +94,16 @@ void* ThreadFunc(void* arg){
 
     return NULL;
 }
-
+/*
+ * Function   : main
+ *
+ * Description: This is the entry point of the program. It initializes shared data, creates threads, 
+ * 		and waits for the condition variable to be signaled by the threads. After receiving 
+ * 		the signal, it prints the updated value of the shared variable.
+ *
+ * Parameters : None
+ * Return     : 0 on Successful.
+ */
 int main(void){
 	printf("Welcome to Dynaically initalized condition variable and mutex in Inter-process communication\n");
 	int state;
