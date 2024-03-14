@@ -1,5 +1,5 @@
 /**************************************************************************
- * File:        Dserver_socket.c
+ * File:        UNIX_Datagram_Server_Socket.c
  *
  * Description: This program demonstrates a simple Unix domain Datagram socket server
  *              using the socket API. It creates a server socket, binds it to
@@ -8,13 +8,13 @@
  *              echoes the messages back to clients, and finally closes the
  *              server socket.
  *
- * Usage:       ./server_socket.c
+ * Usage:       ./UNIX_Datagram_Server_Socket.c
  *
  * Author:      Fidility Solutions.
  *  
  * Date:        01/03/2024
  *
- * Reference:   The Linux Programming Interface book.
+ * Reference:   The "Linux Programming Interface" book.
  *
  ******************************************************************************/
 
@@ -30,16 +30,21 @@
 #define SOCKET_PATH "/tmp/UNIX_Datagram_Socket"
 #define BUF_SIZE 256
 
+/*
+ * function:    errExit
+ *
+ * Description: This function will notify the error which is cased by the program and exit from the program 
+ *
+ * parameter:   constant char types pointer variable.
+ *
+ * Return:      None
+ *
+ */
+
 void errExit(const char *message) {
     perror(message);
     exit(EXIT_FAILURE);
 }
-
-void usageErr(const char *programName, const char *message) {
-    fprintf(stderr, "Usage: %s %s\n", programName, message);
-    exit(EXIT_FAILURE);
-}
-
 
 
 /* Function: main
@@ -57,24 +62,24 @@ int main() {
 	printf("Welcome to client-server application that uses Datagram sockets in UNIX domain \n");
 
 	/*variable declaration */
-    	int s8SrvrSktFd;
+    	int SrvrSktFd;
 	/* declaration of strcture to represent address of sockets */
     	struct sockaddr_un strSrvrAdrr, strClntAddr;
 	/*length of socket */
     	socklen_t ClntAddrLen = sizeof(struct sockaddr_un);
-    	char s8buffer[BUF_SIZE];
+    	char RecvBuffer[BUF_SIZE];
 
     	/* Create A UNIX Domain Datagram server socket */
-    	s8SrvrSktFd = socket(AF_UNIX, SOCK_DGRAM, 0);
+    	SrvrSktFd = socket(AF_UNIX, SOCK_DGRAM, 0);
 	printf("Server socket created using socket () sys call ...\n");
-    	if (s8SrvrSktFd == -1) 
+    	if (SrvrSktFd == -1) 
         	errExit("socket creation failed");
 
     	/* remove the socket if already present */
     	if (remove(SOCKET_PATH) == -1 && errno != ENOENT)
 		fprintf(stdout, "remove-%s", SOCKET_PATH);
 
-	/* clearing the structure before use */
+	/* Clearing the structure before use */
 	memset(&strSrvrAdrr, 0, sizeof(strSrvrAdrr));
 
     	/* Set up server address with socket family and path to the socket file in the file system */
@@ -83,36 +88,34 @@ int main() {
 
     	/* Bind server socket to address */
 	printf("Binding the server socket to its well known address ...\n");
-    	if (bind(s8SrvrSktFd, (struct sockaddr *)&strSrvrAdrr,sizeof(struct sockaddr_un)) == -1) 
+    	if (bind(SrvrSktFd, (struct sockaddr *)&strSrvrAdrr,sizeof(struct sockaddr_un)) == -1) 
         	errExit("binding error");
 
     	printf("Server is running...\n");
 
     	while (1) {
         	/* Receive message from client */
-        	ssize_t BytesRecv = recvfrom(s8SrvrSktFd, s8buffer,BUF_SIZE, 0,(struct sockaddr *)&strClntAddr, &ClntAddrLen);
+        	ssize_t BytesRecv = recvfrom(SrvrSktFd, RecvBuffer,BUF_SIZE, 0,(struct sockaddr *)&strClntAddr, &ClntAddrLen);
         	if (BytesRecv == -1) 
             		errExit("recvfrom client error");
         	
-	// printf("Client connected:%d\n", client_socket);
-	
         	/* Null-terminate received data to print as string */
-        	s8buffer[BytesRecv] = '\0';
+        	RecvBuffer[BytesRecv] = '\0';
 
-       		 printf("Server received data from client: %s\n", s8buffer);
+       		 printf("Server received data from client: %s\n", RecvBuffer);
 		printf("Server received %ld bytes from %s\n", (long) BytesRecv,strClntAddr.sun_path);
 
         	/* Check if the client wants to exit */
-        	if (strncmp(s8buffer, "exit", 4) == 0) {
+        	if (strncmp(RecvBuffer, "exit", 4) == 0) {
             		printf("Client %s exited.\n",strClntAddr.sun_path);
             		continue;
         	}
 		/* Processing Received data: Converting the message to uppercase */
 		for (int j = 0; j < BytesRecv; j++)
-			s8buffer[j] = toupper((unsigned char) s8buffer[j]);
+			RecvBuffer[j] = toupper((unsigned char) RecvBuffer[j]);
 
         	/* Send message back to client */
-        	if(sendto(s8SrvrSktFd, s8buffer, BytesRecv, 0,(struct sockaddr *)&strClntAddr, ClntAddrLen)!=BytesRecv)             		errExit("sendto");
+        	if(sendto(SrvrSktFd, RecvBuffer, BytesRecv, 0,(struct sockaddr *)&strClntAddr, ClntAddrLen)!=BytesRecv)             		errExit("sendto");
         	
 	 	/*If BytesRecv from client is zero :Client closed the connection */
                 if (BytesRecv == 0) 
@@ -121,7 +124,7 @@ int main() {
     }
 
     /* Close server socket */
-    close(s8SrvrSktFd);
+    close(SrvrSktFd);
 
     // Remove socket file
    // unlink(SOCKET_PATH);
