@@ -1,11 +1,11 @@
 /**************************************************************************
- * File:        client_IPV4_socket.c
+ * File:        Internet_Datagram_IPV4_ClntSkt.c
  *
  * Description: This program demonstrates a simple Internet domain Datagram socket client
  *              using the socket API.It takes data from user to send to server from client,and 
  *              receives response from server and if user enter exit it will close the client socket.
  *
- * Usage:       ./client_IPV4_socket.c
+ * Usage:       ./Internet_Datagarm_IPV4_ClntSkt.c
  *
  * Author:      Fidility Solutions.
  *  
@@ -26,7 +26,7 @@
 #define MAX_BUFFER_SIZE 1024
 
 
-void errExit(const char *as8RcvMsg) {
+void errExit(const char *as8RcvMsg){
     perror(as8RcvMsg);
     exit(EXIT_FAILURE);
 }
@@ -43,16 +43,16 @@ void errExit(const char *as8RcvMsg) {
  */
 
 int main(void) {
-	printf("Welcome to the server-client application program using datagram sockets in the internet domain\n");
+	printf("\nWelcome to the server-client application program using datagram sockets in the internet domain\n");
 	/* Variable Declaration */
-    	int8_t s8SktFd;
+    	int SktFd;
     	struct sockaddr_in strSrvrAddr;
     	char as8RcvMsg[MAX_BUFFER_SIZE];
     	char as8Buffer[MAX_BUFFER_SIZE];
 
     	/* Create socket */
 	printf("Client socket is created \n");
-    	if ((s8SktFd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
+    	if ((SktFd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
         	perror("Socket creation error");
         	exit(EXIT_FAILURE);
     	}
@@ -62,110 +62,39 @@ int main(void) {
     	/* Set server address */
     	strSrvrAddr.sin_family = AF_INET;
     	strSrvrAddr.sin_port = htons(PORT);
-//	strSrvrAddr.sin_addr.s_addr= INADDR_ANY;
+	strSrvrAddr.sin_addr.s_addr= INADDR_ANY;
 
     	/* Convert IPv4 address from text to binary form */
-    	if (inet_pton(AF_INET, "0.0.0.0", &strSrvrAddr.sin_addr) <= 0) {
-        	perror("inet_pton error");
-        	exit(EXIT_FAILURE);
-    	}
+//    	if(inet_pton(AF_INET, "127.0.0.1", &strSrvrAddr.sin_addr) == 0)
+  //      	errExit("inet_pton error");
 
-    	while (1) {
+    	while(1){
         	/* Take input from user */
         	printf("Enter data to send to server (or type 'exit' to quit): ");
         	if(fgets(as8RcvMsg, MAX_BUFFER_SIZE, stdin)){
+			 as8RcvMsg[strcspn(as8RcvMsg, "\n")] = '\0';
 
         		/* Send as8RcvMsg to server */
-       			if (sendto(s8SktFd, as8RcvMsg, strlen(as8RcvMsg), MSG_CONFIRM, (struct sockaddr *)&strSrvrAddr, sizeof(strSrvrAddr))==-1){
-				perror("Sendto server fail \n");
-				exit(EXIT_FAILURE);
-			}
+       			if(sendto(SktFd, as8RcvMsg, strlen(as8RcvMsg), MSG_CONFIRM, (struct sockaddr *)&strSrvrAddr, sizeof(strSrvrAddr))==-1)
+				errExit("Sendto server fail \n");
 
 			/* Check if user wants to exit */
-                	if (strncmp(as8RcvMsg, "exit",4) == 0) {
+                	if(strncmp(as8RcvMsg, "exit",4) == 0){
                         	printf("User wants to exit\nExiting...\n");
                        	 	break;
                 	}
 		}
-		int len;
         	/* Receive response from server */
-        	ssize_t RecvLen = recvfrom(s8SktFd,as8Buffer, MAX_BUFFER_SIZE, MSG_WAITALL,(struct sockaddr *)&strSrvrAddr,&len);
-        	if (RecvLen < 0) {
-            		perror("Receive failed");
-            		exit(EXIT_FAILURE);
-        	}
+        	ssize_t RecvLen = recvfrom(SktFd,as8Buffer, MAX_BUFFER_SIZE, MSG_WAITALL,NULL,NULL);
+        	if(RecvLen == -1)
+            		errExit("Receive failed");
 
         	/* Print response from server along with server's address */
         	as8Buffer[RecvLen] = '\0';
-        	printf("Received from server at %s:%d: %s\n", inet_ntoa(strSrvrAddr.sin_addr), ntohs(strSrvrAddr.sin_port), as8Buffer);
+        	printf("Received from server at %s:%d:\"%s\"\n", inet_ntoa(strSrvrAddr.sin_addr), ntohs(strSrvrAddr.sin_port), as8Buffer);
     	}
 	/*Close client */
-    	close(s8SktFd);
+    	close(SktFd);
     	return 0;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
