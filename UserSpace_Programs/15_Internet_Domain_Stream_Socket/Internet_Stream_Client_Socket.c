@@ -25,7 +25,7 @@
 #include <sys/socket.h>
 #include <netdb.h>
 
-#define PORT_NUM "964000"
+#define PORT_NUM "96400"
 #define BUFFER_SIZE 50
 /* Function: main
  *
@@ -39,11 +39,11 @@
  */
 
 int main(void) {
-	printf("welcome to server-client application program In Intenet Domain stream socket\n");
+	printf("\nwelcome to server-client application program In Intenet Domain stream socket\n");
 	/*variable Declaration */
-    	int s8SktFd;
+    	int SktFd;
     	char as8Buffer[BUFFER_SIZE];
-    	int s8SeqLen;
+    	int SeqLen;
 	char *reqLenStr; /* Requested length of sequence */
 	char seqNumStr[BUFFER_SIZE]; /* Start of granted sequence */
 	ssize_t NumRead;
@@ -69,18 +69,18 @@ int main(void) {
 	that can be used to successfully connect a socket */
     	for (rp = result; rp != NULL; rp = rp->ai_next) {
         	/* Create socket */
-        	if ((s8SktFd = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol)) == -1) {
+        	if ((SktFd = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol)) == -1) {
             		perror("socket");
             		continue;
         	}
 
         	/* Connect to server */
-        	if (connect(s8SktFd, rp->ai_addr, rp->ai_addrlen)!= -1) {
+        	if (connect(SktFd, rp->ai_addr, rp->ai_addrlen)!= -1) {
             		perror("connect");
             		break;
         	}
 		/* Connect failed: close this socket and try next address */
-		close(s8SktFd);
+		close(SktFd);
     	}
 
 
@@ -93,28 +93,29 @@ int main(void) {
 	/* Free address info */
         freeaddrinfo(result);
 
-    	printf("Connected to server on port %s\n", PORT_NUM);
+    	printf("\nConnected to server on port %s\n", PORT_NUM);
 
     	/* Ask client for the length of desired sequence */
     	printf("Enter the length of desired sequence: ");
-    	scanf("%d", &s8SeqLen);
+    	scanf("%d", &SeqLen);
 
     	/* Send the length of desired sequence to server */
-    	sprintf(as8Buffer, "%d\n", s8SeqLen);
-    	if(write(s8SktFd, as8Buffer, strlen(as8Buffer))!=strlen(as8Buffer))
+    	sprintf(as8Buffer, "%d\n", SeqLen);
+    	if(write(SktFd, as8Buffer, strlen(as8Buffer))!=strlen(as8Buffer))
 		fprintf(stderr,"Partial/failed write (newline)");
+
 	/* Read and display sequence number returned by server */
     	/* Receive sequence number from server */
-    	int u32BytesRecv = recv(s8SktFd, as8Buffer, BUFFER_SIZE - 1, 0);
-    	if (u32BytesRecv == -1) {
+    	int Bytesrecv = recv(SktFd, as8Buffer, BUFFER_SIZE - 1, 0);
+    	if(Bytesrecv == -1){
         	perror("recv error");
 		exit(EXIT_FAILURE);
 	}
-	if(u32BytesRecv == 0)
+	if(Bytesrecv == 0)
 		fprintf(stderr,"Unexpected EOF from server");
 
     	/* Null-terminate received data */
-    	as8Buffer[u32BytesRecv] = '\0';
+    	as8Buffer[Bytesrecv] = '\0';
 
     	/* Print sequence number received from server */
     	printf("Received sequence number from server: %s\n", as8Buffer);

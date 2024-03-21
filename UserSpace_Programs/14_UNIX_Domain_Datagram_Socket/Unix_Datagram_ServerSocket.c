@@ -41,7 +41,7 @@
  *
  */
 
-void errExit(const char *message) {
+void errExit(const char *message){
     perror(message);
     exit(EXIT_FAILURE);
 }
@@ -58,7 +58,7 @@ void errExit(const char *message) {
  * Return:      0 on successful execution, non-zero value on failure.
  */
 
-int main() {
+int main(){
 	printf("Welcome to client-server application that uses Datagram sockets in UNIX domain \n");
 
 	/*variable declaration */
@@ -72,11 +72,11 @@ int main() {
     	/* Create A UNIX Domain Datagram server socket */
     	SrvrSktFd = socket(AF_UNIX, SOCK_DGRAM, 0);
 	printf("Server socket created using socket () sys call ...\n");
-    	if (SrvrSktFd == -1) 
+    	if(SrvrSktFd == -1) 
         	errExit("socket creation failed");
 
     	/* remove the socket if already present */
-    	if (remove(SOCKET_PATH) == -1 && errno != ENOENT)
+    	if(remove(SOCKET_PATH) == -1 && errno != ENOENT)
 		fprintf(stdout, "remove-%s", SOCKET_PATH);
 
 	/* Clearing the structure before use */
@@ -88,15 +88,15 @@ int main() {
 
     	/* Bind server socket to address */
 	printf("Binding the server socket to its well known address ...\n");
-    	if (bind(SrvrSktFd, (struct sockaddr *)&strSrvrAdrr,sizeof(struct sockaddr_un)) == -1) 
+    	if(bind(SrvrSktFd, (struct sockaddr *)&strSrvrAdrr,sizeof(struct sockaddr_un)) == -1) 
         	errExit("binding error");
 
     	printf("Server is running...\n");
 
-    	while (1) {
+    	while(1){
         	/* Receive message from client */
         	ssize_t BytesRecv = recvfrom(SrvrSktFd, RecvBuffer,BUF_SIZE, 0,(struct sockaddr *)&strClntAddr, &ClntAddrLen);
-        	if (BytesRecv == -1) 
+        	if(BytesRecv == -1) 
             		errExit("recvfrom client error");
         	
         	/* Null-terminate received data to print as string */
@@ -106,19 +106,19 @@ int main() {
 		printf("Server received %ld bytes from %s\n", (long) BytesRecv,strClntAddr.sun_path);
 
         	/* Check if the client wants to exit */
-        	if (strncmp(RecvBuffer, "exit", 4) == 0) {
+        	if(strncmp(RecvBuffer, "exit", 4) == 0){
             		printf("Client %s exited.\n",strClntAddr.sun_path);
             		continue;
         	}
 		/* Processing Received data: Converting the message to uppercase */
-		for (int j = 0; j < BytesRecv; j++)
+		for(int j = 0; j < BytesRecv; j++)
 			RecvBuffer[j] = toupper((unsigned char) RecvBuffer[j]);
 
         	/* Send message back to client */
         	if(sendto(SrvrSktFd, RecvBuffer, BytesRecv, 0,(struct sockaddr *)&strClntAddr, ClntAddrLen)!=BytesRecv)             		errExit("sendto");
         	
 	 	/*If BytesRecv from client is zero :Client closed the connection */
-                if (BytesRecv == 0) 
+                if(BytesRecv == 0) 
                         printf("Client disconnected.\n");
 
     }
@@ -126,8 +126,8 @@ int main() {
     /* Close server socket */
     close(SrvrSktFd);
 
-    // Remove socket file
-   // unlink(SOCKET_PATH);
+    /* Remove socket file */
+    unlink(SOCKET_PATH);
 
     return 0;
 }

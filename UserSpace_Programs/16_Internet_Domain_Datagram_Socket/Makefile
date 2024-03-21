@@ -19,13 +19,7 @@ CFLAGS= -c -Wall
 .PHONY: clean
 
 # Explicit Rule
-all: Iserver_socket Iclient_socket Internet_Datagram_IPV4_SrvrSkt Internet_Datagram_IPV4_ClntSkt
-
-Iserver_socket:Iserver_socket.c
-	$(CC) $(FLAGS) -o Iserver_socket Iserver_socket.c
-
-Iclient_socket:Iclient_socket.c
-	$(CC) $(FLAGS) -o Iclient_socket Iclient_socket.c
+all: Internet_Datagram_IPV4_SrvrSkt Internet_Datagram_IPV4_ClntSkt
 
 Internet_Datagram_IPV4_SrvrSkt:Internet_Datagram_IPV4_SrvrSkt.c
 	$(CC) $(FLAGS) -o Internet_Datagram_IPV4_SrvrSkt Internet_Datagram_IPV4_SrvrSkt.c
@@ -34,4 +28,4 @@ Internet_Datagram_IPV4_ClntSkt:Internet_Datagram_IPV4_ClntSkt.c
 	$(CC) $(FLAGS) -o Internet_Datagram_IPV4_ClntSkt Internet_Datagram_IPV4_ClntSkt.c
 
 clean:
-	rm -rf *.o Iserver_socket Iclient_socket Internet_Datagram_IPV4_SrvrSkt Internet_Datagram_IPV4_ClntSkt
+	rm -rf *.o Internet_Datagram_IPV4_SrvrSkt Internet_Datagram_IPV4_ClntSkt

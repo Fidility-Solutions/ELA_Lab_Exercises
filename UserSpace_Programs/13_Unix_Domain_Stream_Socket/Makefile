@@ -19,13 +19,13 @@ CFLAGS= -c -Wall
 .PHONY: clean
 
 # Explicit Rule
-all: server_socket client_socket
+all: UNIX_Stream_SrvrSkt UNIX_Stream_ClntSkt
 
-server_socket:server_socket.c
-	$(CC) $(FLAGS) -o server_socket server_socket.c
+UNIX_Stream_SrvrSkt:UNIX_Stream_SrvrSkt.c
+	$(CC) $(FLAGS) -o UNIX_Stream_SrvrSkt UNIX_Stream_SrvrSkt.c
 
-client_socket:client_socket.c
-	$(CC) $(FLAGS) -o client_socket client_socket.c
+UNIX_Stream_ClntSkt:UNIX_Stream_ClntSkt.c
+	$(CC) $(FLAGS) -o UNIX_Stream_ClntSkt UNIX_Stream_ClntSkt.c
 
 clean:
-	rm -rf *.o server_socket client_socket
+	rm -rf *.o UNIX_Stream_SrvrSkt UNIX_Stream_ClntSkt

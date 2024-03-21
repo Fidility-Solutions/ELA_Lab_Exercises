@@ -36,7 +36,7 @@
  *
  */
 
-void errExit(const char *message) {
+void errExit(const char *message){
     perror(message);
     exit(EXIT_FAILURE);
 }
@@ -52,7 +52,7 @@ void errExit(const char *message) {
  */
 
 
-int main() {
+int main(){
 	printf("Welcome to client-server application that uses stream sockets in UNIX domain \n");
 
 	/* variable Declaration */
@@ -80,7 +80,7 @@ int main() {
    	snprintf(strClntAddr.sun_path, sizeof(strClntAddr.sun_path),"%s.%ld",SOCKET_PATH ,(long) getpid());
 
     	/* Bind the client socket with specified adress */
-    	if (bind(SrvrSktFd, (struct sockaddr *) &strClntAddr, sizeof(struct sockaddr_un)) == -1)
+    	if(bind(SrvrSktFd, (struct sockaddr *) &strClntAddr, sizeof(struct sockaddr_un)) == -1)
 		errExit("bind error");
 
     	/* Construct address of server */
@@ -88,17 +88,17 @@ int main() {
 	strSrvrAddr.sun_family = AF_UNIX;
 	strncpy(strSrvrAddr.sun_path, SOCKET_PATH, sizeof(strSrvrAddr.sun_path) - 1);
 
-    	while (1) {
+    	while(1){
         	printf("Enter message to send (type 'exit' to quit): ");
         	fgets(ClntBuffer, sizeof(ClntBuffer), stdin);
 
 
         	/* Send message to server */
-        	if (sendto(SrvrSktFd, ClntBuffer, strlen(ClntBuffer), 0,(struct sockaddr *)&strSrvrAddr, strSrvrAddr_len) != strlen(ClntBuffer)) 
+        	if(sendto(SrvrSktFd, ClntBuffer, strlen(ClntBuffer), 0,(struct sockaddr *)&strSrvrAddr, strSrvrAddr_len) != strlen(ClntBuffer)) 
            		errExit("sendto server fail");
 
 		/* Check if the user wants to exit */
-                if (strncmp(ClntBuffer, "exit", 4) == 0) {
+                if(strncmp(ClntBuffer, "exit", 4) == 0){
                         printf("Exiting...\n");
                         break;
                 }
@@ -112,8 +112,8 @@ int main() {
 		printf("Response from server  %.*s\n", (int) BytesRecv, RecvSrvrBuffer);
 
     	}
+
     	remove(strClntAddr.sun_path); /* Remove client socket pathname */
-	exit(EXIT_SUCCESS);
 
     	/* Close client socket */
 	close(SrvrSktFd);
