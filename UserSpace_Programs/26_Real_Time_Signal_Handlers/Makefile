@@ -19,7 +19,7 @@ CFLAGS= -c -Wall
 .PHONY: clean
 
 # Explicit Rule
-all: RT_SigHndlr RT_Signals
+all: RT_SigHndlr RT_Signals one
 
 RT_SigHndlr:RT_SigHndlr.c
 	$(CC) $(FLAGS) -o RT_SigHndlr RT_SigHndlr.c
@@ -27,5 +27,9 @@ RT_SigHndlr:RT_SigHndlr.c
 RT_Signals:RT_Signals.c
 	$(CC) $(FLAGS) -o RT_Signals RT_Signals.c
 
+one:one.c
+	$(CC) $(FLAGS) -o one one.c
+
 clean:
-	rm -rf *.o RT_SigHndlr RT_Signals
+	rm -rf *.o RT_SigHndlr RT_Signals one
+
