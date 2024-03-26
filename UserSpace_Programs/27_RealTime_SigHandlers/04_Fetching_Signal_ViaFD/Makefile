@@ -14,15 +14,22 @@ endif
 #CC=arm-buildroot-linux-gnueabihf-gcc
 
 # CFLAGS will be the options passed to the compiler.
-CFLAGS= -c -Wall -Wextra -pthread
+CFLAGS= -c -Wall
 
 .PHONY: clean
 
 # Explicit Rule
-all: Event_Fd 
+all: RT_SigHndlr RT_Signals one
 
-Event_Fd:Event_Fd.c
-	$(CC) $(FLAGS) -o Event_Fd Event_Fd.c
+RT_SigHndlr:RT_SigHndlr.c
+	$(CC) $(FLAGS) -o RT_SigHndlr RT_SigHndlr.c
+
+RT_Signals:RT_Signals.c
+	$(CC) $(FLAGS) -o RT_Signals RT_Signals.c
+
+one:one.c
+	$(CC) $(FLAGS) -o one one.c
 
 clean:
-	rm -rf *.o Event_Fd 
+	rm -rf *.o RT_SigHndlr RT_Signals one
+

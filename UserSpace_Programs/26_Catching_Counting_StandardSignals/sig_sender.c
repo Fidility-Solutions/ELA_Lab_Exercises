@@ -14,6 +14,8 @@ int main(int argc, char *argv[]){
 	int Numsigs = atoi(argv[2]);
 	/* signal number to send initially */
 	int SigNum = atoi(argv[3]);
+	/* Send signal to reciever */
+	printf("%s: sending signal to %d process %ld %d times\n",argv[0],SigNum,(long)pid,Numsigs);
 
 	/*send specified signals to the target process */
 	for(int i=0;i<Numsigs;i++){
@@ -21,18 +23,17 @@ int main(int argc, char *argv[]){
 			perror("kill ");
 			exit(EXIT_FAILURE);
 		}
-		printf("Sent signal %d to process %d\n",SigNum,(int)pid);
-		/* sleep for 1 sec between signals */
-		sleep(1);
 	}
 	/* If an additional signal is provided then send it to the target process */
+	int AddtnSinal;
 	if(argc>4){
-		int AddtnSinal = atoi(argv[4]);
+		AddtnSinal = atoi(argv[4]);
 		if(kill(pid,AddtnSinal) == -1){
 			perror("kill");
 			exit(EXIT_FAILURE);
 		}
-		printf("Sent additional signal %d to process %d\n",AddtnSinal,(int)pid);
 	}
-	return 0;
+	printf("Sent additional signal %d to process %d\n",AddtnSinal,(int)pid);
+	printf("%s:exiting..\n",argv[0]);
+	exit(EXIT_SUCCESS);
 }

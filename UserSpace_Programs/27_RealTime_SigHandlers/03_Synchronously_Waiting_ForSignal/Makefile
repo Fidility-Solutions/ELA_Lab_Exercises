@@ -19,10 +19,14 @@ CFLAGS= -c -Wall
 .PHONY: clean
 
 # Explicit Rule
-all:Send_Signals
+all: SigWaitInfo SigQueue 
 
-Send_Signals:Send_Signals.c
-	$(CC) $(FLAGS) -o Send_Signals Send_Signals.c
+SigWaitInfo:SigWaitInfo.c
+	$(CC) $(FLAGS) -o SigWaitInfo SigWaitInfo.c
+
+SigQueue:SigQueue.c
+	$(CC) $(FLAGS) -o SigQueue SigQueue.c
 
 clean:
-	rm -rf *.o Send_Signals
+	rm -rf *.o SigWaitInfo SigQueue 
+

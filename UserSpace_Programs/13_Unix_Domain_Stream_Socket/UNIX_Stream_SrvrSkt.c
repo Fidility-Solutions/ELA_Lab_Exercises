@@ -26,7 +26,7 @@
 #include <ctype.h>
 #include <stdint.h>
 #include <errno.h>
-
+#include <arpa/inet.h> 
 #define SOCKET_PATH "/tmp/UNIX_Stream_Socket"
 #define MAX_CLIENTS 10
 #define BUF_SIZE 256
@@ -94,9 +94,11 @@ int main(void){
         	/* Accept incoming connection from other sockets*/
 		printf("The Server socket is ready to accept incoming connection from other sockets...\n");
         	int ClntSktFd = accept(SrvrSktFd, (struct sockaddr *)&strClntAddr, &ClntAddrLen);
+		// Extract client's IP address and port number
+		printf("Client connected: %s\n",strClntAddr.sun_path);
         	if(ClntSktFd == -1) 
            		errExit("accept");
-        	printf("Client connected:%d\n", ClntSktFd);
+        	//printf("Client connected:%d\n", ClntSktFd);
 		printf("Enter exit to 'quit' from serever\n");
 
         	/* Receive and echo messages from/to the client */
@@ -107,7 +109,8 @@ int main(void){
             		s8buffer[BytesRecv] = '\0';
             		printf("The Data received from client: %s\n", s8buffer);
 			if(strncmp(s8buffer,"exit\n",4)==0){
-					printf("Client %d Disconneted\n",ClntSktFd);
+//					printf("Client %d Disconneted\n",ClntSktFd);
+					printf("Client %s Disconnected\n",strClntAddr.sun_path);
 					continue;
 			}
 			/* Processing Received data: Converting the message to uppercase */
@@ -124,14 +127,6 @@ int main(void){
 			printf("Message sent back to client:%s\n",s8buffer);
 
         	}
-
-		/*If byte_received from client is zero :Client closed the connection */
-        	if(BytesRecv == 0) 
-            		printf("Client disconnected.\n");
-        	 
-		else 
-            		errExit("recv fail");
- 
 
         	/* If client Disconnected Close the client socket */ 
         	close(ClntSktFd);

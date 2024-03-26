@@ -20,10 +20,11 @@ void signal_handler(int sig){
 		printf("Recieved SIGUSR2(%d) for count value:%d\n",sig,count);
 		return;
 	}
+	exit(EXIT_SUCCESS);
 }
 
 int main(void){
-	printf("Welcome to Blocking & Unblocking the signals\n");
+	printf("Welcome to Blocking & Unblocking standard signals\n");
 	/* Define a signal set for blocking signals */
     	sigset_t BlkMsk;
     	/* Initialize an empty signal set (no signals are initially blocked) */
@@ -42,7 +43,7 @@ int main(void){
        	 	perror("sigprocmask");
         	exit(EXIT_FAILURE);
     	}
-	printf("Signals blocked\n");
+	printf("Signals blocked,so no operation will perform until unblock the signals\n");
 	
     	/* Register signal handler for SIGINT */
     	if(signal(SIGINT, signal_handler) == SIG_ERR){
@@ -65,11 +66,12 @@ int main(void){
 		exit(EXIT_FAILURE);
 	}
 	/* Child Process */
-	if(child ==0){
+	else if(child ==0){
 		int value;
 		sleep(2);
-		printf("This is new child process\n");
-		printf("Please Enter value (1 or 2) to handle custom signals:\n");
+		printf("\nThis is child process and my PID is:%d\n",getpid());
+		printf("Please Enter value (1 or 2) to handle custom signals(SIGUSR1 & SIGUSR2):\n");
+		printf("For termination of child enter '6'\n");
 		for(;;){
 			/* User input */
 			if(scanf("%d",&value)==1){
@@ -79,29 +81,36 @@ int main(void){
 				else if(value ==2){
 					kill(getppid(), SIGUSR2);
 				}
+				else if(value == 6){
+					printf("Child process terminated, so custom signals won't work\n");
+					exit(EXIT_SUCCESS);
+				}
 				else{
 					printf("Please Enter valid input\n");
-					exit(EXIT_FAILURE);
+				//	exit(EXIT_FAILURE);
 				}
 			}
 		}
 	}
-    	printf("My PID is %d\n", getpid());
+	else{
+    		printf("\nThis Parent Process and My PID is: %d\n", getpid());
+     		/* Print a message indicating that the program is waiting for SIGINT& SIGQUIT signal */
 
-     	/* Print a message indicating that the program is waiting for SIGINT& SIGQUIT signal */
-    	printf("Waiting for SIGINT signal (Press \"Ctrl+C\" to send SIGINT)...\n");
-    	printf("Press \"Ctrl+\\\" or \"Ctrl+z\" to quit...\n");
-
-    	/* Unblock SIGINT */
-    	if(sigprocmask(SIG_UNBLOCK, &BlkMsk, NULL) == -1){
-      	 	perror("sigprocmask");
-        	exit(EXIT_FAILURE);
-    	}
-    	printf("Signals Unblocked.\n");
-	/* Keep the program running indefinitely, waiting for signals */
-    	for(;;){
-		/* Block until a signal is caught */
-		pause();
+    		/* Unblock SIGINT */
+    		if(sigprocmask(SIG_UNBLOCK, &BlkMsk, NULL) == -1){
+      	 		perror("sigprocmask");
+        		exit(EXIT_FAILURE);
+    	
+		}
+    		printf("Signals Unblocked,Now uh can perform action.\n");
+		/* Print a message indicating that the program is waiting for SIGINT& SIGQUIT signal */
+		printf("Waiting for SIGINT signal (Press \"Ctrl+c\" to send SIGINT)...\n");
+                printf("Press \"Ctrl+\\\" or \"Ctrl+z\" to quit...\n");
+		/* Keep the program running indefinitely, waiting for signals */
+    		for(;;){
+			/* Block until a signal is caught */
+			pause();
+		}
 	}
 
     	return 0;
