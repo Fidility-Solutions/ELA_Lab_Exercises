@@ -19,10 +19,14 @@ CFLAGS= -c -Wall
 .PHONY: clean
 
 # Explicit Rule
-all:Signal_Blk_UnBlk
+all: SignalFd_SigVal SigQueue
 
-Signal_Blk_UnBlk:Signal_Blk_UnBlk.c
-	$(CC) $(FLAGS) -o Signal_Blk_UnBlk Signal_Blk_UnBlk.c
+SignalFd_SigVal:SignalFd_SigVal.c
+	$(CC) $(FLAGS) -o SignalFd_SigVal SignalFd_SigVal.c
+
+SigQueue:SigQueue.c
+	$(CC) $(FLAGS) -o SigQueue SigQueue.c
 
 clean:
-	rm -rf *.o Signal_Blk_UnBlk
+	rm -rf *.o SignalFd_SigVal SigQueue
+
