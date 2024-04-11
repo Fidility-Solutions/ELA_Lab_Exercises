@@ -1,3 +1,17 @@
+/* File: 	02_SendSig_BtwnProcess.c
+ *
+ * Description: Demonstrates inter-process communication using signals between a parent and a child process. 
+ *              The parent process sends a SIGUSR1 signal to the child process, which is then handled by the 
+ *              child process. 
+ *              This program illustrates how signals can be used for simple communication between processes.
+ *              
+ * Usage: 	./SendSig_BtwnProcess
+ *
+ * Author: 	Fidility Solutions
+ *
+ * Reference: "The Linux Programming Interface" book.
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>

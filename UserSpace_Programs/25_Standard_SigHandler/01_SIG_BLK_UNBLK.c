@@ -1,9 +1,30 @@
+/* 
+ * File: 	01_SIG_BLK_UNBLK.c
+ *
+ * Description: Demonstrates how to block and unblock signals, and handle them synchronously in a 
+ * 		parent-child process setup using standard signals.
+ *
+ * Usage: 	./SIG_BLK_UNBLK
+ *
+ * Author: 	Fidility Solutions
+ * Reference: 	"The Linux Programming Interface" book.
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
 #include <unistd.h>
 #include <unistd.h>
 #include <time.h>
+/*
+ * Function: 	signal_handler
+ *
+ * Description: Handles signals received by the process. Prints a message indicating the received signal 
+ * 		type and increments a count for each signal type.
+ *
+ * Return: 	void
+ *
+*/
 void signal_handler(int sig){
 	static int count=0;
 	count++;
@@ -22,6 +43,25 @@ void signal_handler(int sig){
 	}
 	exit(EXIT_SUCCESS);
 }
+/* 
+ * Function 	: main
+ *
+ * Description: 
+ *       	- Entry point of the program.
+ *       	- Initializes a signal set for blocking signals.
+ *       	- Blocks SIGINT signal using the signal set.
+ *       	- Registers signal handlers for SIGINT, SIGUSR1, and SIGUSR2 signals.
+ *       	- Forks a child process.
+ *       	- In the child process, waits for user input to send custom signals (SIGUSR1 and SIGUSR2) to the 
+ *       		parent process.
+ *
+ *       	- In the parent process:
+ *           	- Unblocks SIGINT signal.
+ *           	- Waits for signals (SIGINT, SIGUSR1, SIGUSR2) to be caught using a pause loop.
+ *       	- Upon receiving SIGINT, prints a message and exits.
+ *
+ *  Return:	Return 0 on success.
+*/
 
 int main(void){
 	printf("Welcome to Blocking & Unblocking standard signals\n");
@@ -87,7 +127,6 @@ int main(void){
 				}
 				else{
 					printf("Please Enter valid input\n");
-				//	exit(EXIT_FAILURE);
 				}
 			}
 		}

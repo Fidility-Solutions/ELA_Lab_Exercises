@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include <signal.h>
+#include <string.h>
 void errExit(const char *msg){
 	perror(msg);
 	exit(EXIT_FAILURE);
@@ -21,15 +22,17 @@ int main(int argc, char *argv[]){
 	/* Display our PID and UID, so that they can be compared with the
 	corresponding fields of the siginfo_t argument supplied to the
 	handler in the receiving process */
-	printf("%s: My PID is %ld,and UID is %ld\n", argv[0],(long) getpid(), (long) getuid());
-	sig = atoi(argv[1]);
+	printf("%s: PID is %ld,and UID is %ld\n", argv[0],(long) getpid(), (long) getuid());
+	sig = atoi(argv[2]);
 	sigData = atoi(argv[3]);
-	numSigs = (argc > 4) ? atoi(argv[4]) : 1;
+	numOfSigs = (argc > 4) ? atoi(argv[4]) : 1;
 	/* Send signal */
-	for(j = 0; j < numSigs; j++){
+	for(j = 0; j < numOfSigs; j++){
 		sv.sival_int = sigData + j;
-		if(sigqueue(getLong(argv[1], 0, "pid"), sig, sv) == -1)
-			errExit("sigqueue %d", j);
+		if(sigqueue(atoi(argv[1]), sig, sv) == -1){
+			fprintf(stderr,"sigqueue %d", j);
+			exit(EXIT_FAILURE);
+		}
 	}
 		exit(EXIT_SUCCESS);
 }

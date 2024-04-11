@@ -31,7 +31,7 @@ int main(int argc, char *argv[]){
 	if(argc > 1){ 
 		/* Delay, so that signals can be sent to us */
 		printf("%s: about to delay %s seconds\n", argv[0], argv[1]);
-		sleep(atoi(argv[1]);
+		sleep(atoi(argv[1]));
 		printf("%s: finished delay\n", argv[0]);
 	}
 	for(;;){ 

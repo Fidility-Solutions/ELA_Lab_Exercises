@@ -5,7 +5,6 @@
 #include <errno.h>
 #include <signal.h>
 #include <string.h>
-
 void errExit(const char *msg){
 	perror(msg);
 	exit(EXIT_FAILURE);

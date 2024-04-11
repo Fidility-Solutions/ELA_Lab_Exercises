@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <unistd.h>
+#include <string.h>
 void errExit(const char *msg){
 	perror(msg);
 	exit(EXIT_FAILURE);
@@ -17,7 +18,7 @@ int main(int argc, char *argv[]){
 	ssize_t s;
 	if(argc < 2 || strcmp(argv[1], "--help") == 0){
 		fprintf(stderr,"%s sig-num...\n", argv[0]);
-		exit(EXIT_FAILURE):
+		exit(EXIT_FAILURE);
 	}
 
 	printf("%s: My PID = %ld\n", argv[0], (long) getpid());
@@ -29,8 +30,11 @@ int main(int argc, char *argv[]){
 	sfd = signalfd(-1, &mask, 0);
 	if(sfd == -1)
 		errExit("signalfd");
+	printf("OK\n");
 	for(;;){
+		printf("Welcome\n");
 		s = read(sfd, &fdsi, sizeof(struct signalfd_siginfo));
+		printf("Fine\n");
 		if(s != sizeof(struct signalfd_siginfo))
 			errExit("read");
 		printf("%s: got signal %d", argv[0], fdsi.ssi_signo);
