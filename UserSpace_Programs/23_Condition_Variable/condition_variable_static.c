@@ -76,7 +76,7 @@ static void* threadfunc(void *args){
 	sleep(ThreadArray[ThreadID].SleepTime);
 	/* lock the mutex */
 	s= pthread_mutex_lock(&ThreadMutex);
-	if(s!=0)
+	if(s != 0)
 		errExit("pthread_mutex_lock error");
 	/* critical section(shared resource) */
 	printf("Thread %d acuquired lock \n",ThreadID);
