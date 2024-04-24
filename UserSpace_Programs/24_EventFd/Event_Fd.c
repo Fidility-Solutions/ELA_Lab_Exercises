@@ -43,7 +43,7 @@
  *
  */
 void *ThreadFn(void *arg){
-	 pthread_t tid = pthread_self(); 
+	 pthread_t tid = gettid(); 
 	/* Extract the eventfd file descriptor from the argument */
     	int EvntFd = *(int *)arg;
 	/* Variable to hold the value read from eventfd */
@@ -153,7 +153,8 @@ int main(int argc, char *argv[]){
                     		printf("Child writing %s to efd\n", argv[j]);
                     		HoldVal = strtoull(argv[j], NULL, 0);
                     		ReturnVal = write(EvntFd, &HoldVal, sizeof(uint64_t));
-                    		if(ReturnVal != sizeof(uint64_t))
+                    	
+				if(ReturnVal != sizeof(uint64_t))
                         		handle_error("write");
                 	}
                 	printf("Child completed write loop\n");
@@ -161,7 +162,7 @@ int main(int argc, char *argv[]){
 
             	default:
 			/* Parent process reads values from the eventfd */
-                   	sleep(2);
+			sleep(2);
                     	printf("Parent about to read\n");
                     	ReturnVal = read(EvntFd, &HoldVal, sizeof(uint64_t));
                     	if (ReturnVal != sizeof(uint64_t)){
@@ -184,4 +185,6 @@ int main(int argc, char *argv[]){
 
     	return 0;
 }
+
+
 
