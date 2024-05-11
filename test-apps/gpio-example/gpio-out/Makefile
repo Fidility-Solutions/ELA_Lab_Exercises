@@ -1,7 +1,7 @@
 # Copyright (C) 2017, Chris Simmonds (chris@2net.co.uk)
 #
 # If cross-compiling, CC must point to your cross compiler, for example:
-CC=arm-linux-gnueabihf-gcc
+CC=aarch64-linux-gnu-gcc
 
 LOCAL_CFLAGS ?= -Wall -g
 PROGRAM = gpio-out

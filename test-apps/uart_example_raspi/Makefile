@@ -17,14 +17,15 @@ endif
 CFLAGS= -c -Wall
 
 .PHONY: clean
-all: i2c-eeprom-read-write
 
-i2c-eeprom-read-write:i2c-eeprom-read-write.o
-	$(CC) $(FLAGS) i2c-eeprom-read-write.o -o i2c-eeprom-read-write
+# Explicit Rule
+all: uart_echo_target Uart_Receive_Target
 
-i2c-eeprom-read-write.o:i2c-eeprom-read-write.c
-	$(CC) $(FLAGS) -c i2c-eeprom-read-write.c
+uart_echo_target:uart_echo_target.c
+	$(CC) $(FLAGS) -o uart_echo_target uart_echo_target.c
+
+Uart_Receive_Target:Uart_Receive_Target.c
+	$(CC) $(FLAGS) -o Uart_Receive_Target Uart_Receive_Target.c
 
 clean:
-	rm -rf ./i2c-eeprom-read-write i2c-eeprom-read-write.o
-
+	rm -rf *.o uart_echo_target Uart_Receive_Target

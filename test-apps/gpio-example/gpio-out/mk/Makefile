@@ -6,7 +6,7 @@ ifdef ARCH
         CC := arm-linux-gnueabihf-gcc
         CFLAGS += -static
     endif
-    ifeq ($(ARCH),arm64)
+    ifeq ($(ARCH),aarch64)
         CC := aarch64-linux-gnu-gcc
         CFLAGS += -static
     endif
@@ -17,14 +17,14 @@ endif
 CFLAGS= -c -Wall
 
 .PHONY: clean
-all: i2c-eeprom-read-write
 
-i2c-eeprom-read-write:i2c-eeprom-read-write.o
-	$(CC) $(FLAGS) i2c-eeprom-read-write.o -o i2c-eeprom-read-write
+# Explicit Rule
+all: gpio-out.c  
+#	$(CC)  -static gpio-out.c -o gpio-out
 
-i2c-eeprom-read-write.o:i2c-eeprom-read-write.c
-	$(CC) $(FLAGS) -c i2c-eeprom-read-write.c
+# Implicit Rule
+all: gpio-out.o
+	$(CC)  gpio-out.o -o gpio-out
 
 clean:
-	rm -rf ./i2c-eeprom-read-write i2c-eeprom-read-write.o
-
+	rm -rf *.o ./gpio-out
