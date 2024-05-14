@@ -17,14 +17,14 @@ endif
 CFLAGS= -c -Wall
 
 .PHONY: clean
-all: i2c-eeprom-read-write
 
-i2c-eeprom-read-write:i2c-eeprom-read-write.o
-	$(CC) $(FLAGS) i2c-eeprom-read-write.o -o i2c-eeprom-read-write
+# Explicit Rule
+all: spi_flash.c  
+#	$(CC)  -static spi_flash.c -o spi_flash
 
-i2c-eeprom-read-write.o:i2c-eeprom-read-write.c
-	$(CC) $(FLAGS) -c i2c-eeprom-read-write.c
+# Implicit Rule
+all: spi_flash.o
+	$(CC)  spi_flash.o -o spi_flash
 
 clean:
-	rm -rf ./i2c-eeprom-read-write i2c-eeprom-read-write.o
-
+	rm -rf *.o ./spi_flash

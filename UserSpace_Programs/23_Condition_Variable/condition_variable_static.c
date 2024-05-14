@@ -76,10 +76,10 @@ static void* threadfunc(void *args){
 	sleep(ThreadArray[ThreadID].SleepTime);
 	/* lock the mutex */
 	s= pthread_mutex_lock(&ThreadMutex);
-	if(s!=0)
+	if(s != 0)
 		errExit("pthread_mutex_lock error");
 	/* critical section(shared resource) */
-	printf("Thread %d acuquired lock \n",ThreadID);
+	printf("Thread %d acquired lock \n",ThreadID);
 	printf("Thread%d accessed shared resource\n",ThreadID);
 	/* Inc variable */
 	NumUnJoind++;
@@ -110,12 +110,21 @@ static void* threadfunc(void *args){
  */
 int main(int argc,char *argv[]){
 	printf("Welcome to Thread synchronization using condition varibale and mutex\n");
+	
 	/*variable declaration */
 	int s, index;
 	int ThreadArgs[argc-1];
 	/* check the no. of arguments passed from user and any help */
-	if(argc<2 || strcmp(argv[1],"--help") == 0)
-		fprintf(stderr,"%s nsec...\n",argv[0]);
+	if(argc<2 || strcmp(argv[1],"--help") == 0){
+		printf("Syntax		: filename thread1sleeptime thread2sleeptime ...\n\n");
+		printf("filename	: name of the file to be executed\n");
+		printf("thread1sleeptime: sleeptime of thread1\n");
+		printf("thread2sleeptime: sleeptime of thread2\n");
+		printf("...		: sleeptime to the number of threads\n");
+		printf("Note		: The number of arguments gives the number of threads\n");
+		fprintf(stderr,"Ex:%s 2 3\n",argv[0]);
+		exit(EXIT_FAILURE);
+	}
 	/* memory allocation to structure array to store the status of thread */
 	ThreadArray = calloc(argc - 1, sizeof(struct ThreadInfo));
 	/*create Threads */
@@ -139,15 +148,15 @@ int main(int argc,char *argv[]){
 		printf("The main thread locked the mutex\n");
 		/* this will check the no of thread joined */
 		while(NumUnJoind ==0){
-			printf("released\n");
+			printf("The main thread mutex lock is released due to the wait condition\n");
 			/* waiting for signal to resume the opeation: when the wait executed the mutex lock 
 			 * release from main thread so other thread will aquire the lock and when the signal 
 			 * send form the thread again main thread resume the operation*/
 			s= pthread_cond_wait(&ThreadDied,&ThreadMutex);
+			printf("The main thread acquires the lock after receiving the thread signal\n");
 			if(s!=0)
 				errExit("pthread_cond_wait error");
-			printf("The main thread called wait condition so it released mutex lock\n");
-		}
+				}
 		/* waiting for thread to terminated */
 		for(index=0;index<TotThreads;index++){
 			if(ThreadArray[index].state == TS_TERMINATED){
@@ -171,4 +180,3 @@ int main(int argc,char *argv[]){
 }
 
 
-	

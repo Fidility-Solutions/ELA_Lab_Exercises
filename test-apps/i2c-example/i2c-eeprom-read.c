@@ -32,7 +32,7 @@ int main(void)
 	printf("**********************************\n");
 
 	/* Open the adapter and set the address of the I2C device */
-	f = open("/dev/i2c-2", O_RDWR);
+	f = open("/dev/i2c-1", O_RDWR);
 	if (f < 0) {
 		perror("/dev/i2c-2:");
 		return 1;

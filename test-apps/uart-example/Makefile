@@ -6,7 +6,7 @@ ifdef ARCH
         CC := arm-linux-gnueabihf-gcc
         CFLAGS += -static
     endif
-    ifeq ($(ARCH),arm64)
+    ifeq ($(ARCH),aarch64)
         CC := aarch64-linux-gnu-gcc
         CFLAGS += -static
     endif
@@ -17,14 +17,15 @@ endif
 CFLAGS= -c -Wall
 
 .PHONY: clean
-all: i2c-eeprom-read-write
 
-i2c-eeprom-read-write:i2c-eeprom-read-write.o
-	$(CC) $(FLAGS) i2c-eeprom-read-write.o -o i2c-eeprom-read-write
+# Explicit Rule
+all: uart-echo-target Uart_Receive
 
-i2c-eeprom-read-write.o:i2c-eeprom-read-write.c
-	$(CC) $(FLAGS) -c i2c-eeprom-read-write.c
+uart-echo-target:uart-echo-target.c
+	$(CC) $(FLAGS) -o uart-echo-target uart-echo-target.c
+
+Uart_Receive:Uart_Receive.c
+	$(CC) $(FLAGS) -o Uart_Receive Uart_Receive.c
 
 clean:
-	rm -rf ./i2c-eeprom-read-write i2c-eeprom-read-write.o
-
+	rm -rf *.o uart-echo-target Uart_Receive

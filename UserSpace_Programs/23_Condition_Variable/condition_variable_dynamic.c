@@ -76,7 +76,7 @@ void* ThreadFunc(void* arg){
 	printf("\nThread %d: locked mutex\n",ThreadId);
 
     	strSharedData->value = strSharedData->value+100;
-    	printf("Thread %d: Incremeted the value of variable to : %d\n",ThreadId, strSharedData->value);
+    	printf("Thread %d: Incremeted the value of variable to  %d\n",ThreadId, strSharedData->value);
 
 	/* Here sleep is to complete thread operation */
 	sleep(1);
@@ -105,7 +105,7 @@ void* ThreadFunc(void* arg){
  * Return     : 0 on Successful.
  */
 int main(void){
-	printf("Welcome to Dynaically initalized condition variable and mutex in Inter-process communication\n");
+	printf("Welcome to Dynamically initalizing condition variable and mutex in Inter-process communication\n");
 	int state;
     	/* Initialize shared data */
     	struct SharedData strSharedData;
@@ -144,14 +144,14 @@ int main(void){
     	printf("The mutex lock is released from main thread when the cond_wait sys call executed\n");
     	pthread_cond_wait(strSharedData.cond, strSharedData.mutex);
 
-    	printf("\nThe value after operation from thread1 is :%d\n",strSharedData.value);
+    	printf("\nThe value after operation from thread1 is %d\n",strSharedData.value);
 	/* Again wait to get signal from another thread */
 	pthread_cond_wait(strSharedData.cond, strSharedData.mutex);
-	printf("\nThe value after operation from thread2 is :%d\n",strSharedData.value);
+	printf("\nThe value after operation from thread2 is %d\n",strSharedData.value);
     	/* Terminate the threads */
     	if(pthread_join(thread1, NULL) !=0|| pthread_join(thread2, NULL) !=0)
 	    	errExit("Thread termination failed");
-    	printf("\nThreads Terminared\n");
+    	printf("\nAll threads got terminated\n");
 	
     	/* Unlock the mutex from main thread */
 	if(pthread_mutex_unlock(strSharedData.mutex) !=0)

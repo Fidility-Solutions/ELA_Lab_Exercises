@@ -83,7 +83,7 @@ int main(void){
        	 	perror("sigprocmask");
         	exit(EXIT_FAILURE);
     	}
-	printf("Signals blocked,so no operation will perform until unblock the signals\n");
+	printf("Signals are blocked,so no operation will be performed until the signals are unblocked\n");
 	
     	/* Register signal handler for SIGINT */
     	if(signal(SIGINT, signal_handler) == SIG_ERR){
