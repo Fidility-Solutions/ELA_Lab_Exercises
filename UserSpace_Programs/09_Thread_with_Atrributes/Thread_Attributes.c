@@ -1,18 +1,18 @@
 /******************************************************************************
- * File: 	Thread_Attributes.c
+ * File		: Thread_Attributes.c
  *
- * Description: This program demonstrates the creation and execution of detached threads with custom thread 
- * 		attributes.It creates multiple detached threads with a specific stack MsgSize and detached state 
- * 		using pthread_attr_t.The main thread initializes the thread attributes, creates the detached 
- * 		threads, and then exits without waiting for the threads to complete.
+ * Description	: This program demonstrates the creation and execution of detached threads with custom thread 
+ * 		  attributes.It creates multiple detached threads with a specific stack MsgSize and detached state 
+ * 		  using pthread_attr_t.The main thread initializes the thread attributes, creates the detached 
+ * 		  threads, and then exits without waiting for the threads to complete.
  *
- * Usage: 	./Thread_Attributes
+ * Usage	: ./Thread_Attributes
  * 
- * Author: 	Fidility Solutions.
+ * Author	: Fidility Solutions.
  *  
- * Date:        28/02/2024.
+ * Date		: 26/02/2024.
  *
- * Reference    The Linux Programming Interface book
+ * Reference    : "The Linux Programming Interface" book.
  ******************************************************************************/
 
 #include <stdio.h>
@@ -79,16 +79,16 @@ void *threadfunction(void *arg) {
     	pthread_exit(NULL);
 }
 /*
- * Function: main()
+ * Function	: main()
  * 
- * Description:	Entry point of the program. Initializes thread attributes, creates detached threads with custom 
- * 		attributes, and exits without waiting for the threads to complete.
+ * Description	: Entry point of the program. Initializes thread attributes, creates detached threads with custom 
+ * 		  attributes, and exits without waiting for the threads to complete.
  *
- * Argumets:	None
+ * Parameters	: None
  *
- * Returns:	0 upon successful execution of the program.
+ * Returns	: 0 upon successful execution of the program.
  */
-int main() {
+int main(void) {
     printf("This program demonstrates the use of Thread Attributes \n");
     pthread_t Threads[NUM_THREADS];
     pthread_attr_t ThreadAttr;

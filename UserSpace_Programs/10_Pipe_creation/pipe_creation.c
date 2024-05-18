@@ -12,9 +12,9 @@
  * 
  * Author:      Fidility Solutions.
  *  
- * Date:        29/02/2024.
+ * Date:        27/02/2024.
  *
- * Reference    The Linux Programming Interface book
+ * Reference    "The Linux Programming Interface" book
  ******************************************************************************/
 
 #include <stdio.h>
@@ -31,7 +31,7 @@
  * 		forks a child process, and configures the child process to count the number of lines
  *              received from the parent process.
  *
- * Arguments:   None
+ * Parameters:   None
  *
  * Returns:     0 upon successful execution of the program.
  */

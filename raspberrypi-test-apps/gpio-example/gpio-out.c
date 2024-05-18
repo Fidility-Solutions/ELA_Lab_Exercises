@@ -88,7 +88,7 @@ void TurnOnLeds(void) {
 	FILE *ValueFile[NUM_PINS];
 	/* Open value files for all 3 GPIO pins */
 	for(i = 0;i < NUM_PINS;i++){
-		snprintf(GpioValPath[i], sizeof(GpioValPath[i]), "/sys/class/gpio/gpio%d/value",(i == 0 ? 17 : (i == 1 ? 22 : 27)));
+		snprintf(GpioValPath[i], sizeof(GpioValPath[i]), "/sys/class/gpio/gpio%d/value",(i == 0 ? PIN_1 : (i == 1 ? PIN_2 :PIN_3)));
 		ValueFile[i] = fopen(GpioValPath[i], "w");
     		if(ValueFile[i] == NULL) {
         		perror("Error opening gpio file");
@@ -160,26 +160,6 @@ void TurnOnLeds(void) {
 }
 
 /*
- * Function	: TurnOffLeds
- *
- * Description	: This function turns off the LED connected to the specified GPIO pin by writing "0" to its value file.
- *
- * Arguments	: GpioPin - The GPIO pin number.
- *
- * Returns	: None.
- */
-void TurnOffLeds(int GpioPin) {
-    	char GpioValPath[100];
-    	snprintf(GpioValPath, sizeof(GpioValPath), "/sys/class/gpio/gpio%d/value", GpioPin);
-    	FILE *ValueFile = fopen(GpioValPath, "w");
-    	if(ValueFile == NULL) {
-        	perror("Error opening value file");
-        	exit(EXIT_FAILURE);
-    	}
-    	fprintf(ValueFile, "0");
-    	fclose(ValueFile);
-}
-/*
  * Function	: ToggleLed
  *
  * Description	: This function blinks the LED on the specified GPIO pin. It writes "1" to the pin's
@@ -222,8 +202,9 @@ void BlinkLed(int GpioPin) {
  */
 int main(void) {
 	printf("This program demonistrates working with GPIO pins to Blink RGB Leds\n");
+	sleep(1);
     	int choice;
-	int8_t PIN[NUM_PINS]={17,22,27};
+	int8_t PIN[NUM_PINS]={PIN_1,PIN_2,PIN_3};
 	/* Export and set direction for each GPIO pin */
 	for(int i=0;i<NUM_PINS;i++){
 		ExportGpioPin(PIN[i]);

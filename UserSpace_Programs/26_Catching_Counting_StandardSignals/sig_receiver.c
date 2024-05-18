@@ -7,9 +7,9 @@
  *
  *  Usage:      ./sig_receiver <sleep-interval> &
  *
- *  Date: 25/03/2024
+ *  Date: 	25/03/2024
  *
- *  Author: Fidility Solutions
+ *  Author:     Fidility Solutions
  *
  *  Reference: "The Linux Programming Interface" book.
 */

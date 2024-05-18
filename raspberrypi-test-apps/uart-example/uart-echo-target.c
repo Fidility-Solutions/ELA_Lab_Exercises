@@ -1,15 +1,13 @@
 
 /*
- * File		: uart_echo_target.c
+ * File		: uart-echo-target.c
  * 
  * Description	: This program demonstrates UART communication on Linux using the ttyS0 serial port.
  *                It sends a message over UART1 and waits for a response from the loopback.
  *
  * Author	: Fidility Solutions.
  *
- * Date		: 
- *
- * Reference	: [Any relevant references]
+ * Reference	: Linux Programming Interface.
  */
 
 

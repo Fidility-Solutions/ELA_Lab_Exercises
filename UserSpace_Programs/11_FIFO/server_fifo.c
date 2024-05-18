@@ -1,20 +1,20 @@
 
 /******************************************************************************
 
- * File:        server_fifo.c
+ * File		: server_fifo.c
  *
- * Description: This program serves as a server in a client-server application using FIFO.
- *              It creates a server FIFO for inter-process communication, listens for
- *              requests from clients, process the requests, and responds back
- *              to the clients.
+ * Description	: This program serves as a server in a client-server application using FIFO.
+ *               It creates a server FIFO for inter-process communication, listens for
+ *               requests from clients, process the requests, and responds back
+ *               to the clients.
  *
- * Usage:       ./server_fifo
+ * Usage	: ./server_fifo
  * 
- * Author:      Fidility Solutions.
+ * Author	: Fidility Solutions.
  *  
- * Date:        04/03/2024.
+ * Date		: 01/03/2024.
  *
- * Reference:   The Linux Programming Interface book.
+ * Reference	: "The Linux Programming Interface" book.
 
  ******************************************************************************/
 

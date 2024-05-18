@@ -1,14 +1,12 @@
 /*
- * File		: Uart_Transmit_Host.c
+ * File		: uart-transmit-host.c
  *
  * Description	: This program demonstrates UART communication between a host (Ubuntu) and a target device over ttyUSB0.
  *                It configures the serial port, sends a message from the host to the target, and waits for a response.
  *
  * Author	: Fidility Solutions.
  *
- * Date		: 
- *
- * Reference	: 
+ * Reference	: Linux Programming Interface.
  */
 
 /* C library headers */

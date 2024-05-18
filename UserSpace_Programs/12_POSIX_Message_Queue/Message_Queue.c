@@ -1,18 +1,18 @@
 /******************************************************************************
- * File:        message_queue.c
+ * File		: message_queue.c
  *
- * Description: This program demonstrates inter-process communication using POSIX message queues. 
- * 		It creates a message queue, sets up a notification mechanism for message arrival, 
- * 		forks a child process, sends a message from the parent process to the message queue, 
- * 		receives the message in the child process and finally closes and unlinks the message queue.
+ * Description	: This program demonstrates inter-process communication using POSIX message queues. 
+ * 		 It creates a message queue, sets up a notification mechanism for message arrival, 
+ * 		 forks a child process, sends a message from the parent process to the message queue, 
+ * 		 receives the message in the child process and finally closes and unlinks the message queue.
  *
- * Usage:       ./message_queue
+ * Usage	: ./message_queue
  * 
- * Author:      Fidility Solutions.
+ * Author	: Fidility Solutions.
  *  
- * Date:        29/02/2024.
+ * Date 	: 29/02/2024.
  *
- * Reference    The Linux Programming Interface book
+ * Reference    : "The Linux Programming Interface" book.
  *
  ******************************************************************************/
 #include <stdio.h>
@@ -31,11 +31,11 @@
 #define MAX_MSG_SIZE 256
 #define MAX_MSG_COUNT 5
 /*
- * Function: 	signal_handler
+ * Function	: 	signal_handler
  * 
- * Description:	Signal handler function to handle notification signal.
+ * Description	:	Signal handler function to handle notification signal.
  *
- * Argument:	s8SigNum:The signal number.
+ * Parameter	:	s8SigNum:The signal number.
  *
  */
 void signal_handler(int32_t s8SigNum) {
@@ -57,11 +57,11 @@ void usageErr(const char *programName, const char *message) {
 /* 
  * Function: 	main
  *
- *Description:	Entry point of the program. It registers a signal handler, forks a child process, 
+ * Description:	Entry point of the program. It registers a signal handler, forks a child process, 
  		sends a message from the parent process to the message queue, receives the message 
 		in the child process, closes the message queue and unlinks it.
  *
- *Parameters: 	NONE 
+ * Parameters: 	NONE 
 
  * Returns:     0 upon successful execution of the program.
  */

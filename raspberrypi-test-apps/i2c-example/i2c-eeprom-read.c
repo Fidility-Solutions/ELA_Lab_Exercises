@@ -1,12 +1,12 @@
  /****************************************************************************
-*  \file       i2c-eeprom-read.c
+* File      	: i2c-eeprom-read.c
 *
-*  \details    Sample program to read the first 4 bytes of the
-*              AT24C256 256 KiB EEPROM from the Raspberry pi
+* Description 	: Sample program to read the first 4 bytes of the
+*            	  AT24C256 256 KiB EEPROM from the Raspberry pi
 *
-*  \author     Fidility Solutions
+* Author    	: Fidility Solutions
 *
-*  \Reference  Chris Simmonds (chris@2net.co.uk) 
+* Reference  	: Chris Simmonds (chris@2net.co.uk) 
 * *******************************************************************************/
 
 #include <stdio.h>
@@ -31,6 +31,7 @@ int main(void)
         printf("**********************************\n");
         printf("****I2C EEPROM Test Program ******\n");
         printf("**********************************\n");
+	printf("This program demonistartes reading first 4 bytes of data from I2C EEPROM\n");
 
         /* Open the adapter and set the address of the I2C device */
         FileDesc = open("/dev/i2c-1", O_RDWR);
@@ -61,7 +62,7 @@ int main(void)
                 perror("read fail");
                 return 1;
         }
-        printf("Reading first 4-bytes of data \n");
+        printf("\nReading first 4-bytes of data \n");
         printf("Data:0x%x 0x%x 0x%x 0x%x\n",
                  Buffer[0], Buffer[1],Buffer[2], Buffer[3]);
 

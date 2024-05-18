@@ -1,15 +1,15 @@
 /*******************************************************************************
- * File: 	Process_Creation.c
+ * File		: Process_Creation.c
  *
- * Description: This program demonstrates how to create a process using fork() 
- * 		It Demonstrates parent & child process PIDs.
- * 		This also explains the process termination with respect to the status.
+ * Description	: This program demonstrates how to create a process using fork() 
+ * 		  It Demonstrates parent & child process PIDs.
+ * 		  This also explains the process termination with respect to the status.
  *
- * Author: 	Fidility Solutions.
+ * Author	: Fidility Solutions.
  *
- * Date: 	23/02/2024.
+ * Date		: 23/02/2024.
  *
- * Reference	The Linux Programming Interface book
+ * Reference	: "The Linux Programming Interface" book.
 
 * *******************************************************************************/
 #include<stdlib.h>
@@ -24,9 +24,9 @@
  * Description: This function gives the parent process ID and will create 3 child processes with their 
  * 		respective process IDs.
  *
- * Arguments:	None
+ * Parameters	: None
  *  
- * Returns:	None
+ * Returns     	: 0-on success
  *
  */
 void ProcessCreation(void)

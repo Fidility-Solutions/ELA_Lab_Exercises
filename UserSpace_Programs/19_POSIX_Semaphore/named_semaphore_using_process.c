@@ -11,7 +11,7 @@
  *  
  * Date:        5/03/2024
  *
- * Reference:   The Linux Programming Interface book
+ * Reference:   "The Linux Programming Interface" book
  ******************************************************************************/
 
 #include <stdio.h>
@@ -40,13 +40,13 @@ sem_t *sem;
 
 
 
-/* Function: ParentProcess
+/* Function	: ParentProcess
  * ------------------------
- * Description: Parent process function that waits for the semaphore, performs actions, and releases the semaphore.
+ * Description	: Parent process function that waits for the semaphore, performs actions, and releases the semaphore.
  * 
- * Parameters: None
+ * Parameters	: None
  * 
- * Returns: None
+ * Returns	: None
  */
 void ParentProcess(void)
 {
@@ -80,13 +80,13 @@ void ParentProcess(void)
 	/* wait fro child to finish work*/
 	wait(NULL);
 }
-/* Function: ChildProcess
+/* Function	: ChildProcess
  * -----------------------
- * Description: Child process function that waits for the semaphore, performs actions, and releases the semaphore.
+ * Description	: Child process function that waits for the semaphore, performs actions, and releases the semaphore.
  *
- * Parameters: None
+ * Parameters	: None
  *
- * Returns: None
+ * Returns	: None
  */
 void ChildProcess(void){
 	/* Value used for to check value of semaphore */
@@ -125,14 +125,14 @@ void ChildProcess(void){
 
 	exit(EXIT_SUCCESS);
 }
-/* Function: main
+/* Function	: main
  * ---------------
- * Description: The main function of the program. It initializes the shared memory region, creates a named semaphore, 
+ * Description	: The main function of the program. It initializes the shared memory region, creates a named semaphore, 
  *              forks a child process, and executes the parent or child function based on the process ID.
  * 
- * Parameters: None
+ * Parameters	: None
  * 
- * Returns:    0 upon successful execution of the program
+ * Returns	: 0 upon successful execution of the program
  */
 int main(void){
 	printf("Welcome to POSIX named semaphore program\n");

@@ -5,22 +5,25 @@ ifdef ARCH
         CC := arm-linux-gnueabihf-gcc
         CFLAGS += -static
     endif
-    ifeq ($(ARCH),aarch64)
+    ifeq ($(ARCH),arm64)
         CC := aarch64-linux-gnu-gcc
         CFLAGS += -static
     endif
 endif
 
 # CFLAGS will be the options passed to the compiler.
-CFLAGS= -c -Wall -Wextra -pthread
+CFLAGS= -c -Wall
 
 .PHONY: clean
+all: gpio-out
 
-# Explicit Rule
-all: Event_Fd 
+gpio-out:gpio-out.o
+	$(CC) $(FLAGS) gpio-out.o -o gpio-out
 
-Event_Fd:Event_Fd.c
-	$(CC) $(FLAGS) -o Event_Fd Event_Fd.c
+gpio-out.o:gpio-out.c
+	$(CC) $(FLAGS) -c gpio-out.c
+
 
 clean:
-	rm -rf *.o Event_Fd 
+	rm -rf ./gpio-out gpio-out.o
+

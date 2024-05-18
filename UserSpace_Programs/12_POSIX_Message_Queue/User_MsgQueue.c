@@ -1,18 +1,18 @@
 /******************************************************************************
- * File:        User_MsgQueue.c
+ * File		: User_MsgQueue.c
  *
- * Description: This program demonstrates inter-process communication using POSIX message queues. 
- * 		It creates a message queue, forks a child process, sends a message from the parent 
- * 		process to the message queue, receives the message in the child process,
- *              and finally closes and unlinks the message queue when the user enter 'exit'.
+ * Description	: This program demonstrates inter-process communication using POSIX message queues. 
+ * 		  It creates a message queue, forks a child process, sends a message from the parent 
+ * 		  process to the message queue, receives the message in the child process,
+ *                and finally closes and unlinks the message queue when the user enter 'exit'.
  *
- * Usage:       ./User_MsgQueue.c
+ * Usage	: ./User_MsgQueue.c
  * 
- * Author:      Fidility Solutions.
+ * Author	: Fidility Solutions.
  *  
- * Date:        29/02/2024.
+ * Date		: 29/02/2024.
  *
- * Reference    The Linux Programming Interface book
+ * Reference    :" The Linux Programming Interface" book.
  *
  ******************************************************************************/
 
@@ -105,7 +105,6 @@ int main(void){
 	else{
 		sleep(1);
 	       printf("\nThis is Parent process which sends data to message queue \n");	
-//	       printf("\nEnter a message(exit to 'quit'):\n");
         	for(;;){
 			sleep(1);
 			printf("\nEnter a message(exit to 'quit'):");

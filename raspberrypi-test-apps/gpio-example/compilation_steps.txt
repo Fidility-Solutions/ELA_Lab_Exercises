@@ -18,16 +18,22 @@ Step 2:
 
 Step 3:
 -----------
-4. Copy the gpio-out executable to /usr of the RootFS
+4. Copy the gpio-out executable to /root of the RootFS
+		(or)
+5. Transfer the file from the Host to target using SCp
+
+	$ scp gpio-out root@10.10.1.27:/root/
+
+
 
 Step 4:
 -----------
-5. Boot the board and go to /usr directory
+6. Boot the board and go to /root directory
 
 ***************************************
 Commands to run and test the application
 ****************************************
-1. $ cd /usr
+1. $ cd /root
 2. $ ./gpio-out
 
 Observe the LED blink on board

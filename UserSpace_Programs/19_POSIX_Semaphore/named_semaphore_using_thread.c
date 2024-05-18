@@ -37,14 +37,14 @@ sem_t *Semaphore;
 static int8_t s8Var=0;
 
 /* 
- * Function: 	threadfn
+ * Function	: threadfn
  * -------------------
- * Description: Represents the critical section accessed by multiple threads. Each thread increments a shared variable
+ * Description	: Represents the critical section accessed by multiple threads. Each thread increments a shared variable
  *              after acquiring the semaphore.
  *
- * Parameters: 	args - Pointer to the argument passed to the thread function
+ * Parameters	: args - Pointer to the argument passed to the thread function
  *
- * Returns: 	None
+ * Returns	: None
  */
 void *threadfn(void *args){
 	int s8ThreadNum = *((int*)args);
@@ -62,14 +62,14 @@ void *threadfn(void *args){
 	pthread_exit(NULL);
 }
 /* 
- * Function: main
+ * Function	: main
  * ---------------
- * Description: The main function of the program. It initializes the named semaphore, spawns multiple threads,
+ * Description	: The main function of the program. It initializes the named semaphore, spawns multiple threads,
  *              and waits for them to finish their work.
  *
- * Parameters: None
+ * Parameters	: None
  *
- * Returns:    0 upon successful execution of the program
+ * Returns	: 0 upon successful execution of the program
  */
 int main(void){
 	printf("Welcome to POSIX named semaphore explaing with Thread concept\n");

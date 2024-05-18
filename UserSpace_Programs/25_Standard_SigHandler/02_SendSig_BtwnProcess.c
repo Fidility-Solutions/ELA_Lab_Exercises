@@ -7,6 +7,8 @@
  *              
  * Usage: 	./SendSig_BtwnProcess
  *
+ * Date:	22/03/2024.
+ *
  * Author: 	Fidility Solutions
  *
  * Reference: "The Linux Programming Interface" book.

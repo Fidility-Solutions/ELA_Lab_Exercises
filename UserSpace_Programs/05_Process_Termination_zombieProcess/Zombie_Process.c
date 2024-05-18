@@ -1,7 +1,7 @@
 /********************************************************************************
- * File: 	Zombie_Process.c
+ * File		: Zombie_Process.c
  *
- * Description: This file contains a C program demonstrating the concept of a zombie process. A zombie process 
+ * Description	: This file contains a C program demonstrating the concept of a zombie process. A zombie process 
  *              occurs when a child process completes execution, but its exit status has not yet been retrieved 
  *              by its parent process. 
  *              In this program, a parent process forks a child process. The child process immediately exits, 
@@ -9,27 +9,27 @@
  *              As a result, the child process becomes a zombie until the parent process retrieves its exit 
  *              status using the wait() system call.
  *
- * Author:      Fidility Solutions.
+ * Author	: Fidility Solutions.
  *
- * Date:        23/02/2024.
+ * Date	  	: 23/02/2024.
  *
- * Reference    The Linux Programming Interface book
+ * Reference   	: "The Linux Programming Interface" book.
  ********************************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 /*
- * Function:    main()
+ * Function	: main()
  *
- * Description: Entry point of the program. Demonstrates the concept of an zombie process.
+ * Description	: Entry point of the program. Demonstrates the concept of an zombie process.
  *
- * Arguments:   None
+ * Parameters	: None
  *  
- * Returns:     0 on successful execution, 1 on failure.
+ * Returns	: 0 on successful execution, 1 on failure.
  *
  */
 
-int main()
+int main(void)
 {
 	printf("Entered into the main() function\n");
 	printf("Creating Child Process\n");
@@ -46,7 +46,7 @@ int main()
         	printf("Child process ID(PID): %d created with parent process ID(PID): %d\n", getpid(), getppid());
 		/* Child process exits immediately after printing */       
 		printf("The Child Process completes its execution\n");
-		exit(0);
+		exit(1);
 	}
        /*  Parent of Child Process */	
 	else 

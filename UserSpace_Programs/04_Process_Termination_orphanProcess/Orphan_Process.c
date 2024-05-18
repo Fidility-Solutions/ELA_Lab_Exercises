@@ -12,7 +12,7 @@
  *
  * Date:        23/02/2024.
  *
- * Reference    The Linux Programming Interface book
+ * Reference    "The Linux Programming Interface" book.
 
 * *******************************************************************************/
 
@@ -22,17 +22,17 @@
 #include<sys/wait.h>
 
 /*
- * Function: 	main()
+ * Function	: main()
  *
- * Description: Entry point of the program. Demonstrates the concept of an orphan process.
+ * Description	: Entry point of the program. Demonstrates the concept of an orphan process.
  *
- * Arguments:   None
+ * Parameters	: None
  *  
- * Returns:     0 on successful execution, 1 on failure.
+ * Returns	: 0 on successful execution, 1 on failure.
  *
  */
 
-int main()
+int main(void)
 {
 	printf("Entered into the main() function\n");
 	printf("Creating Child process \n");
@@ -51,7 +51,7 @@ int main()
         	sleep(15);
 		printf("Here the Child Process is reassigned to a special Process called the init Process which becomes the Parent Process");
         	printf("\nAfter sleep Child process (PID): %d and parent Process (PID):%d\n", getpid(),getppid());
-		exit(0);
+		exit(1);
 	}
 	 /*  Parent of Child Process */
 	else

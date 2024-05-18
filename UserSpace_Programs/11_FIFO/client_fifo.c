@@ -1,37 +1,36 @@
 #include "common.h" 
 /*******************************************************************************************************
- * File:	client_fifo.c
+ * File		:client_fifo.c
  *
- * Description: Client program for a server-client application using FIFO.This program sends a request to 
+ * Description	: Client program for a server-client application using FIFO.This program sends a request to 
  * 		the server through a FIFO (named pipe) and receives a response from the server.
  *
- * Usage: 	client_fifo [ReqNum...]
+ * Usage	: client_fifo [ReqNum...]
  *
- * Author: 	Fidility Solutions
+ * Author	: Fidility Solutions
  *
- * Date: 	04/03/2024
+ * Date		: 27/02/2024
  *
- * Reference: 	The Linux Programming Interface book.
+ * Reference	: "The Linux Programming Interface" book.
  *
  *****************************************************************************************************/
 static char clientFifo[CLIENT_FIFO_NAME_LEN];
 
 /* Invoked on exit to delete client FIFO */
 /*
-Function Name: removeFifo
-Description: Invoked on exit to delete the client FIFO.
-*/
+ * Function	: removeFifo
+ *
+ * Description	: Invoked on exit to delete the client FIFO.
+ */
 static void removeFifo(void)
 {
-	//printf("Client FIFO removed\n");
 	unlink(clientFifo);
-	//printf("Client FiFO removed\n");
 }
 
 /* 
- * Function name: main
+ * Function 	: main
  *
- * Descripition: Entry point of the program. Responsible for handling command-line arguments, 
+ * Descripition	: Entry point of the program. Responsible for handling command-line arguments, 
  * 		 creating the client FIFO, sending requests to the server and receiving responses.
  *
  * Parameters:	- argc: Number of command-line arguments.

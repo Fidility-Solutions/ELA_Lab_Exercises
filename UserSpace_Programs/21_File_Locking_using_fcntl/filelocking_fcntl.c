@@ -25,24 +25,6 @@ void errExit(const char *Msg){
 	exit(EXIT_FAILURE);
 }
 /*
- * Function: 	usageErr
- *
- * Description: Print a formatted error message to stderr and exit the program.
- *
- * Parameters:
- *  		format: Format string for the error message
- *  		...   : Variable number of arguments corresponding to the format string
- *
- * Return: None
- *
- */
-void usageErr(const char *format, ...) {
-    va_list args;
-    va_start(args, format);
-    vfprintf(stderr, format, args);
-    va_end(args);
-}
-/*
  * Function: 	DisplayCmdFrmt
  *
  * Description: Display the format of commands for interacting with the program.
@@ -76,8 +58,10 @@ static void DisplayCmdFrmt(void){
 int main(int argc, char *argv[]){
 	printf("Welcome to file locking program using fcntl () system call\n");
 	/* check no of arguments */
-	if(argc != 2 || strcmp(argv[1],"--help")==0)
-        usageErr("Usage: %s <file>\n", argv[0]);
+	if(argc != 2 || strcmp(argv[1],"--help")==0){
+        	printf("Usage: %s <file>\n", argv[0]);
+		exit(EXIT_FAILURE);
+	}
 	
 	/* variable declaration */
     	char *file = argv[1];

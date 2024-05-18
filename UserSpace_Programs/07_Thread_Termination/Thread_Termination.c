@@ -1,14 +1,14 @@
 /*******************************************************************************
- * File:        Thread_Termination.c
+ * File		: Thread_Termination.c
  *
- * Description: This file contains a C program demonstrating the creation and termination of thread
- *              using the pthreads library. 
+ * Description	: This file contains a C program demonstrating the creation and termination of thread
+ *                using the pthreads library. 
  *
- * Author:      Fidility Solutions.
+ * Author	: Fidility Solutions.
  *
- * Date:        23/02/2024.
+ * Date		: 24/02/2024.
  *
- * Reference    The Linux Programming Interface book
+ * Reference    : "The Linux Programming Interface" book.
 
 * *******************************************************************************/
 
@@ -19,15 +19,15 @@
 #include<sys/syscall.h>
 
 /*
- * Function:    threadfunction()
+ * Function	: threadfunction()
  *
- * Description: This function serves as the entry point for a new thread. It prints various details 
- *              about the thread IDs.
+ * Description	: This function serves as the entry point for a new thread. It prints various details 
+ *                about the thread IDs.
  *
- * Arguments:   None.
+ * Parameters	: None.
  * 
- * Returns:     NULL: Since the function is of type void *, it returns NULL to indicate successful completion 
- *              of the thread function.
+ * Returns	: NULL: Since the function is of type void *, it returns NULL to indicate successful completion 
+ *                of the thread function.
  *
  */
 
@@ -43,15 +43,15 @@ void *threadfunction(void *arg)
 	pthread_exit(NULL);
 }
 /*
- * Function:    main()
+ * Function	: main()
  *
- * Description: This is the entry point of the program. It demonstrates the creation and termination
- *              of a thread using the pthreads library. This function shows creates
- *              a new thread, waits for the new thread to finish its execution, and then exits.
+ * Description	: This is the entry point of the program. It demonstrates the creation and termination
+ *                of a thread using the pthreads library. This function shows creates
+ *                a new thread, waits for the new thread to finish its execution, and then exits.
  *
- * Arguments:   None
+ * parameter	:   None
  *
- * Returns:     0 on successful execution, 1 on failure.
+ * Returns	: 0 on successful execution.
  *
  */
 int main() 

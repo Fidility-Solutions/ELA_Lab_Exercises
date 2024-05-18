@@ -1,3 +1,46 @@
+
+**************************
+Build steps for Raspberry Pi
+**************************
+Step 1:
+-----------
+1. Set the ARCH and CROSS_COMPILE environment Variables
+        $ export ARCH=arm64
+        $ export CROSS_COMPILE=aarch64-linux-gnu-
+
+2. Set the PATH to the Cross-Toolchain
+        $ export PATH=${HOME}/ela_lab_exercises_rpi/rpi_build/toolchain/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/bin/:$PATH
+
+Step 2:
+-----------
+3. Issue the make command
+        $ make
+
+Step 3:
+-----------
+4. Copy the i2c-eeprom-read executable to /root/ of the RootFS
+		(or)
+5. Transfer the file from host to target using SCP.
+	$ scp i2c-eeprom-read root@10.10.1.27:/root/
+6. Transfer the i2c-read-write from host to target using SCP.
+	$ scp i2c-eeprom-read-write root@10.10.1.27:/root/
+Step 4:
+-----------
+6. Boot the board and go to /root directory on the target.
+	$ cd
+
+***********************************
+Commands to run and test the driver application
+***********************************
+1. Give the below command to run the program, it will read the data from EEPROM
+        # ./i2c_eeprom_read
+2. Give the below command to write/read to/from EEPROM
+	#. /i2c-eeprom-read-write
+
+
+
+
+
 **************************
 Build steps for BBB
 **************************
@@ -27,6 +70,11 @@ Step 4:
 Commands to run and test the driver
 ***********************************
 1. Give the below commands to insert and remove the kernel module from a running kernel
-	$ ./i2c_eeprom_read
+	# ./i2c_eeprom_read
+
+
+2. Give the below command to write/read to/from EEPROM
+        #. /i2c-eeprom-read-write
+
 
 

@@ -29,13 +29,13 @@
 #define FILE_PATH "Shared_Mapped_file.txt"
 #define FILE_SIZE 100
 /*
- * function:    errExit
+ * function	: errExit
  *
- * Description: This function will notify the error which is cased by the program and exit from the program 
+ * Description	: This function will notify the error which is cased by the program and exit from the program 
  *
- * parameter:   constant char types pointer variable.
+ * parameter	: Constant char types pointer variable.
  *
- * Return:      None
+ * Return	: None
  *
  **/
 void errExit(const char *message) {
@@ -43,9 +43,11 @@ void errExit(const char *message) {
     exit(EXIT_FAILURE);
 }
 
-/* Function: 	ParentProcess
- * Description: Creates a shared memory mapping of a file, writes data to the mapped memory,
- *              waits for the child process to finish, and then unmaps the memory.
+/* Function	: ParentProcess
+ *
+ * Description	: Creates a shared memory mapping of a file, writes data to the mapped memory,
+ *               waits for the child process to finish, and then unmaps the memory.
+ *
  * Return: None
  */
 void ParentProcess(void) {
@@ -98,12 +100,12 @@ void ParentProcess(void) {
 	printf("Exiting from parent process...\n");
 }
 
-/* Function: 	ChildProcess
+/* Function	: ChildProcess
  *
- * Description: Creates a shared memory mapping of a file, reads data from the mapped memory,
- *              prints it, and then unmaps the memory.
+ * Description	: Creates a shared memory mapping of a file, reads data from the mapped memory,
+ *                prints it, and then unmaps the memory.
  *
- * Return: None
+ * Return	: None
  */
 void ChildProcess(void){
 	sleep(2);
@@ -137,15 +139,15 @@ void ChildProcess(void){
     	exit(EXIT_SUCCESS);
 }
 
-/* Function: 	main
+/* Function	: main
  *
- * Description: Creates a child process, where the child process reads from a shared memory mapping
- *              created by the parent process.
+ * Description	: Creates a child process, where the child process reads from a shared memory mapping
+ *               created by the parent process.
  *
- * Return: 0 on successful execution, non-zero value on failure.
+ * Return	: 0 on successful execution, non-zero value on failure.
  *
  */
-int main() {
+int main(void) {
 	printf("Welcome to Parent & Child shared memory mapping process\n");
     	/* Create child process */
     	pid_t pid = fork();

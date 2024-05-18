@@ -1,14 +1,14 @@
 /******************************************************************************
- * File:        Thread_IDs.c
+ * File		: Thread_IDs.c
  *
- * Description: This file contains a C program demonstrating the creation of multiple thread  and printing 
- * 		thread IDs with respective Therads. 
+ * Description	: This file contains a C program demonstrating the creation of multiple thread  and printing 
+ * 		  thread IDs with respective Therads. 
  *
- * Author:      Fidility Solutions.
+ * Author	: Fidility Solutions.
  *
- * Date:        28/02/2024.
+ * Date		: 26/02/2024.
  *
- * Reference    The Linux Programming Interface book
+ * Reference   	: "The Linux Programming Interface" book.
 
 * *******************************************************************************/
 #include <stdio.h>
@@ -24,7 +24,7 @@
  *              a thread ID and a message as arguments. Based on the message received,
  *              it performs different operations.
  *
- * Arguments: 	arg: A pointer to void representing the arguments passed to the thread function.
+ * Parameters: 	arg: A pointer to void representing the arguments passed to the thread function.
  *           	The first sizeof(int) bytes contain the thread ID, and the remaining bytes
  *           	contain the message.
  * 
@@ -34,13 +34,13 @@
  */
 void *threadfunction(void *arg) {
 
-	 /* Struct to hold thread arguments */
+	/* Struct to hold thread arguments */
 	struct ThreadArgs {
-    	int thread_number;
-    	const char *message;
+    		int thread_number;
+    		const char *message;
 	};
- /* Get the thread ID (TID) of the current thread. */
-                pid_t thread_id = syscall(SYS_gettid);
+ 	/* Get the thread ID (TID) of the current thread. */
+        pid_t thread_id = syscall(SYS_gettid);
 
     	/* Extract arguments passed to the thread */
     	struct ThreadArgs *thread_args = (struct ThreadArgs *)arg;
@@ -74,7 +74,7 @@ void *threadfunction(void *arg) {
  *              multiple threads, each with its own unique arguments, and waits for
  *              all threads to finish execution.
  *
- * Arguments:   None
+ * Parameters:   None
  *  
  * Returns:     0: Indicates successful execution of the program.
  *      	1: Indicates an error occurred during thread creation or joining.

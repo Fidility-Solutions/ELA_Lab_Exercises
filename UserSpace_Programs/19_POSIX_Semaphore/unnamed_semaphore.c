@@ -30,28 +30,28 @@ int SharedResource =0;
 static sem_t semaphore;
 
 /* 
- * Function: 	errExit
+ * Function	: errExit
  * ------------------
- * Description: Prints the error message corresponding to the given system error number using perror(), 
- * 		and exits the program.
+ * Description	: Prints the error message corresponding to the given system error number using perror(), 
+ * 		  and exits the program.
  *
- * Parameters: 	message - The error message to be printed.
+ * Parameters	: message - The error message to be printed.
  *
- * Returns: 	None
+ * Returns	: None
  */
 void errExit(const char *message){
 	perror(message);
 	exit(EXIT_FAILURE);
 }
 /* 
- * Function: 	threadfn
+ * Function	: threadfn
  * -------------------
- * Description: Represents the critical section accessed by multiple threads. Each thread increments a shared variable
+ * Description	: Represents the critical section accessed by multiple threads. Each thread increments a shared variable
  *              after acquiring the semaphore.
  *
- * Parameters: 	arg - Pointer to the argument passed to the thread function
+ * Parameters	: arg - Pointer to the argument passed to the thread function
  *
- * Returns: 	None
+ * Returns	: None
  */
 void *theadfn(void *arg){
 	/*Thread number */
@@ -76,14 +76,14 @@ void *theadfn(void *arg){
 	pthread_exit(NULL);
 }
 /* 
- * Function: 	main
+ * Function	: main
  * ---------------
- * Description: The main function of the program. It initializes the unnamed semaphore, spawns multiple threads,
- *              and waits for them to finish their work.
+ * Description	: The main function of the program. It initializes the unnamed semaphore, spawns multiple threads,
+ *                and waits for them to finish their work.
  *
- * Parameters: 	None
+ * Parameters	: None
  *
- * Returns:    	0 upon successful execution of the program
+ * Returns	: 0 upon successful execution of the program
  */
 int main(void){
 	printf("Welcome to POSIX unnamed semaphore\n");

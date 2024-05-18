@@ -1,18 +1,18 @@
 /******************************************************************************
- * File:        UNIX_Stream_ClntSkt.c
+ * File		: UNIX_Stream_ClntSkt.c
  *
- * Description: This program demonstrates a simple Unix domain socket client using the socket API. 
- * 		It creates a client socket and binds it to a specified address. 
- * 		It then establishes a connection with the server, reads user input, 
- * 		sends the data to the server, and also receives data from the server.
+ * Description	: This program demonstrates a simple Unix domain socket client using the socket API. 
+ * 		  It creates a client socket and binds it to a specified address. 
+ * 		  It then establishes a connection with the server, reads user input, 
+ * 		  sends the data to the server, and also receives data from the server.
  *             
- * Usage:       ./UNIX_Stream_ClntSkt.c
+ * Usage	: ./UNIX_Stream_ClntSkt.c
  *
- * Author:      Fidility Solutions.
+ * Author	: Fidility Solutions.
  *  
- * Date:        01/03/2024
+ * Date		: 01/03/2024
  *
- * Reference:   The Linux Programming Interface book.
+ * Reference	: "The Linux Programming Interface" book.
  *
  ******************************************************************************/
 

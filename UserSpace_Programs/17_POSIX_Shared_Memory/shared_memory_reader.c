@@ -9,9 +9,9 @@
  *
  * Usage: 	./shared_memory_reader
  *
- * Date:	29/02/2024
+ * Date:	04/03/2024
  *
- * Reference: 	The Linux Interface Programming book.
+ * Reference: 	"The Linux Programming Interface" book.
  *
  ****************************************************************************************/
 

@@ -1,4 +1,4 @@
-export ARCH=aarch64
+export ARCH=arm64
 export CROSS_COMPILE=aarch64-linux-gnu-
 export PATH=${HOME}/ela_lab_exercises_rpi/rpi_build/toolchain/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/bin/:$PATH
 

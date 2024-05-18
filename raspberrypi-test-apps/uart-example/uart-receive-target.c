@@ -1,5 +1,5 @@
 /*
- * File		: Uart_Receive_Target.c
+ * File		: uart-receive-target.c
  *
  * Description	: This program demonstrates UART communication between a host (Ubuntu) and a target device over ttyS0 (UART1).
  *                It configures the serial port on the target device, waits to receive data from the host,
@@ -7,9 +7,7 @@
  *
  * Author	: Fidility Solutions.
  *
- * Date		: [Current Date]
- *
- * Reference	: [Any relevant references]
+ * Reference	: Linux Programming Interface.
  */
 
 /* C library headers */

@@ -1,5 +1,4 @@
 # This is a comment line
-#CC=arm-buildroot-linux-gnueabihf-gcc
 # Determine the compiler based on the ARCH variable
 ifdef ARCH
     ifeq ($(ARCH),arm)
@@ -11,7 +10,6 @@ ifdef ARCH
         CFLAGS += -static
     endif
 endif
-#CC=arm-buildroot-linux-gnueabihf-gcc
 
 # CFLAGS will be the options passed to the compiler.
 CFLAGS= -c -Wall
@@ -28,4 +26,4 @@ uart-receive-target:uart-receive-target.c
 	$(CC) $(FLAGS) -o uart-receive-target uart-receive-target.c
 
 clean:
-	rm -rf *.o uart-echo-target uart-receive-target
+	rm -rf *.o uart-echo-target uart-receive-target uart-transmit-host

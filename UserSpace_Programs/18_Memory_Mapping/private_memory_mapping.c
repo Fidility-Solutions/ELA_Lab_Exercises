@@ -29,10 +29,12 @@
 #define FILE_PATH "Private_Mapped_file.txt"
 #define FILE_SIZE 100
 
-/* Function: 	ParentProcess
- * Description: Creates a private shared memory mapping of a file, writes data to the mapped memory,
- *              waits for the child process to finish, and then unmaps the memory.
- * Return: None
+/* Function	: ParentProcess
+ *
+ * Description	: Creates a private shared memory mapping of a file, writes data to the mapped memory,
+ *               waits for the child process to finish, and then unmaps the memory.
+ *
+ * Return	: None
  */
 void ParentProcess(void) {
 	printf("Entered into Parent Process\n");
@@ -91,12 +93,12 @@ void ParentProcess(void) {
 	printf("Exiting from parent process...\n");
 }
 
-/* Function: 	ChildProcess
+/* Function	: 	ChildProcess
  *
- * Description: Creates a private shared memory mapping of a file, tries to read data from the mapped memory,
+ * Description	: Creates a private shared memory mapping of a file, tries to read data from the mapped memory,
  *              if it fails to read print error message.
  *
- * Return: None
+ * Return	: None
  */
 void ChildProcess(void) {
 	sleep(2);
@@ -146,10 +148,12 @@ void ChildProcess(void) {
     	exit(EXIT_SUCCESS);
 }
 
-/* Function: main
- * Description: Creates a child process, where the child process try to reads from a shared memory mapping
- *              created by the parent process and printf the status.
- * Return: 0 on successful execution, non-zero value on failure.
+/* Function	: main
+ *
+ * Description	: Creates a child process, where the child process try to reads from a shared memory mapping
+ *            	  created by the parent process and printf the status.
+ *
+ * Return	: 0 on successful execution, non-zero value on failure.
  */
 int main() {
 	printf("Welcome to Parent & Child private memory mapping process\n");

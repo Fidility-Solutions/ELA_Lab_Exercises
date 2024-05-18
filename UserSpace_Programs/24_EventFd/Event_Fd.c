@@ -1,19 +1,19 @@
 
 /*
- * File name: Event_Fd.c
+ * File name	: Event_Fd.c
  *
- * Description: Demonstrates the usage of event file descriptors for inter-process communication 
- * 		in both thread-based and process-based modes.
- * Usage: ./Event_Fd <mode>
+ * Description	: Demonstrates the usage of event file descriptors for inter-process communication 
+ * 		  in both thread-based and process-based modes.
+ * Usage	: ./Event_Fd <mode>
  *      		Mode: "thread" or "process <event numbers>"
  *      		Example1: ./Event_Fd thread
  *      		Example2: ./Event_Fd process 1 2 4
  *
- * Date: 21/03/2024
+ * Date		: 21/03/2024
  *
- * Author:Fidility Solutions
+ * Author	:Fidility Solutions
  *
- * Reference: [Any references or sources used]
+ * Reference	: Linux manual page
 */
 
 #define _GNU_SOURCE /* Required for eventfd.h on some systems */
@@ -141,7 +141,7 @@ int main(int argc, char *argv[]){
 
 		/* Process-based eventfd */
 		/* Create an eventfd with semaphore mode and non-blocking flag */
-        //	EvntFd = eventfd(0, EFD_SEMAPHORE | EFD_NONBLOCK);
+        	/* EvntFd = eventfd(0, EFD_SEMAPHORE | EFD_NONBLOCK); */
 		EvntFd = eventfd(0,0);
         	if(EvntFd == -1)
             		handle_error("eventfd");

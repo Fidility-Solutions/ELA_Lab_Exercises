@@ -1,5 +1,4 @@
 # This is a comment line
-#CC=arm-buildroot-linux-gnueabihf-gcc
 # Determine the compiler based on the ARCH variable
 ifdef ARCH
     ifeq ($(ARCH),arm)
@@ -11,7 +10,6 @@ ifdef ARCH
         CFLAGS += -static
     endif
 endif
-#CC=arm-buildroot-linux-gnueabihf-gcc
 
 # CFLAGS will be the options passed to the compiler.
 CFLAGS= -c -Wall
@@ -33,5 +31,5 @@ i2c-eeprom-read-write.o:i2c-eeprom-read-write.c
 	$(CC) $(FLAGS) -c i2c-eeprom-read-write.c
 
 clean:
-	rm -rf ./i2c-eeprom-read-write i2c-eeprom-read-write.o i2c-eeprom-read i2c-eeprom-read.o
+	rm -rf *.o i2c-eeprom-read i2c-eeprom-read-write
 

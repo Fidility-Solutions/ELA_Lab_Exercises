@@ -1,14 +1,14 @@
 /*******************************************************************************
- * File:        Thread_Creation.c
+ * File		: Thread_Creation.c
  *
- * Description: This file contains a C program demonstrating the creation and execution of a single thread
- *              using the pthreads library. 
+ * Description	: This file contains a C program demonstrating the creation and execution of a single thread
+ *                using the pthreads library. 
  *
- * Author:      Fidility Solutions.
+ * Author	: Fidility Solutions.
  *
- * Date:        23/02/2024.
+ * Date		: 24/02/2024.
  *
- * Reference    The Linux Programming Interface book
+ * Reference   	: "The Linux Programming Interface" book.
 
 * *******************************************************************************/
 
@@ -20,16 +20,16 @@
 #include<sys/syscall.h>
 
 /*
- * Function: 	threadfunction()
+ * Function	: threadfunction()
  *
- * Description: This function serves as the entry point for a new thread. It prints various details 
- *              about the process and thread IDs, as well as the argument passed to the thread.
+ * Description	: This function serves as the entry point for a new thread. It prints various details 
+ *                about the process and thread IDs, as well as the argument passed to the thread.
  *
- * Arguments:	A pointer to void representing the argument passed to the thread function. In this 
- *            example, it is expected to be a pointer to a string.
+ * Parameters	 : args-A pointer to void representing the argument passed to the thread function. In this 
+ *             	   example, it is expected to be a pointer to a string.
  *
- * Returns: 	NULL: Since the function is of type void *, it returns NULL to indicate successful completion 
- *            of the thread function.
+ * Returns	: NULL: Since the function is of type void *, it returns NULL to indicate successful completion 
+ *            	  of the thread function.
  *
  */
 void *threadfunction(void *args)
@@ -55,13 +55,13 @@ void *threadfunction(void *args)
  *              of a new thread using the pthreads library. The main thread prints a message, creates 
  *              a new thread, waits for the new thread to finish its execution, and then exits.
  *
- * Arguments:   None
+ * Parameters:   None
  *  
  * Returns:     0 on successful execution, 1 on failure.
  *
  */
 
-int main()
+int main(void)
 {
 	printf("Entered into main program which is the main thread \n");
 	/* Declare variables */

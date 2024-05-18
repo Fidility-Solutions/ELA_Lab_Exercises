@@ -11,7 +11,7 @@
  *  
  * Date:        02/03/2024
  *
- * Reference:   The Linux Programming Interface book.
+ * Reference:   "The Linux Programming Interface" book.
  *
  ******************************************************************************/
 

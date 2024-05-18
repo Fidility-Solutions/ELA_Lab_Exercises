@@ -10,9 +10,9 @@
  *
  * Author:      Fidility Solutions.
  *  
- * Date:        01/03/2024
+ * Date:        02/03/2024
  *
- * Reference:   The Linux Programming Interface book.
+ * Reference:   "The Linux Programming Interface" book.
  *
  ******************************************************************************/
 #include <stdio.h>

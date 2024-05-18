@@ -115,7 +115,8 @@ int main(){
 			RecvBuffer[j] = toupper((unsigned char) RecvBuffer[j]);
 
         	/* Send message back to client */
-        	if(sendto(SrvrSktFd, RecvBuffer, BytesRecv, 0,(struct sockaddr *)&strClntAddr, ClntAddrLen)!=BytesRecv)             		errExit("sendto");
+        	if(sendto(SrvrSktFd, RecvBuffer, BytesRecv, 0,(struct sockaddr *)&strClntAddr, ClntAddrLen)!=BytesRecv)             		
+			errExit("sendto");
         	
 	 	/*If BytesRecv from client is zero :Client closed the connection */
                 if(BytesRecv == 0) 

@@ -1,14 +1,14 @@
 /*******************************************************************************
- * File:        Child_Process_Creation.c
+ * File		: Child_Process_Creation.c
  *
- * Description: This program will create the child process using fork() system call 
- * 		and it replace the child process image with new process using execve() system call.
+ * Description	: This program will create the child process using fork() system call 
+ * 		  and it replace the child process image with new process using execve() system call.
  *              
- * Author:      Fidility Solutions.
+ * Author	: Fidility Solutions.
  *
- * Date:        23/02/2024.
+ * Date		: 23/02/2024.
  *
- * Reference    The Linux Programming Interface book
+ * Reference    : "The Linux Programming Interface" book.
 
 * *******************************************************************************/
 #include<stdio.h>
@@ -18,9 +18,9 @@
 
 
 /*
- * Function: main()
+ * Function	: main()
  *
- * Description: Entry point of the program. This function demonstrates the usage of the fork() system call
+ * Description	: Entry point of the program. This function demonstrates the usage of the fork() system call
  *              to create a child process.The parent process waits for the child to finish executing.
  *              If the fork operation succeeds, two separate processes are created: the parent process
  *              and the child process. The child process replaces its own process image with a new program
@@ -28,9 +28,9 @@
  *              Meanwhile, the parent process waits for the child to complete its execution before printing
  *              a message indicating that the child process has finished.
  *
- * Arguments:   None
+ * Parameters	: None
  *  
- * Returns:     None
+ * Returns	: 0-on success
  *
  */
 

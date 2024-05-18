@@ -1,5 +1,4 @@
 # This is a comment line
-#CC=arm-buildroot-linux-gnueabihf-gcc
 # Determine the compiler based on the ARCH variable
 ifdef ARCH
     ifeq ($(ARCH),arm)
@@ -11,7 +10,6 @@ ifdef ARCH
         CFLAGS += -static
     endif
 endif
-#CC=arm-buildroot-linux-gnueabihf-gcc
 
 # CFLAGS will be the options passed to the compiler.
 CFLAGS= -c -Wall
@@ -19,13 +17,13 @@ CFLAGS= -c -Wall
 .PHONY: clean
 
 # Explicit Rule
-all: shared_memory_writter shared_memory_reader
+all: shared_memory_writer shared_memory_reader
 
-shared_memory_writter:shared_memory_writter.c
-	$(CC) $(FLAGS) -o shared_memory_writter shared_memory_writter.c
+shared_memory_writer:shared_memory_writer.c
+	$(CC) $(FLAGS) -o shared_memory_writer shared_memory_writer.c
 
 shared_memory_reader:shared_memory_reader.c
 	$(CC) $(FLAGS) -o shared_memory_reader shared_memory_reader.c
 
 clean:
-	rm -rf *.o shared_memory_reader shared_memory_writter
+	rm -rf *.o shared_memory_reader shared_memory_writer
