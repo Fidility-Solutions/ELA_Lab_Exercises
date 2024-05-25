@@ -5,6 +5,54 @@ Step 1:
 -----------
 1. Issue the make command
 	$ make 
+**************************
+Build steps for RaspberryPi
+**************************
+Step 1:
+-----------
+1. Set the ARCH and CROSS_COMPILE environment Variables
+        $ export ARCH=arm64
+        $ export CROSS_COMPILE=aarch64-linux-gnu-
+
+2. Set the PATH to the Cross-Toolchain
+        $ export PATH=${HOME}/ela_lab_exercises_rpi/rpi_build/toolchain/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/bin/:$PATH
+
+Step 2:
+-----------
+3. Issue the make command
+        $ make
+
+Step 3:
+-----------
+3. Compile the test application using the below command
+        $ gcc -o testapp test_app.c    // X86
+        $ aarch64-linux-gnu-gcc -o testapp test_app.c // ARM64
+
+Step 4:
+-----------
+4. Copy the *.ko and testapp files to the RootFS ditectories /usr
+
+Step 5:
+-----------
+5. Boot the board and go to /usr directory
+
+***********************************
+Commands to run and test the driver
+***********************************
+1. Give the below commands to insert and remove the kernel module from a running kernel
+        $ sudo su // needed only for Ubuntu Host
+        $ insmod ldd_character_driver.ko
+        $ dmesg
+        $ lsmod
+        $ ./testapp
+        $ 1
+        $ hello
+        $ 2
+        $ 3
+        $ rmmod ldd_character_driver
+
+
+
 	
 **************************
 Build steps for BBB

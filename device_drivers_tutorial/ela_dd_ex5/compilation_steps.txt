@@ -5,6 +5,50 @@ Step 1:
 -----------
 1. Issue the make command
 	$ make 
+
+
+**************************
+Build steps for RaspberryPi
+**************************
+Step 1:
+-----------
+1. Set the ARCH and CROSS_COMPILE environment Variables
+        $ export ARCH=arm64
+        $ export CROSS_COMPILE=aarch64-linux-gnu-
+
+2. Set the PATH to the Cross-Toolchain
+        $ export PATH=${HOME}/ela_lab_exercises_rpi/rpi_build/toolchain/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/bin/:$PATH
+
+Step 2:
+-----------
+3. Issue the make command
+        $ make
+
+Step 3:
+-----------
+4. Copy the *.ko files to the RootFS ditectories /usr
+
+Step 4:
+-----------
+5. Boot the board and go to /usr directory
+
+***********************************
+Commands to run and test the driver
+***********************************
+1. Give the below commands to insert and remove the kernel module from a running kernel
+        $ sudo su // needed only for Ubuntu Host
+        $ insmod ldd_fops_example.ko
+        $ dmesg
+        $ lsmod
+        $ cat /proc/devices
+        $ echo 1 > /dev/etx_device
+        $ dmesg
+        $ cat /dev/etx_device
+        $ dmesg
+        $ rmmod ldd_fops_example
+
+
+
 	
 **************************
 Build steps for BBB
