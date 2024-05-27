@@ -31,24 +31,6 @@ Step 4:
 -----------
 5. Boot the board and go to /usr directory
 
-***********************************
-Commands to run and test the driver
-***********************************
-1. Give the below commands to insert and remove the kernel module from a running kernel
-        $ sudo su // needed only for Ubuntu Host
-        $ insmod ldd_static_major_minor.ko
-        $ dmesg
-        $ cat /proc/devices
-        $ rmmod ldd_static_major_minor
-
-        $ insmod ldd_dynamic_major_minor.ko
-        $ dmesg
-        $ cat /proc/devices
-        $ rmmod ldd_dynamic_major_minor
-
-
-
-
 
 	
 **************************
@@ -76,9 +58,9 @@ Step 4:
 -----------
 5. Boot the board and go to /usr directory
 
-***********************************
-Commands to run and test the driver
-***********************************
+*********************************************************************
+Commands to run and test the driver on Host (x86) and Target (Raspi & BBB)
+*********************************************************************
 1. Give the below commands to insert and remove the kernel module from a running kernel
 	$ sudo su // needed only for Ubuntu Host
 	$ insmod ldd_static_major_minor.ko

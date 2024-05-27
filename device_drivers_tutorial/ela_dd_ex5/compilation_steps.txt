@@ -32,22 +32,6 @@ Step 4:
 -----------
 5. Boot the board and go to /usr directory
 
-***********************************
-Commands to run and test the driver
-***********************************
-1. Give the below commands to insert and remove the kernel module from a running kernel
-        $ sudo su // needed only for Ubuntu Host
-        $ insmod ldd_fops_example.ko
-        $ dmesg
-        $ lsmod
-        $ cat /proc/devices
-        $ echo 1 > /dev/etx_device
-        $ dmesg
-        $ cat /dev/etx_device
-        $ dmesg
-        $ rmmod ldd_fops_example
-
-
 
 	
 **************************
@@ -75,9 +59,9 @@ Step 4:
 -----------
 5. Boot the board and go to /usr directory
 
-***********************************
-Commands to run and test the driver
-***********************************
+*********************************************************************
+Commands to run and test the driver on Host (x86) and Target (Raspi & BBB)
+*********************************************************************
 1. Give the below commands to insert and remove the kernel module from a running kernel
 	$ sudo su // needed only for Ubuntu Host
 	$ insmod ldd_fops_example.ko

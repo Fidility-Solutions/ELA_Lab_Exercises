@@ -31,31 +31,7 @@ Step 4:
 -----------
 5. Boot the board and go to /usr directory
 
-***********************************
-Commands to run and test the driver
-***********************************
-1. Give the below commands to insert and remove the kernel module from a running kernel
-        $ sudo su // needed only for Ubuntu Host
-        $ insmod ldd_device_file_manual.ko
-        $ dmesg
-        $ cat /proc/devices
-        $ mknod -m 666 /dev/ext_device c <maj num> <min num>
-        $ ls -l /dev/ext_device
-        $ rmmod ldd_device_file_manual
 
-        $ insmod ldd_device_file_auto.ko
-        $ dmesg
-        $ cat /proc/devices
-        $ ls -l /dev/ext_device
-        $ rmmod ldd_device_file_auto
-
-
-
-
-
-
-
-	
 **************************
 Build steps for BBB
 **************************
@@ -81,9 +57,9 @@ Step 4:
 -----------
 5. Boot the board and go to /usr directory
 
-***********************************
-Commands to run and test the driver
-***********************************
+***************************************************************************
+Commands to run and test the driver on Host (x86) and Target (Raspi & BBB)
+***************************************************************************
 1. Give the below commands to insert and remove the kernel module from a running kernel
 	$ sudo su // needed only for Ubuntu Host
 	$ insmod ldd_device_file_manual.ko

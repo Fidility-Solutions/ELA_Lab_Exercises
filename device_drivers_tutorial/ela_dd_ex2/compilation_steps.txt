@@ -32,26 +32,6 @@ Step 4:
 -----------
 5. Boot the board and go to /usr directory
 
-***********************************
-Commands to run and test the driver
-***********************************
-1. Give the below commands to insert and remove the kernel module from a running kernel
-        $ sudo su // needed only for Ubuntu Host
-        $ insmod ldd_module_param.ko s16Value=10 psName="hello" as16value=1,2,3,4
-        $ dmesg
-        $ ls /sys/module/ldd_module_param/parameters/
-        $ echo 25 >/sys/module/ldd_module_param/parameters/s16Value
-        $ cat /sys/module/ldd_module_param/parameters/s16Value
-        $ echo goodbye  >/sys/module/ldd_module_param/parameters/psName
-        $ cat /sys/module/ldd_module_param/parameters/psName
-        $ echo 10,20,30,40>/sys/module/ldd_module_param/parameters/as16value
-        $ cat /sys/module/ldd_module_param/parameters/as16value
-        $ echo 100  >/sys/module/ldd_module_param/parameters/s16ValueNotify
-        $ dmesg
-        $ cat /sys/module/ldd_module_param/parameters/s16ValueNotify
-
-
-
 	
 **************************
 Build steps for BBB
@@ -78,9 +58,9 @@ Step 4:
 -----------
 5. Boot the board and go to /usr directory
 
-***********************************
-Commands to run and test the driver
-***********************************
+***************************************************************************
+Commands to run and test the driver on Host (x86) and Target (Raspi & BBB)
+***************************************************************************
 1. Give the below commands to insert and remove the kernel module from a running kernel
 	$ sudo su // needed only for Ubuntu Host
 	$ insmod ldd_module_param.ko s16Value=10 psName="hello" as16value=1,2,3,4

@@ -4,7 +4,12 @@ Build steps for X86
 Step 1:
 -----------
 1. Issue the make command
-	$ make 
+	$ make
+ 
+2. Compile the test application
+	$ gcc -o testapp test_app.c              
+
+
 **************************
 Build steps for RaspberryPi
 **************************
@@ -25,8 +30,7 @@ Step 2:
 Step 3:
 -----------
 3. Compile the test application using the below command
-        $ gcc -o testapp test_app.c    // X86
-        $ aarch64-linux-gnu-gcc -o testapp test_app.c // ARM64
+        $ aarch64-linux-gnu-gcc -o testapp test_app.c 	// ARM64
 
 Step 4:
 -----------
@@ -35,22 +39,6 @@ Step 4:
 Step 5:
 -----------
 5. Boot the board and go to /usr directory
-
-***********************************
-Commands to run and test the driver
-***********************************
-1. Give the below commands to insert and remove the kernel module from a running kernel
-        $ sudo su // needed only for Ubuntu Host
-        $ insmod ldd_character_driver.ko
-        $ dmesg
-        $ lsmod
-        $ ./testapp
-        $ 1
-        $ hello
-        $ 2
-        $ 3
-        $ rmmod ldd_character_driver
-
 
 
 	
@@ -74,7 +62,6 @@ Step 2:
 Step 3:
 -----------
 3. Compile the test application using the below command
-	$ gcc -o testapp test_app.c    // X86
 	$ arm-linux-gnueabihf-gcc -o testapp test_app.c // ARM
 	
 Step 4:
@@ -85,9 +72,9 @@ Step 5:
 -----------
 5. Boot the board and go to /usr directory
 
-***********************************
-Commands to run and test the driver
-***********************************
+*********************************************************************
+Commands to run and test the driver on Host (x86) and Target (Raspi & BBB)
+*********************************************************************
 1. Give the below commands to insert and remove the kernel module from a running kernel
 	$ sudo su // needed only for Ubuntu Host
 	$ insmod ldd_character_driver.ko
