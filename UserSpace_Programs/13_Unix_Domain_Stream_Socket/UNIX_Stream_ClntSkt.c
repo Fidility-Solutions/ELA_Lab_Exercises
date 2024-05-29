@@ -50,7 +50,7 @@ int main(void){
 	/* variable Declaration */
     	int ClntSktFd;
 	/* declaration of strcture to represent server address */
-    	struct sockaddr_un strSrvrAddr;
+    	struct sockaddr_un strSrvrAddr,strClntAddr;
     	char s8Buffer[256];
 
     	/* Create UNIX Domain stream client socket */
@@ -58,7 +58,13 @@ int main(void){
     	ClntSktFd = socket(AF_UNIX, SOCK_STREAM, 0);
     	if(ClntSktFd == -1) 
         	errExit("socket creation failed");
-
+	strClntAddr.sun_family = AF_UNIX;
+        snprintf(strClntAddr.sun_path, sizeof(strClntAddr.sun_path),"%s.%ld",SOCKET_PATH ,(long) getpid());
+	if (bind(ClntSktFd, (const struct sockaddr *)&strClntAddr, sizeof(strClntAddr)) < 0) {
+        	perror("bind failed");
+       		 close(ClntSktFd);
+        	exit(EXIT_FAILURE);
+    	}
     	/* Set up server address */
     	memset(&strSrvrAddr, 0, sizeof(strSrvrAddr));
     	strSrvrAddr.sun_family = AF_UNIX;

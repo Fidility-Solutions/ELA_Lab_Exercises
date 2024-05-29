@@ -11,7 +11,7 @@
  *  
  * Date:        02/03/2024
  *
- * Reference:   "The Linux Programming Interface" book.
+ * Reference:   The "Linux Programming Interface" book.
  *
  ******************************************************************************/
 
@@ -24,6 +24,7 @@
 
 #define PORT 8080
 #define MAX_BUFFER_SIZE 1024
+#define SERVER_IP "10.10.1.27"
 
 
 void errExit(const char *as8RcvMsg){
@@ -62,11 +63,10 @@ int main(void) {
     	/* Set server address */
     	strSrvrAddr.sin_family = AF_INET;
     	strSrvrAddr.sin_port = htons(PORT);
-	strSrvrAddr.sin_addr.s_addr= INADDR_ANY;
 
     	/* Convert IPv4 address from text to binary form */
-//    	if(inet_pton(AF_INET, "127.0.0.1", &strSrvrAddr.sin_addr) == 0)
-  //      	errExit("inet_pton error");
+    	if(inet_pton(AF_INET, SERVER_IP, &strSrvrAddr.sin_addr) == 0)
+        	errExit("inet_pton error");
 
     	while(1){
         	/* Take input from user */

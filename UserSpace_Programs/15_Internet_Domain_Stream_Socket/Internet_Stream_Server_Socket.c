@@ -1,16 +1,15 @@
 /**************************************************************************
- * File:        server_socket.c
+ * File:        Internet_Stream_Server_Socket.c
  *
- * Description: This program demonstrates a simple Internet domain Datagram socket server using the socket API. 
- * 		It creates a server socket, binds it to a Unix domain socket path, listens for incoming connections,
- *              accepts client connections, receives messages from clients, echoes the messages back to clients, and 
- *              finally closes the server socket.
+ * Description: This program demonstrates a simple Internet domain stream socket server using the socket API. 
+ * 		It creates a server socket, binds it to specified address, listens for incoming connections,
+ *              accepts client connections, receives messages from clients, response back to clients.
  *
- * Usage:       ./server_socket.c
+ * Usage:       ./Internet_Stream_Server_Socket
  *
  * Author:      Fidility Solutions.
  *  
- * Date:        02/03/2024
+ * Date:        01/03/2024
  *
  * Reference:   "The Linux Programming Interface" book.
  *
@@ -26,13 +25,13 @@
 #include <arpa/inet.h>
 #include <errno.h>
 
-#define PORT_NUM "96400"
+#define PORT_NUM "9640"
 #define BUFFER_SIZE 50
 
 #define ADDRSTRLEN 4096
 int factNum(int Num);
 int main(void){
-	printf("welcome to server-client application program In Intenet Domain stream socket\n");
+	printf("welcome to server application program In Intenet Domain stream socket\n");
 	/*variable Declaration */
     	struct addrinfo hints, *res, *p;
     	int SrvrFd, ClntFd,optval;
@@ -71,34 +70,34 @@ int main(void){
 			printf("socket error number: %d\n", errno);
             		continue;/* On error, try next address */
         	}
-		printf("The server socket is created\n");
+		printf("Server socket created\n");
 
         	/* Set socket option to reuse address */
         	if(setsockopt(SrvrFd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) == -1){
             		perror("setsockopt error");
 			printf("setsockopt error number: %d\n", errno);
-            		exit(EXIT_FAILURE);
+            		continue;
        	 	}
 
         	/* Bind socket to address */
-        	if(bind(SrvrFd, p->ai_addr, p->ai_addrlen) == -1){
-            		perror("bind");
-			printf("bind error number: %d\n", errno);
+        	if(bind(SrvrFd, p->ai_addr, p->ai_addrlen) == 0){
+			/* Success */
+			printf("Server socket Binded with address \n");
             		break;
         	}
-		fflush(stdout);
-		printf("The server socket Bind with specified Atrributes\n");
-		break;
+		close(SrvrFd);
 	}
 
     	/* Check if binding was successful */
     	if(p == NULL){
         	fprintf(stderr, "Failed to bind\n");
+		exit(EXIT_FAILURE);
     	}
 	/* Listen for incoming connections */
     	if(listen(SrvrFd, 50) == -1){
 		printf("listen error number: %d\n", errno); 
 		perror("listen fail");
+		exit(EXIT_FAILURE);
     	}
 
     	/* Free address info */
@@ -113,7 +112,7 @@ int main(void){
         	ClntFd = accept(SrvrFd, (struct sockaddr *)&strClntAddr, &AddrLen);
         	if (ClntFd == -1) {
         		perror("accept failed");
-        		continue;
+        		exit(EXIT_FAILURE);
         	}
 
 		/* Print client's address */
@@ -123,44 +122,28 @@ int main(void){
 			snprintf(as8Addr, ADDRSTRLEN, "(?UNKNOWN?)");
 
 		printf("Connection Established from %s client\n", as8Addr);
-
 		/* Read client request, send sequence number back */
-        	int s8BytesRecv = recv(ClntFd, as8Buffer, BUFFER_SIZE - 1, 0);
-        	if(s8BytesRecv == -1){
-        		perror("recieve error");
-        		close(ClntFd);
-        		continue;
-        	}
+        	while(recv(ClntFd, as8Buffer, BUFFER_SIZE - 1, 0) > 0){
+			/* Null-terminate received data */
 
-		printf("\nData received from client is %s\n",as8Buffer);
+			as8Buffer[BUFFER_SIZE-1]='\0';
+			printf("\nData received from client: %s\n",as8Buffer);
 
-        	/* Null-terminate received data */
-        	as8Buffer[s8BytesRecv] = '\0';
+        		/* Respond to client */
+        		const char *response = "Message received!";
+        		if(send(ClntFd, response, strlen(response),0) == -1){
+				fprintf(stderr, "Error on write");
+				break;
+			}
+			/* Send response to client */
+                	printf("Response sent to client\n");
 
-        	/* Convert client's message to integer */
-        	int reqLen = atoi(as8Buffer);
-		if(reqLen <= 0){
-			close(ClntFd);
-			continue; /* Bad request; skip it */
-		}	
-		reqLen = factNum(reqLen);
+    		}
 
-        	/* Send response to client with current sequence number */
-        	sprintf(as8SeqNum, "%d\n", reqLen);
-		printf("Response sent to client\n");
-        	if(send(ClntFd, as8SeqNum, strlen(as8SeqNum),0) != strlen(as8SeqNum))
-			fprintf(stderr, "Error on write");
-
-    	}
-
-    	/* Close server socket */
-	 close(ClntFd);
+    		/* Close server socket */
+	 	close(ClntFd);
+	}
+	 close(SrvrFd);
 
     	return 0;
-}
-int factNum(int Num){
-	if(Num == 0)
-        	return 1;
-    	else
-        	return Num* factNum(Num - 1);
 }

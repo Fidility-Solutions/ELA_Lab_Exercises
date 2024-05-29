@@ -1,29 +1,45 @@
-# This is a comment line
-# Determine the compiler based on the ARCH variable
+
+# Define the compilers
+# BBB
+CC_ARM = arm-linux-gnu-gcc
+
+#Raspberry Pi
+CC_ARM64 = aarch64-linux-gnu-gcc
+
+# Native
+CC_NATIVE = gcc
+
+# Define the source files
+SRC_ARM		= Internet_Datagram_IPV4_SrvrSkt.c
+SRC_NATIVE	= Internet_Datagram_IPV4_ClntSkt.c
+
+# Define the output binaries
+BIN_ARM     = Internet_Datagram_IPV4_SrvrSkt
+BIN_NATIVE  = Internet_Datagram_IPV4_ClntSkt
+
+# Define the architecture
 ifdef ARCH
-    ifeq ($(ARCH),arm)
-        CC := arm-linux-gnueabihf-gcc
-        CFLAGS += -static
-    endif
-    ifeq ($(ARCH),aarch64)
-        CC := aarch64-linux-gnu-gcc
-        CFLAGS += -static
-    endif
+# Select the compiler and binaries based on the architecture
+ifeq ($(ARCH), arm)
+    CC = $(CC_ARM)
+endif
+ifeq ($(ARCH), arm64)
+    CC = $(CC_ARM64)
+endif
 endif
 
-# CFLAGS will be the options passed to the compiler.
-CFLAGS= -c -Wall
+# Default target
+all: $(BIN_ARM) $(BIN_NATIVE)
 
-.PHONY: clean
+# Rule for compiling the ARM/ARM64/native file
+$(BIN_ARM): $(SRC_ARM)
+	$(CC) -o $@ $<
 
-# Explicit Rule
-all: Internet_Datagram_IPV4_SrvrSkt Internet_Datagram_IPV4_ClntSkt
+# Rule for compiling the shared file
+$(BIN_NATIVE): $(SRC_NATIVE)
+	$(CC_NATIVE) -o $@ $<
 
-Internet_Datagram_IPV4_SrvrSkt:Internet_Datagram_IPV4_SrvrSkt.c
-	$(CC) $(FLAGS) -o Internet_Datagram_IPV4_SrvrSkt Internet_Datagram_IPV4_SrvrSkt.c
-
-Internet_Datagram_IPV4_ClntSkt:Internet_Datagram_IPV4_ClntSkt.c
-	$(CC) $(FLAGS) -o Internet_Datagram_IPV4_ClntSkt Internet_Datagram_IPV4_ClntSkt.c
-
+# Clean up the generated files
 clean:
-	rm -rf *.o Internet_Datagram_IPV4_SrvrSkt Internet_Datagram_IPV4_ClntSkt
+	rm -rf *.o $(BIN_ARM) $(BIN_NATIVE)
+

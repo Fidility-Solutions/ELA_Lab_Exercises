@@ -1,20 +1,16 @@
 /**************************************************************************
- * File:        client_socket.c
+ * File:        Internet_Stream_Client_Socket.c
  *
- * Description: This program demonstrates a simple Internet domain Internet socket client
- *              using the socket API. It creates a client socket, binds it to
- *              a Unix domain socket path, listens for incoming connections,
- *              accepts client connections, receives messages from clients,
- *              echoes the messages back to clients, and finally closes the
- *              server socket.
+ * Description: This program demonstrates a simple Internet domain stream socket client using the socket API. 
+ * 		It creates a client socket, connect to server and send & receive data from server.
  *
- * Usage:       ./client_socket.c
+ * Usage:       ./Internet_Stream_Client_Socket
  *
  * Author:      Fidility Solutions.
  *  
  * Date:        02/03/2024
  *
- * Reference:   "The Linux Programming Interface" book.
+ * Reference:   The "Linux Programming Interface" book.
  *
  ******************************************************************************/
 #include <stdio.h>
@@ -24,14 +20,16 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
+#include <errno.h>
 
-#define PORT_NUM "96400"
+#define PORT_NUM "9640"
 #define BUFFER_SIZE 50
+#define SERVER_IP "10.10.1.27"
 /* Function: main
  *
- * Description: Entry point of the server program. Creates a Internet domain stream socket client,
- *              accepts client connections, receives and echoes messages from/to clients,
- *              and closes the server socket.
+ * Description: Entry point of the client program. Creates a Internet domain stream socket client,
+ *               connect to the server with specified ip address and port number, transmits and receives response from/to server,
+ *              and closes the socket if any error occurs.
  *
  * Parameters:  None
  *
@@ -39,13 +37,10 @@
  */
 
 int main(void) {
-	printf("\nwelcome to server-client application program In Intenet Domain stream socket\n");
+	printf("\nwelcome to client application program In Intenet Domain stream socket\n");
 	/*variable Declaration */
     	int SktFd;
     	char as8Buffer[BUFFER_SIZE];
-    	int SeqLen;
-	char *reqLenStr; /* Requested length of sequence */
-	char seqNumStr[BUFFER_SIZE]; /* Start of granted sequence */
 	ssize_t NumRead;
 	struct addrinfo hints;
 	struct addrinfo *result, *rp;
@@ -61,7 +56,7 @@ int main(void) {
 	hints.ai_flags = AI_NUMERICSERV;
 
     	/* Get address info for TCP server */
-    	if (getaddrinfo("localhost", PORT_NUM, &hints, &result) != 0) {
+    	if (getaddrinfo(SERVER_IP, PORT_NUM, &hints, &result) != 0) {
         	perror("getaddrinfo error");
         	exit(EXIT_FAILURE);
     	}
@@ -76,53 +71,59 @@ int main(void) {
 
         	/* Connect to server */
         	if (connect(SktFd, rp->ai_addr, rp->ai_addrlen)!= -1) {
-            		perror("connect");
-            		break;
+			/* Connection successful */
+            		break;	
         	}
-		/* Connect failed: close this socket and try next address */
-		close(SktFd);
     	}
 
 
     	/* Check if connection was successful */
     	if (rp == NULL) {
-        	fprintf(stderr, "Failed to connect\n");
+        	perror("Failed to connect\n");
 		exit(EXIT_FAILURE);
 	}
         
 	/* Free address info */
         freeaddrinfo(result);
-
-    	printf("\nConnected to server on port %s\n", PORT_NUM);
-
-    	/* Ask client for the length of desired sequence */
-    	printf("Enter the length of desired sequence: ");
-    	scanf("%d", &SeqLen);
-
-    	/* Send the length of desired sequence to server */
-    	sprintf(as8Buffer, "%d\n", SeqLen);
-    	if(write(SktFd, as8Buffer, strlen(as8Buffer))!=strlen(as8Buffer))
-		fprintf(stderr,"Partial/failed write (newline)");
-
-	/* Read and display sequence number returned by server */
-    	/* Receive sequence number from server */
-    	int Bytesrecv = recv(SktFd, as8Buffer, BUFFER_SIZE - 1, 0);
-    	if(Bytesrecv == -1){
-        	perror("recv error");
-		exit(EXIT_FAILURE);
+	while(1){
+		const char *message = "Hello, server!";
+		/* Send the length of desired sequence to server */
+		if(send(SktFd, message, strlen(message),0) == -1){
+			/* Connection closed by server */
+			if (errno == EPIPE) {
+	        		fprintf(stderr, "Server disconnected\n");
+	        		break;
+	        	} 
+			else {
+	        		perror("send fail");
+	        		exit(EXIT_FAILURE);
+	        	}
+		}
+		printf("Sent data to server: %s\n", message);
+		
+		/* Receive response from server */
+		int recvbytes = recv(SktFd, as8Buffer, BUFFER_SIZE - 1, 0);
+		if(recvbytes == -1){
+			/* Connection reset by server */
+			if (errno == ECONNRESET) { 
+	        		fprintf(stderr, "Server reset the connection\n");
+	        		break;
+	        	} 
+			else {
+	        		perror("recv fail");
+	        		exit(EXIT_FAILURE);
+	        	}
+		}
+		/* Null-terminate received data */
+		as8Buffer[recvbytes] = '\0';
+		
+		/* Print the data received from server */
+		printf("Received from server: %s\n", as8Buffer);
+		/* Sleep for 0.5 seconds */
+		usleep(500000);
 	}
-	if(Bytesrecv == 0)
-		fprintf(stderr,"Unexpected EOF from server");
-
-    	/* Null-terminate received data */
-    	as8Buffer[Bytesrecv] = '\0';
-
-    	/* Print sequence number received from server */
-    	printf("Received sequence number from server: %s\n", as8Buffer);
-
     	/* Close socket */
-    	exit(EXIT_SUCCESS);
-
-    return 0;
+	close(SktFd);
+    	return 0;
 }
 

@@ -51,39 +51,34 @@ int main(void){
 	char s8SrvrBuff[MAX_BUFFER_SIZE];
 
     	/* Create socket */
-	printf("The server socket is created \n");
+	printf("Server socket is created \n");
     	if((SrvrFd = socket(AF_INET, SOCK_DGRAM, 0)) < 0){
         	perror("Socket creation error");
         	exit(EXIT_FAILURE);
     	}
 	/* clear the structure before proceed */
-	printf("Clearing the structure before proceeding the communication...\n");
     	memset(&strSrvrAddr, 0, sizeof(strSrvrAddr));
     	memset(&strClntAdrr, 0, sizeof(strClntAdrr));
 
     	/* Load the server address */
 	/* AF_INET is for IPV4 */
-	printf("Loaded the sever family, address and port number to server socket \n");
     	strSrvrAddr.sin_family = AF_INET;
 	/* Any type of IPV4 address */
-    	strSrvrAddr.sin_addr.s_addr = htonl(INADDR_ANY);
+    	strSrvrAddr.sin_addr.s_addr = INADDR_ANY;
 	/* host to n/w byte order */
     	strSrvrAddr.sin_port = htons(PORT);
 
     	/* Bind socketwith specified address */
-	printf("Binding the server socket with specified server address...\n");
     	if(bind(SrvrFd, (struct sockaddr *)&strSrvrAddr, sizeof(strSrvrAddr)) < 0)
         	errExit("Bind failed");
-    	
+    	printf("Bind successful with specified server address...\n");
 	/* Extract server IP address */
     	char server_ip[INET_ADDRSTRLEN];
    	inet_ntop(AF_INET, &strSrvrAddr.sin_addr, server_ip, INET_ADDRSTRLEN);
-    	printf("\nServer IP address: %s\n", server_ip);
-	printf("Server Running...\n");
-	printf("UDP Server is ready to receive data from clients\n");
+	printf("UDP Server is ready to receive data from clients...\n");
     	while(1){
         	/* Receive message from client */
-        	ssize_t RecvLen = recvfrom(SrvrFd, s8ClntBuff, MAX_BUFFER_SIZE, MSG_WAITALL, (struct sockaddr *)&strClntAdrr, &ClntAddrLen);
+        	ssize_t RecvLen = recvfrom(SrvrFd, s8ClntBuff, MAX_BUFFER_SIZE,0, (struct sockaddr *)&strClntAdrr, &ClntAddrLen);
         	if (RecvLen < 0) 
             		errExit("Receive failed");
 

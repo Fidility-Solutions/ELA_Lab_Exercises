@@ -4,11 +4,9 @@
 ifdef ARCH
     ifeq ($(ARCH),arm)
         CC := arm-linux-gnueabihf-gcc
-        CFLAGS += -static
     endif
     ifeq ($(ARCH),aarch64)
         CC := aarch64-linux-gnu-gcc
-        CFLAGS += -static
     endif
 endif
 

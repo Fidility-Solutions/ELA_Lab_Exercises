@@ -1,17 +1,17 @@
 /******************************************************************************
- * File:        Dclient_socket.c
+ * File:        Unix_Datagram_ClientSocket.c
  *
  * Description: This program demonstrates a simple Unix domain Datagram socket client using the socket API. 
  * 		It creates a client socket and binds it to a specified address. It takes user inputs and sends 
  * 		them to the server, and also receives data from the server.
  *             
- * Usage:       ./Dclient_socket.c
+ * Usage:       ./Unix_Datagram_ClientSocket
  *
  * Author:      Fidility Solutions.
  *  
  * Date:        01/03/2024
  *
- * Reference:   The Linux Programming Interface book.
+ * Reference:   The "Linux Programming Interface" book.
  *
  ******************************************************************************/
 
@@ -53,7 +53,7 @@ void errExit(const char *message){
 
 
 int main(){
-	printf("Welcome to client-server application that uses stream sockets in UNIX domain \n");
+	printf("Welcome to client application that uses stream sockets in UNIX domain \n");
 
 	/* variable Declaration */
     	int SrvrSktFd;
@@ -68,11 +68,10 @@ int main(){
     	ssize_t BytesRecv;
 
     	/* Create UNIX Domain Datagram client socket */
-    	printf("Client socket created using socket () sys call ...\n");
     	SrvrSktFd = socket(AF_UNIX, SOCK_DGRAM, 0);
     	if (SrvrSktFd == -1) 
         	errExit("socket creation fail");
-    	
+    	printf("Client socket created\n");
 
     	/* Set up client address */
     	memset(&strClntAddr, 0, sizeof(struct sockaddr_un));
@@ -82,6 +81,7 @@ int main(){
     	/* Bind the client socket with specified adress */
     	if(bind(SrvrSktFd, (struct sockaddr *) &strClntAddr, sizeof(struct sockaddr_un)) == -1)
 		errExit("bind error");
+	printf("Bind successful with specified address\n");
 
     	/* Construct address of server */
 	memset(&strSrvrAddr, 0, sizeof(struct sockaddr_un));
@@ -102,14 +102,14 @@ int main(){
                         printf("Exiting...\n");
                         break;
                 }
-		 printf("Message sent successfully.\n");
+		 printf("Message sent successfully to server.\n");
 
 		/* Receive messages from server */
 		BytesRecv=recvfrom(SrvrSktFd,RecvSrvrBuffer,BUF_SIZE,0,NULL,NULL);
 		if(BytesRecv==-1)
 			errExit("receive fail.");
 
-		printf("Response from server  %.*s\n", (int) BytesRecv, RecvSrvrBuffer);
+		printf("Response received from server: %s \n",  RecvSrvrBuffer);
 
     	}
 

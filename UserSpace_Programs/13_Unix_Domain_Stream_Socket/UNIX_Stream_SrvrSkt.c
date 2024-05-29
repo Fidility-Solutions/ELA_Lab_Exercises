@@ -14,7 +14,7 @@
  *  
  * Date:        01/03/2024
  *
- * Reference:   "The Linux Programming Interface" book.
+ * Reference:   The "Linux Programming Interface" book.
  *
  ******************************************************************************/
 #include <stdio.h>
@@ -47,7 +47,7 @@ void errExit(const char *message) {
  * Return:      0 on successful execution, non-zero value on failure.
  */
 int main(void){
-	printf("Welcome to client-server application that uses stream sockets in UNIX domain \n");
+	printf("Welcome to server application that uses stream sockets in UNIX domain \n");
 
 	/* variable declaration */
     	int SrvrSktFd, ClntSktFds[MAX_CLIENTS], NumofClnts = 0;
@@ -67,11 +67,10 @@ int main(void){
 	/* Construct server socket address, bind socket to it, and make this a listening socket */
 
     	/* Create A UNIX Domain stream server socket */
-	printf("Server socket created using socket() sys call ...\n");
     	SrvrSktFd = socket(AF_UNIX, SOCK_STREAM, 0);
     	if(SrvrSktFd == -1) 
         	errExit("socket creation fail");
-
+	printf("Server socket created\n");
 	/* clearing the structure before use */
     	memset(&strSrvrAddr, 0, sizeof(strSrvrAddr));
    	/* Set up server address with socket family and path to the socket file in the file system */
@@ -81,10 +80,10 @@ int main(void){
     	/* Bind server socket to address */
     	if(bind(SrvrSktFd, (struct sockaddr *)&strSrvrAddr, sizeof(strSrvrAddr)) == -1) 
         	errExit("bind error");
-	printf("The server socket binds to its predetermined or specified address\n");
+	printf("Server socket binded to its specified address\n");
 
     	/* Listen incoming connection from other socket to connect */
-	printf("The Server socket is ready to listen from client sockets ..\n");
+	printf("Server is ready to listen from client ..\n");
     	if(listen(SrvrSktFd, MAX_CLIENTS) == -1) 
         	errExit("listen fail");
 
@@ -92,13 +91,12 @@ int main(void){
 
     	while(1){
         	/* Accept incoming connection from other sockets*/
-		printf("The Server socket is ready to accept incoming connection from other sockets...\n");
+		printf("Server is ready to accept incoming connection from clients...\n");
         	int ClntSktFd = accept(SrvrSktFd, (struct sockaddr *)&strClntAddr, &ClntAddrLen);
 		// Extract client's IP address and port number
 		printf("Client connected: %s\n",strClntAddr.sun_path);
         	if(ClntSktFd == -1) 
            		errExit("accept");
-        	//printf("Client connected:%d\n", ClntSktFd);
 		printf("Enter exit to 'quit' from serever\n");
 
         	/* Receive and echo messages from/to the client */
@@ -109,7 +107,6 @@ int main(void){
             		s8buffer[BytesRecv] = '\0';
             		printf("The Data received from client: %s\n", s8buffer);
 			if(strncmp(s8buffer,"exit\n",4)==0){
-//					printf("Client %d Disconneted\n",ClntSktFd);
 					printf("Client %s Disconnected\n",strClntAddr.sun_path);
 					continue;
 			}
