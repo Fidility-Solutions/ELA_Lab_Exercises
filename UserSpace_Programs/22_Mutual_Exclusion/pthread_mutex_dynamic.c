@@ -23,6 +23,7 @@
 #include <stdint.h>
 
 #define NUM_THREADS 2
+#define MUTEX_TIMED_TRY_BEHAVIOUR 0
 
 pthread_mutex_t mutex;
 /*
@@ -41,7 +42,7 @@ void* ThreadFun(void* arg) {
     	if(ThreadNum == 1){
         	/* Thread 1: Attempt to lock mutex using pthread_mutex_trylock() */
         	printf("Thread %ld trying to acquire mutex using try lock...\n", ThreadNum);
-		sleep(1);
+		sleep(5);
         	int8_t s8Res = pthread_mutex_trylock(&mutex);
         	if(s8Res == 0){
             		printf("Thread %ld acquired mutex using try lock.\n", ThreadNum);
@@ -67,6 +68,9 @@ void* ThreadFun(void* arg) {
         	if(s8Res == 0){
             		printf("Thread %ld acquired mutex using timed lock.\n", ThreadNum);
             		/* Simulate some work */
+#if MUTEX_TIMED_TRY_BEHAVIOUR
+            		sleep(5);   
+#endif
             		pthread_mutex_unlock(&mutex);
             		printf("Thread %ld released mutex.\n", ThreadNum);
         	}

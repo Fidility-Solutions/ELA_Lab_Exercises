@@ -34,8 +34,6 @@ void errExit(const char *ps8Msg) {
 
 sem_t *Semaphore;
 
-static int8_t s8Var=0;
-
 /* 
  * Function	: threadfn
  * -------------------
@@ -48,18 +46,29 @@ static int8_t s8Var=0;
  */
 void *threadfn(void *args){
 	int s8ThreadNum = *((int*)args);
-	/*wait for access to the critical section(shared resources) */
-	printf("Thread%d waiting of semaphore...\n",s8ThreadNum);
-	if(sem_wait(Semaphore) == -1)
-		errExit("sem_wait failed");
-	s8Var=s8Var+10;
-	/*Access the critical section(shared resources) */
-	printf("Thread%d acuired semaphore, the shared resource value after increment:%d\n",s8ThreadNum,s8Var);
-
-	/*Release access to the critical section(shared resources) */
-	sem_post(Semaphore);
-	printf("Thread%d released semaphore and exiting...\n",s8ThreadNum);
-	pthread_exit(NULL);
+	
+	if(s8ThreadNum == 5)
+	{
+		for(;;)
+		{
+			sleep(5);
+			/*Release access to the critical section(shared resources) */
+			sem_post(Semaphore);
+			printf("Thread%d released semaphore\n",s8ThreadNum);
+		}
+	}
+	else
+	{
+		for(;;)
+		{
+			/*wait for access to the critical section(shared resources) */
+			printf("Thread%d waiting of semaphore...\n",s8ThreadNum);
+			if(sem_wait(Semaphore) == -1)
+				errExit("sem_wait failed");
+			/*Access the critical section(shared resources) */
+			printf("Thread%d acquired semaphore\n",s8ThreadNum);
+		}
+	}
 }
 /* 
  * Function	: main
@@ -78,7 +87,7 @@ int main(void){
 	int8_t s8Thread;
 	/* Create/Open the named semaphore */
 	printf("Semaphore is created/opened\n");
-	Semaphore = sem_open(SEM_NAME,O_CREAT|O_EXCL,0644,1);
+	Semaphore = sem_open(SEM_NAME,O_CREAT|O_EXCL,0644,4);
 	if(Semaphore == SEM_FAILED)
 		errExit("sem-open fail");
 	/* create therads */
