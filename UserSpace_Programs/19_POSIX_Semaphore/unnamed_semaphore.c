@@ -23,7 +23,8 @@
 #include <semaphore.h>
 #include <pthread.h>
 
-#define NUM_THREADS 3
+#define NUM_THREADS 2
+#define NUM_ITER 5
 
 /* Global declaration */
 int SharedResource =0;
@@ -56,24 +57,36 @@ void errExit(const char *message){
 void *theadfn(void *arg){
 	/*Thread number */
 	int ThreadNum=*((int8_t *)arg);
-
-	sleep(2);
+	int i=0;
 
 	/*Acquire the semaphore (wait) */
-	printf("Therad%d waiting for semaphore...\n",ThreadNum);
-	if(sem_wait(&semaphore) == -1)
-		errExit("sem_wait error");
+	if(ThreadNum == 0)
+	{
+		for(i=0;i<NUM_ITER;i++)
+		{
+			printf("Thread%d waiting for semaphore...\n",ThreadNum);
+			if(sem_wait(&semaphore) == -1)
+				errExit("sem_wait error");
 
-	printf("Thread%d acquired semaphore\n",ThreadNum);
-	/* Increment the shared resource value */
-	SharedResource++;
-	printf("Thread%d incremented shared resource to: %d\n",ThreadNum,SharedResource);
-
-	/*Release the semaphore(post) */
-	if(sem_post(&semaphore)==-1)
-		errExit("sem_post error");
-	printf("Therad%d released the semaphore and exiting...\n",ThreadNum);
-	pthread_exit(NULL);
+			printf("Thread%d got semaphore\n",ThreadNum);
+			/* Increment the shared resource value */
+			SharedResource++;
+			printf("Thread%d incremented shared resource to: 	 %d\n",ThreadNum,SharedResource);
+		}
+		pthread_exit(NULL);
+	}
+	else if(ThreadNum == 1)
+	{
+		for(i=0;i<NUM_ITER;i++)
+		{
+			/*Post the semaphore(post) */
+			sleep(2);
+			if(sem_post(&semaphore)==-1)
+				errExit("sem_post error");
+			printf("Thread%d posted the semaphore ...\n",ThreadNum);
+		}
+		pthread_exit(NULL);
+		}
 }
 /* 
  * Function	: main
@@ -90,9 +103,9 @@ int main(void){
 	pthread_t Threads[NUM_THREADS];
 	int as8ThreadArgs[NUM_THREADS];
 
-	/* Initialize semaphore with an initial value of 1 */
-	printf("The semaphore is initialized with value 1\n");
-	if(sem_init(&semaphore,0,1)==-1)
+	/* Initialize semaphore with an initial value of 0 */
+	printf("The semaphore is initialized with value 0\n");
+	if(sem_init(&semaphore,0,0)==-1)
 		errExit("sem_init");
 
 	/* Create threads */
@@ -109,6 +122,7 @@ int main(void){
 	/*Destroy the semaphore */
 	if(sem_destroy(&semaphore) == -1)
 		errExit("sem_destroy error");
+	printf("The semaphore is destroyed\n");
 	return 0;
 }
 

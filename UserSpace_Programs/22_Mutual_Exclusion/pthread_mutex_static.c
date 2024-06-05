@@ -21,8 +21,9 @@
 #include <sys/wait.h>
 #include <syscall.h>
 
-#define NUM_INCREMENTS 5
+#define NUM_INCREMENTS 50000
 #define NUM_THREADS 2
+#define MUTEX_LOCK_ENABLE 1
 /* Static initialization of the mutex */
 static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 int counter = 0;
@@ -43,15 +44,19 @@ void *ThreadFunc(void *arg){
     	int8_t s8Check;
 
     	/* Lock the mutex before modifying the counter */
+#if MUTEX_LOCK_ENABLE
     	pthread_mutex_lock(&mutex);
     	printf("\nThe mutex is locked for Thread%ld and The respective thread id(TID):%ld\n\n", ThreadNum, syscall(SYS_gettid));
+#endif
     	for(int i = 0; i < NUM_INCREMENTS; i++){
         	counter++;
         	printf("The counter value incremented by: %d\n", counter);
     	}
     	/* Unlock the mutex after modifying the counter */
+#if MUTEX_LOCK_ENABLE
     	pthread_mutex_unlock(&mutex);
     	printf("Mutex is unlocked from thread%ld\n", ThreadNum);
+#endif
     	printf("Thread%ld finished operation. The counter value = %d\n", ThreadNum, counter);
     	pthread_exit(NULL);
 }
