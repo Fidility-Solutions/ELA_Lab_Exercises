@@ -3,7 +3,7 @@
 #include <unistd.h>
 #include <string.h>
 
-#define CHUNK_SIZE (500 * 1024 * 1024) // 100MB
+#define CHUNK_SIZE (500 * 1024 * 1024) /* 500MB */
 
 int main() {
     printf("Initial memory usage:\n");
@@ -16,9 +16,10 @@ int main() {
             perror("malloc");
             break;
         }
-        // Touch the allocated memory to ensure it's actually allocated
+        /* Touch the allocated memory to ensure it's actually allocated */
         memset(chunk, 0, CHUNK_SIZE);
-        sleep(1); // Slow down the allocation a bit
+	/* Slow down the allocation a bit */
+        sleep(1);
     }
 
     printf("Final memory usage:\n");
