@@ -3,36 +3,27 @@
 ifdef ARCH
     ifeq ($(ARCH),arm)
         CC := arm-linux-gnueabihf-gcc
-        CFLAGS += -static
     endif
-    ifeq ($(ARCH),aarch64)
+    ifeq ($(ARCH),arm64)
         CC := aarch64-linux-gnu-gcc
-        CFLAGS += -static
     endif
 endif
 
-# CFLAGS will be the options passed to the compiler.
-CFLAGS= -c -Wall
-
 # Specify the targets to be built
-TARGETS = FIFO server_fifo client_fifo
+TARGETS = Simple_Fifo server_fifo client_fifo
 .PHONY: clean
 
 # Explicit Rule
 all: $(TARGETS)
 
-FIFO:FIFO.c
-	$(CC) $(FLAGS) -o FIFO FIFO.c
+Simple_Fifo:Simple_Fifo.c
+	$(CC) -o Simple_Fifo Simple_Fifo.c
 
 server_fifo:server_fifo.c
-	$(CC) $(FLAGS) -o server_fifo server_fifo.c
+	$(CC) -o server_fifo server_fifo.c
 
 client_fifo:client_fifo.c
-	$(CC) $(FLAGS) -o client_fifo client_fifo.c
-
-
-#clean:
-#	rm -rf *.o ./FIFO myfifo server_fifo client_fifo
+	$(CC) -o client_fifo client_fifo.c
 
 # Rule to clean up generated files
 clean:

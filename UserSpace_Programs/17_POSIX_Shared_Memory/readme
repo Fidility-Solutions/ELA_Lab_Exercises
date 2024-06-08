@@ -1,0 +1,78 @@
+*************
+Introduction
+*************
+
+shared_memory_reader.c  shared_memory_writer.c
+
+	The programs demonstrate inter-process communication using POSIX shared memory. The shared_memory_reader program creates a shared memory object and maps it into its address space. It then forks a child process which replaces itself with the shared_memory_writer program using execl. The writer program writes data to the shared memory, which the reader program reads after the writer has finished. Both programs use shared memory for data exchange and demonstrate basic shared memory operations such as creation, mapping, reading, and writing.
+
+
+
+ Note: Start the reader program it will creates a child process using fork and replaces itself with the writer program using execl. This mechanism loads the writer process from within the reader process.
+	So don't execute writer program.
+
+
+
+
+*******************************
+Execution steps for RaspberryPi
+*******************************
+Step 1:
+-----------
+1. Set the ARCH and CROSS_COMPILE environment Variables
+        $ export ARCH=arm64
+        $ export CROSS_COMPILE=aarch64-linux-gnu-
+
+2. Set the PATH to the Cross-Toolchain
+        $ export PATH=${HOME}/ela_lab_exercises_rpi/rpi_build/toolchain/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/bin/:$PATH
+
+Step 2:
+-----------
+3. Issue the make command
+        $ make
+
+Step 3:
+-----------
+4. Copy Simple_pipe and pipe_using_dup to /usr directory of target using SCP.
+        Syntax: scp <file> <target-name>@<ipaddress>:<destination-path>
+
+        $ scp shared_memory_reader shared_memory_writer root@10.10.10.1.27:/usr
+
+Step 4:
+-----------
+5. Boot the board and go to /usr directory
+6. Run the compiled program.
+
+        # ./shared_memory_reader
+
+************
+Observation:
+************
+
+	Upon execution, the program perform the following steps:
+	# ./shared_memory_reader
+
+
+
+
+    	1. Reader Program:
+        	->Starts and creates a shared memory object named "/POSIX_Shm_Rgn".
+        	->Sets the size of the shared memory object to 1024 bytes.
+        	->Maps the shared memory object into its address space.
+        	->Forks a child process. The child process replaces itself with the writer program.
+        	->Waits for the child process (writer) to complete.
+        	->Reads the data written by the writer from the shared memory.
+        	->Unmaps, closes, and unlinks the shared memory object.
+
+    	2. Writer Program:
+        	->Opens the shared memory object created by the reader.
+        	->Maps the shared memory object into its address space.
+        	->Writes a message ("Hello from Shared Memory Writer Process") to the shared memory.
+       	 	->Unmaps and closes the shared memory object.
+
+
+	->The shared_memory_reader program initializes shared memory and creates a child process.
+	->The child process runs the shared_memory_writer program, which writes a message to the shared memory.
+	->After the writer process completes, the reader process reads the message from the shared memory.
+	->Both programs perform cleanup operations to ensure proper resource management.
+	->The interaction between the reader and writer processes using shared memory is successfully demonstrated.

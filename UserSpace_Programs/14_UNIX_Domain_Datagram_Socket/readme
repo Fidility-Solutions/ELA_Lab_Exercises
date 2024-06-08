@@ -1,0 +1,59 @@
+*************
+Introduction
+*************
+Unix_Datagram_ClientSocket.c  Unix_Datagram_ServerSocket.c
+
+
+	The programs demonstrate a client-server application using Unix domain datagram sockets. These programs illustrate how to create a server that listens for client messages, processes incoming messages by converting them to uppercase, and sends the processed messages back to the clients. The client program connects to the server, sends messages, and receives responses from the server.
+
+
+Note: Always start server socket before client socket start
+
+
+*******************************
+Execution steps for RaspberryPi
+*******************************
+Step 1:
+-----------
+1. Set the ARCH and CROSS_COMPILE environment Variables
+        $ export ARCH=arm64
+        $ export CROSS_COMPILE=aarch64-linux-gnu-
+
+2. Set the PATH to the Cross-Toolchain
+        $ export PATH=${HOME}/ela_lab_exercises_rpi/rpi_build/toolchain/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/bin/:$PATH
+
+Step 2:
+-----------
+3. Issue the make command
+        $ make
+
+Step 3:
+-----------
+4. Copy Simple_pipe and pipe_using_dup to /usr directory of target using SCP.
+        Syntax: scp <file> <target-name>@<ipaddress>:<destination-path>
+
+        $ scp Unix_Datagram_ClientSocket Unix_Datagram_ServerSocket root@10.10.10.1.27:/usr
+
+Step 4:
+-----------
+5. Boot the board and go to /usr directory
+6. Run the compiled program.
+
+        # ./Unix_Datagram_ServerSocket in one terminal
+        # ./Unix_Datagram_ClientSocket in another terminal
+
+************
+Observation:
+************
+Upon execution, the programs perform the following:
+
+    1. Server Program:
+        ->Starts and creates a Unix domain datagram socket, then binds it to /tmp/UNIX_Datagram_Socket.
+        ->Receives messages from clients, converts them to uppercase, and sends them back.
+        ->Continues to listen for messages and process them in an infinite loop.
+
+    2. Client Program:
+        ->Creates a Unix domain datagram socket and binds it to a unique path.
+        ->Prepares the server address for communication.
+        ->Sends user-entered messages to the server and prints the server's response.
+        ->Disconnects and exits when the user types exit.

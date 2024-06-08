@@ -1,0 +1,89 @@
+*************
+Introduction
+*************
+
+1. pthread_mutex_dynamic.c 
+
+	This program demonstrates thread synchronization using mutex with dynamic initialization. It creates multiple threads that attempt to acquire a mutex lock using different methods: one thread tries to acquire the lock using pthread_mutex_trylock(), and another thread tries to acquire the lock using pthread_mutex_timedlock(). Additionally, the program dynamically initializes the mutex and destroys it when it's no longer needed.
+
+2. pthread_mutex_static.c
+
+	This program demonstrates thread synchronization using mutex with static initialization. It creates multiple threads that increment a global counter while holding a mutex lock to ensure mutual exclusion. Each thread locks the mutex, increments the counter several times, and then unlocks the mutex. The program utilizes static initialization of the mutex.
+
+
+
+
+
+
+*******************************
+Execution steps for RaspberryPi
+*******************************
+Step 1:
+-----------
+1. Set the ARCH and CROSS_COMPILE environment Variables
+        $ export ARCH=arm64
+        $ export CROSS_COMPILE=aarch64-linux-gnu-
+
+2. Set the PATH to the Cross-Toolchain
+        $ export PATH=${HOME}/ela_lab_exercises_rpi/rpi_build/toolchain/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/bin/:$PATH
+
+Step 2:
+-----------
+3. Issue the make command
+        $ make
+
+Step 3:
+-----------
+4. Copy Simple_pipe and pipe_using_dup to /usr directory of target using SCP.
+        Syntax: scp <file> <target-name>@<ipaddress>:<destination-path>
+
+        $ scp pthread_mutex_static pthread_mutex_dynamic root@10.10.10.1.27:/usr
+
+Step 4:
+-----------
+5. Boot the board and go to /usr directory
+6. Run the compiled program.
+
+        # ./pthread_mutex_static
+        $ ./pthread_mutex_dynamic
+
+************
+Observation:
+************
+1. pthread_mutex_dynamic.c
+Upon execution, the program performs the following steps:
+
+    1. Mutex Initialization:
+        ->Dynamically initializes a mutex with the attribute PTHREAD_MUTEX_NORMAL.
+
+    2. Thread Creation:
+        ->Creates multiple threads, each attempting to acquire a mutex lock using different methods.
+
+    3. Mutex Lock Attempts:
+        ->One thread attempts to acquire the mutex using pthread_mutex_trylock(), while another thread attempts to acquire it using pthread_mutex_timedlock().
+        ->The program prints messages indicating whether the threads successfully acquire the mutex or fail due to contention.
+
+    4. Mutex Destruction:
+        ->Destroys the mutex when it's no longer needed.
+
+
+2. pthread_mutex_static.c
+Upon execution, the program performs the following steps:
+
+    1. Mutex Initialization:
+        ->The program initializes a mutex statically using PTHREAD_MUTEX_INITIALIZER.
+
+    2. Thread Creation:
+        ->Multiple threads are created, each executing the ThreadFunc function.
+
+    3. Mutex Locking and Counter Increment:
+        ->Each thread locks the mutex before modifying the counter.
+        ->Threads increment the counter multiple times within the critical section.
+        ->After completing the critical section, threads unlock the mutex.
+
+    4. Thread Completion:
+        ->Each thread finishes its operation after incrementing the counter multiple times and prints the final value of the counter.
+
+    ->The program demonstrates mutual exclusion by ensuring that only one thread can access the critical section (incrementing the counter) at a time.
+    ->Each thread prints the counter value after incrementing it multiple times within the critical section.
+    ->The final output shows that both threads successfully incremented the counter without any race condition or inconsistency.

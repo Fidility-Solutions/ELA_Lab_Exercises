@@ -1,0 +1,123 @@
+*************
+Introduction
+*************
+
+	The file locking program demonstrates how to use the flock() system call for file locking. The program allows a process to request a lock on a file, either as a shared lock or an exclusive lock. The program also supports a non-blocking mode for locks and allows specifying the duration for holding the lock. This is useful in scenarios where multiple processes need to synchronize their access to a file to prevent data corruption.
+
+*******************************
+Execution steps for RaspberryPi
+*******************************
+Step 1:
+-----------
+1. Set the ARCH and CROSS_COMPILE environment Variables
+        $ export ARCH=arm64
+        $ export CROSS_COMPILE=aarch64-linux-gnu-
+
+2. Set the PATH to the Cross-Toolchain
+        $ export PATH=${HOME}/ela_lab_exercises_rpi/rpi_build/toolchain/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/bin/:$PATH
+
+Step 2:
+-----------
+3. Issue the make command
+        $ make
+
+Step 3:
+-----------
+4. Copy Simple_pipe and pipe_using_dup to /usr directory of target using SCP.
+        Syntax: scp <file> <target-name>@<ipaddress>:<destination-path>
+
+        $ scp filelocking_flock root@10.10.10.1.27:/usr
+
+Step 4:
+-----------
+5. Boot the board and go to /usr directory
+6. Run the compiled program.
+
+
+*************
+Program Usage
+*************
+
+The program is run from the command line with the following syntax:
+
+
+	#./file_locking <filename> <lock_type> [sleep-time]
+
+    		<filename>: The name of the file to be locked.
+    		<lock_type>: Specifies the type of lock:
+        	s: Shared lock.
+        	x: Exclusive lock.
+        	n: Non-blocking mode can be appended to the lock type (e.g., sn for non-blocking shared lock).
+    		[sleep-time]: The duration in seconds to hold the lock (optional, default is 10 seconds).
+
+
+*************
+Example Usage
+*************
+
+->To run the program with an exclusive lock on testfile.txt for 10 seconds:
+
+	# ./file_locking testfile.txt x 10
+
+->To run the program with a shared, non-blocking lock on testfile.txt for 5 seconds:
+
+	# ./file_locking testfile.txt sn 5
+
+
+
+Using the program , we can conduct a number of experiments to explore the behavior of flock(). Some examples are shown in the following shell session.
+We begin by creating a file, and then start an instance of our program that sits in the background and holds a shared lock for 60 seconds:
+	
+	# touch file
+	# ./file_locking file s 60 &
+
+		[1] 9777
+		PID 9777: requesting LOCK_SH at 21:19:37
+		PID 9777: granted LOCK_SH at 21:19:37
+
+Next, we start another instance of the program that successfully requests a shared lock and then releases it:
+
+	# ./t_flock file s 2
+	
+		PID 9778: requesting LOCK_SH at 21:19:49
+		PID 9778: granted LOCK_SH at 21:19:49
+		PID 9778: releasing LOCK_SH at 21:19:51
+
+However, when we start another instance of the program that makes a nonblocking requests for an exclusive lock, the request immediately fails:
+	# ./file_locking file xn
+
+		PID 9779: requesting LOCK_EX at 21:20:03
+		PID 9779: already locked - bye!
+
+	When we start another instance of the program that makes a blocking request for an exclusive lock, the program blocks. When the background process that was
+holding a shared lock for 60 seconds releases its lock, the blocked request is granted:
+	# ./file_locking file x
+
+		PID 9780: requesting LOCK_EX at 21:20:21
+		PID 9777: releasing LOCK_SH at 21:20:37
+		PID 9780: granted LOCK_EX at 21:20:37
+		PID 9780: releasing LOCK_EX at 21:20:47
+
+
+
+
+
+
+*************
+Observations
+*************
+
+    1. Lock Acquisition:
+        ->When the program requests a lock, it prints the PID of the process, the type of lock requested, and the current time.
+        ->If the lock is successfully acquired, it prints that the lock was granted along with the current time.
+        ->If the lock cannot be acquired because the file is already locked by another process, and non-blocking mode is enabled, it prints a message indicating that the lock is already held and exits.
+
+    2. Holding the Lock:
+        ->Once the lock is acquired, the program holds the lock for the specified duration (default is 10 seconds).
+        ->During this time, other processes trying to acquire an incompatible lock will be blocked or receive an error if in non-blocking mode.
+
+    3. Releasing the Lock:
+        ->After the specified duration, the program releases the lock and prints the PID of the process, the type of lock released, and the current time.
+
+
+The file_locking program provides a simple yet powerful demonstration of file locking using the flock() system call. It is useful for learning and testing how file locks can be used to synchronize access to files between multiple processes. The program handles different lock types, including non-blocking locks, and demonstrates how to manage lock acquisition and release effectively.

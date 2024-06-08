@@ -12,7 +12,7 @@
  *  
  * Date		: 29/02/2024.
  *
- * Reference    :" The Linux Programming Interface" book.
+ * Reference    :The "Linux Programming Interface" book.
  *
  ******************************************************************************/
 
@@ -120,6 +120,7 @@ int main(void){
             		/* Send message to child */
             		if(mq_send(MsgQDescriptor, as8SendBuffer, strlen(as8SendBuffer) + 1, 0) == -1)
                 		errExit("mq_send error");
+			printf("Message sent successfully\n");
 
 	    		if(strncmp(as8SendBuffer, "exit", 4) == 0){
 	    			break;

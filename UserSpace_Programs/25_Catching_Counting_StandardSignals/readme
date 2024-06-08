@@ -1,0 +1,102 @@
+*************
+Introduction
+*************
+
+sig_receiver.c  sig_sender.c
+
+	The programs demonstrate inter-process communication using signals in a Unix-like environment.
+
+    	1. sig_receiver.c: This program catches and counts signals in a standard signal handler. It sets up a signal handler for each signal and counts the number of times each signal is received. Additionally, it can block signals for a specified amount of time and display pending signals.
+
+    	2. sig_sender.c: This program sends specified signals to a target process identified by its PID. It provides a command-line interface to send signals to a specified process. Optionally, it can send an additional signal to the target process.
+
+
+Note:Always start sig_receiver before sig_sender start to get process ID.
+
+
+*******************************
+Execution steps for RaspberryPi
+*******************************
+Step 1:
+-----------
+1. Set the ARCH and CROSS_COMPILE environment Variables
+        $ export ARCH=arm64
+        $ export CROSS_COMPILE=aarch64-linux-gnu-
+
+2. Set the PATH to the Cross-Toolchain
+        $ export PATH=${HOME}/ela_lab_exercises_rpi/rpi_build/toolchain/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/bin/:$PATH
+
+Step 2:
+-----------
+3. Issue the make command
+        $ make
+
+Step 3:
+-----------
+4. Copy Simple_pipe and pipe_using_dup to /usr directory of target using SCP.
+        Syntax: scp <file> <target-name>@<ipaddress>:<destination-path>
+
+        $ scp sig_sender sig_receiver root@10.10.10.1.27:/usr
+
+Step 4:
+-----------
+5. Boot the board and go to /usr directory
+
+
+6. Run the compiled programs.
+
+        1. Run the sig_receiver program in the background with a specified sleep interval (optional):
+
+                # ./sig_receiver <sleep-interval> &
+
+        2. Run the sig_sender program to send signals to the sig_receiver process:
+
+                # ./sig_sender <PID> <number_of_signals> <signal_number> [additional_signal]
+
+7. sample Execution
+
+        # ./sig_receive 15 & on one terminal
+        # ./sig_sender <pid> 10000 10 2 on another terminal
+
+************
+Observation:
+************
+
+    	1. Upon execution, the sig_receiver program will start counting the signals it receives.
+    	2. The sig_sender program can be used to send signals to the sig_receiver process using its PID.
+    	3. You can observe the behavior of signal handling, blocking, and counting in the sig_receiver program based on the signals sent by the sig_sender program.
+
+   Experiment with different signal numbers and send multiple signals to see how the sig_receiver program responds.
+
+
+
+
+Sample output:
+
+	We first use these two programs to illustrate that a blocked signal is delivered only once, no matter how many times it is generated. We do this by specifying a sleep interval for the receiver and sending all signals before the sleep interval completes.	
+
+
+	# ./sig_receiver 15 &
+		[1] 5368
+		./sig_receiver: PID is 5368
+		./sig_receiver: sleeping for 15 seconds
+
+	# ./sig_sender 5368 1000000 10 2
+		Send SIGUSR1 signals, plus a SIGINT
+		./sig_sender: sending signal 10 to process 5368 1000000 times
+		./sig_sender: exiting
+
+	./sig_receiver: pending signals are:
+		2 (Interrupt)
+		10 (User defined signal 1)
+	./sig_receiver: signal 10 caught 1 time
+
+	[1]+ Done	./sig_receiver 15
+
+->The command-line arguments to the sending program specified the SIGUSR1 and SIGINT signals, which are signals 10 and 2, respectively.
+->From the output above, we can see that even though one million signals were sent, only one was delivered to the receiver.
+->Even if a process doesn’t block signals, it may receive fewer signals than are sent to it. This can happen if the signals are sent so fast that they arrive before the receiving process has a chance to be scheduled for execution by the kernel, with the result that the multiple signals are recorded just once in the process’s pending signal set.
+
+
+
+

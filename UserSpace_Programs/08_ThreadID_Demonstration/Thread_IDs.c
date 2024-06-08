@@ -44,19 +44,19 @@ void *threadfunction(void *arg) {
 
     	/* Extract arguments passed to the thread */
     	struct ThreadArgs *thread_args = (struct ThreadArgs *)arg;
-	
+	printf("\n");
     	/* Printing thread id and the message based on the thread number */
     	if (thread_args->thread_number == 0) {
-        	printf("Thread_%d is running with Thread ID:%d and the argument passed to the thread_1 is:%s\n",thread_args->thread_number,thread_id,thread_args->message);
+        	printf("Thread_%d is running with Thread ID:%d and the argument passed to the thread_1 is:\"%s\" \n",thread_args->thread_number,thread_id,thread_args->message);
 		sleep(5);
     	} 
 	else if (thread_args->thread_number == 1) {
-        	printf("Thread_%d is running with Thread ID:%d and the argument passed to the thread_2 is:%s \n",thread_args->thread_number,thread_id,thread_args->message);
+        	printf("Thread_%d is running with Thread ID:%d and the argument passed to the thread_2 is:\"%s\" \n",thread_args->thread_number,thread_id,thread_args->message);
 		sleep(5);
   
     	}
 	else if(thread_args->thread_number==2){
-		printf("Thread_%d is running with Thread ID:%d and the argument passed to the thread_3 is:%s \n",thread_args->thread_number,thread_id,thread_args->message); 
+		printf("Thread_%d is running with Thread ID:%d and the argument passed to the thread_3 is:\"%s\" \n",thread_args->thread_number,thread_id,thread_args->message); 
 		sleep(5);
 	}
 
@@ -64,7 +64,7 @@ void *threadfunction(void *arg) {
        		printf("Thread ID:%d says Unknown message: %s\n",thread_id, thread_args->message);
 		sleep(5);
     }
-    // Return a value indicating successful execution
+    /* Return a value indicating successful execution */
     return NULL;
 }
 /*
@@ -82,10 +82,10 @@ void *threadfunction(void *arg) {
  */
 
 
-int main() {
-    	printf("Entered into main program\n");
+int main(void) {
+    	printf("Demonistation of thread IDs\n");
 	pid_t Process_id=getpid();
-	printf("Entered the main process with PID:%d\n",Process_id);
+	printf("This is main Thread with PID:%d\n",Process_id);
 
 	/* Array to hold thread IDs */
     	pthread_t threads[3]; 
@@ -113,12 +113,12 @@ int main() {
 		int threadend;
 				 if ((threadend = pthread_join(threads[i], NULL)) == 0)
 				{
-				printf("Thread %d is exited\n",i);
+				printf("Thread_%d is exited\n",i);
 				sleep(3);
 				}
 		else {
-            	fprintf(stderr, "Error joining thread %d.\n", i + 1);
-            	return 1;
+            		fprintf(stderr, "Error joining thread_%d.\n", i + 1);
+            		return 1;
         	}
     	}
     	printf("Exiting Main thread.\n");

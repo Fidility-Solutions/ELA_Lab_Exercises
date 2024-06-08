@@ -11,7 +11,7 @@
  *
  * Date		: 27/02/2024
  *
- * Reference	: "The Linux Programming Interface" book.
+ * Reference	: The "Linux Programming Interface" book.
  *
  *****************************************************************************************************/
 static char clientFifo[CLIENT_FIFO_NAME_LEN];
@@ -46,7 +46,7 @@ static void removeFifo(void)
  *
 */
 int main(int argc, char *argv[]){
-	printf("Welcome to server-client application using FIFO\n This is client FIFO\n");
+	printf("Welcome to client application program using FIFO\n");
 	/* variable declaration */
 	int serverFd, clientFd;
 	struct request req;
@@ -81,18 +81,17 @@ int main(int argc, char *argv[]){
 	snprintf(clientFifo, CLIENT_FIFO_NAME_LEN, CLIENT_FIFO_TEMPLATE,(long) getpid());
 	if (mkfifo(clientFifo, S_IRUSR | S_IWUSR | S_IWGRP) == -1 && errno != EEXIST)
 		fprintf(stderr,"mkfifo %s", clientFifo);
-	
+	printf("Client fifio is created\n");	
 	/* Registering remove client fifo, this will call at end of the program*/
 	if (atexit(removeFifo) != 0)
 		perror("atexit");
 	serverFd = open(SERVER_FIFO, O_WRONLY);
 	if (serverFd == -1)
 		fprintf(stderr,"open %s", SERVER_FIFO);
-
 	/* sending request to server fifo */
 	if (write(serverFd, &req, sizeof(struct request)) != sizeof(struct request))
 		perror("Can't write to server");
-	
+	printf("Sent request number to server:%d\n",req.ReqNum);
 	/* Open client FIFO, read and display response if server writes any response to client */
 	clientFd = open(clientFifo, O_RDONLY);
 	if(clientFd == -1)

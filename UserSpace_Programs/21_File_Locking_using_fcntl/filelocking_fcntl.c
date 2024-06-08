@@ -56,12 +56,12 @@ static void DisplayCmdFrmt(void){
  * Return: int
  */
 int main(int argc, char *argv[]){
-	printf("Welcome to file locking program using fcntl () system call\n");
 	/* check no of arguments */
 	if(argc != 2 || strcmp(argv[1],"--help")==0){
         	printf("Usage: %s <file>\n", argv[0]);
 		exit(EXIT_FAILURE);
 	}
+	printf("Welcome to file locking program using fcntl () system call\n");
 	
 	/* variable declaration */
     	char *file = argv[1];

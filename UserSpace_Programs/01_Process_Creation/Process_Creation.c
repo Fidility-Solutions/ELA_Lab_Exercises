@@ -9,7 +9,7 @@
  *
  * Date		: 23/02/2024.
  *
- * Reference	: "The Linux Programming Interface" book.
+ * Reference	: The "Linux Programming Interface" book.
 
 * *******************************************************************************/
 #include<stdlib.h>
@@ -75,6 +75,7 @@ void ProcessCreation(void)
 
 					sleep(15);
 					end_time=time(NULL);
+					printf("\n");
 					printf("Child_3 Exited from sleep after %ld sec\n",end_time-start_time);
 		    			exit(3);
            			}
@@ -144,7 +145,7 @@ void ProcessCreation(void)
 
 int main(void)
 {
-	printf("Entered into main() function\n");
+	printf("This program demonstrates, creating multiple child processes and the parent will wait until the child process exits with exit status \n");
 	ProcessCreation();
 	return 0;
 }

@@ -1,0 +1,108 @@
+*************
+Introduction
+*************
+
+
+1. Static_Condition_Variable.c
+
+
+	This program demonstrates thread synchronization using condition variables and mutexes. It creates multiple threads that access a shared resource while ensuring mutual exclusion and synchronization using mutex locks and condition variables.
+
+
+
+2. Dynamic_Condition_Variable.c
+
+
+	This program demonstrates the dynamic initialization of condition variables and mutexes for inter-process communication. It creates two threads that operate on a shared data structure while holding a mutex lock. The threads increment a shared variable and signal the condition variable to wake up waiting threads. The main thread waits for the condition variable to be signaled and prints the updated value of the shared variable after each thread has finished its operation.
+
+
+
+
+*******************************
+Execution steps for RaspberryPi
+*******************************
+Step 1:
+-----------
+1. Set the ARCH and CROSS_COMPILE environment Variables
+        $ export ARCH=arm64
+        $ export CROSS_COMPILE=aarch64-linux-gnu-
+
+2. Set the PATH to the Cross-Toolchain
+        $ export PATH=${HOME}/ela_lab_exercises_rpi/rpi_build/toolchain/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/bin/:$PATH
+
+Step 2:
+-----------
+3. Issue the make command
+        $ make
+
+Step 3:
+-----------
+4. Copy Simple_pipe and pipe_using_dup to /usr directory of target using SCP.
+        Syntax: scp <file> <target-name>@<ipaddress>:<destination-path>
+
+        $ scp Static_Condition_Variable Dynamic_Condition_Variable root@10.10.10.1.27:/usr
+
+Step 4:
+-----------
+5. Boot the board and go to /usr directory
+6. Run the compiled program.
+
+        # ./Dynamic_Condition_Variable
+        # ./Static_Condition_Variable
+
+************
+Observation:
+************
+1. Static_Condition_Variable.c
+
+Upon execution, the program performs the following steps:
+
+# ./Static_Condition_Variable
+
+    1. Thread Creation:
+        ->Multiple threads are created, each with a specified sleep time before accessing the shared resource.
+
+    2. Thread Execution:
+        ->Each thread acquires the mutex lock, simulates accessing the shared resource, updates the thread and resource states, and releases the mutex lock.
+
+    3. Main Thread Synchronization:
+        ->The main thread manages synchronization using mutex locks and condition variables.
+        ->It waits for threads to terminate and reaps terminated threads by joining them.
+
+    4. Thread Completion:
+        ->Once all threads have terminated, the program prints a message indicating that all threads have completed.
+
+
+
+	The program demonstrates effective thread synchronization using condition variables and mutexes, ensuring mutual exclusion and proper termination of threads. It provides a robust mechanism for managing shared resources among multiple threads in a concurrent environment.
+
+
+2. Dynamic_Condition_Variable.c
+
+Upon execution, the program performs the following steps:
+
+# ./Dynamic_Condition_Variable
+
+    1. Thread Creation:
+        ->Two threads are created, each executing the ThreadFunc function with shared data.
+
+    2. Thread Execution:
+        ->Each thread increments the shared variable by 100 while holding a mutex lock.
+        ->After completing its operation, it signals the condition variable to wake up waiting threads.
+
+    3. Main Thread Synchronization:
+        ->The main thread locks the mutex and waits for the condition variable to be signaled by the threads.
+        ->Upon receiving the signal, it prints the updated value of the shared variable.
+
+    4. Thread Termination:
+        ->The main thread joins the threads to wait for their termination.
+
+    5. Mutex and Condition Variable Destruction:
+        ->The main thread unlocks the mutex and destroys the mutex and condition variable.
+
+    6. Memory Deallocation:
+        ->Dynamically allocated memory for mutex and condition variable is freed.
+
+
+
+	The program demonstrates dynamic initialization of condition variables and mutexes for inter-process communication, ensuring proper synchronization and mutual exclusion among threads. It provides a robust mechanism for coordinating shared resources and communication between threads in a multi-threaded environment.

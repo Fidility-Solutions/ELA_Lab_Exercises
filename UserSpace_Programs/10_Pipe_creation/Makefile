@@ -3,26 +3,23 @@
 ifdef ARCH
     ifeq ($(ARCH),arm)
         CC := arm-linux-gnueabihf-gcc
-        CFLAGS += -static
     endif
-    ifeq ($(ARCH),aarch64)
+    ifeq ($(ARCH),arm64)
         CC := aarch64-linux-gnu-gcc
-        CFLAGS += -static
     endif
 endif
-
-# CFLAGS will be the options passed to the compiler.
-CFLAGS= -c -Wall
 
 .PHONY: clean
 
 # Explicit Rule
-all: pipe_creation.c  
-#	$(CC)  -static pipe_creation.c -o pipe_creation
+all: simple_pipe pipe_using_dup
 
-# Implicit Rule
-all: pipe_creation.o
-	$(CC)  pipe_creation.o -o pipe_creation
+simple_pipe:simple_pipe.c
+	$(CC) -o simple_pipe simple_pipe.c
+
+pipe_using_dup:pipe_using_dup.c
+	$(CC) -o pipe_using_dup pipe_using_dup.c
 
 clean:
-	rm -rf *.o ./pipe_creation
+	rm -rf *.o pipe_using_dup simple_pipe
+

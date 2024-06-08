@@ -3,22 +3,13 @@
 ifdef ARCH
     ifeq ($(ARCH),arm)
         CC := arm-linux-gnueabihf-gcc
-        CFLAGS += -static
     endif
-    ifeq ($(ARCH),aarch64)
+    ifeq ($(ARCH),arm64)
         CC := aarch64-linux-gnu-gcc
-        CFLAGS += -static
     endif
 endif
 
-# CFLAGS will be the options passed to the compiler.
-CFLAGS= -c -Wall
-
 .PHONY: clean
-
-# Explicit Rule
-all: child_process_execve.c  
-#	$(CC)  -static child_process_execve.c -o child_process_execve
 
 # Implicit Rule
 all: child_process_execve.o

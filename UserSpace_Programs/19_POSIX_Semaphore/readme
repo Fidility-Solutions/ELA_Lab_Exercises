@@ -1,0 +1,155 @@
+*************
+Introduction
+*************
+1. named_semaphore_using_process.c
+
+	This program demonstrates the usage of POSIX named semaphores for inter-process synchronization. The program creates a named semaphore and forks a child process. Both the parent and child processes manipulate a shared counter while ensuring mutual exclusion using the semaphore. This ensures that the critical section, where the counter is incremented, is accessed by only one process at a time.
+
+
+2. named_semaphore_using_thread.c
+
+	This program demonstrates the usage of POSIX named semaphores for thread synchronization. It creates a named semaphore, spawns multiple threads, and each thread increments a shared variable after acquiring the semaphore. This ensures that only a limited number of threads can access the critical section at any given time.
+
+
+
+3. unnamed_semaphore.c
+
+	This program demonstrates the usage of POSIX unnamed semaphores for thread synchronization. It creates a semaphore with an initial value of 0, spawns multiple threads, and each thread increments a shared variable after acquiring the semaphore. This ensures that only one thread can access the critical section at a time.
+
+
+
+
+
+*******************************
+Execution steps for RaspberryPi
+*******************************
+Step 1:
+-----------
+1. Set the ARCH and CROSS_COMPILE environment Variables
+        $ export ARCH=arm64
+        $ export CROSS_COMPILE=aarch64-linux-gnu-
+
+2. Set the PATH to the Cross-Toolchain
+        $ export PATH=${HOME}/ela_lab_exercises_rpi/rpi_build/toolchain/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/bin/:$PATH
+
+Step 2:
+-----------
+3. Issue the make command
+        $ make
+
+Step 3:
+-----------
+4. Copy Simple_pipe and pipe_using_dup to /usr directory of target using SCP.
+        Syntax: scp <file> <target-name>@<ipaddress>:<destination-path>
+
+        $ scp named_semaphore_using_process named_semaphore_using_thread unnamed_semaphore root@10.10.10.1.27:/usr
+
+Step 4:
+-----------
+5. Boot the board and go to /usr directory
+6. Run the compiled program.
+
+        # ./named_semaphore_using_process
+        # ./named_semaphore_using_thread
+	# ./unnamed_semaphore
+
+************
+Observation:
+************
+1. named_semaphore_using_process
+	
+	Upon execution, the program performs the following steps:
+		# ./named_semaphore_using_process
+    
+		1. Initialization:
+        		->Maps a shared memory region for the counter.
+        		->Creates or opens a named semaphore with an initial value of 1.
+
+    		2. Forking:
+        		->Forks a child process.
+
+    		3. Parent Process:
+        		->Waits for the semaphore.
+        		->Checks the semaphore value.
+        		->Increments the counter if the current value is less than or equal to 1, otherwise prints the current counter value.
+        		->Releases the semaphore.
+        		->Waits for the child process to finish.
+
+    		4. Child Process:
+        		->Waits for the semaphore.
+        		->Checks the semaphore value.
+        		->Increments the counter if the current value is less than 1, otherwise prints the current counter value.
+        		->Releases the semaphore.
+
+    		5. Cleanup:
+        		->Closes and unlinks the semaphore.
+
+Output Flow:
+
+    ->The program starts by initializing shared memory and creating a semaphore.
+    ->The parent process acquires the semaphore, increments the counter, and releases the semaphore.
+    ->The child process then acquires the semaphore, increments the counter, and releases the semaphore.
+    ->The parent process waits for the child to finish before performing cleanup operations.
+    ->The output demonstrates that the semaphore ensures mutual exclusion, preventing race conditions while accessing the shared counter
+
+
+2. named_semaphore_using_thread
+
+	Upon execution, the program performs the following steps:
+		# ./named_semaphore_using_thread
+
+    		1. Semaphore Initialization:
+        		->Creates or opens a named semaphore with an initial value of 4.
+
+    		2. Thread Creation:
+        		->Spawns multiple threads, each waiting for access to the critical section.
+        		->One thread periodically releases the semaphore to simulate varying availability.
+
+    		3. Thread Execution:
+        		->Each thread waits for access to the critical section by calling sem_wait.
+        		->Upon acquiring the semaphore, it enters the critical section, prints a message, and then releases the semaphore after a certain time interval.
+
+    		4. Cleanup:
+        		->Waits for all threads to finish their work using pthread_join.
+        		->Closes and unlinks the named semaphore.
+
+Output Flow:
+
+    ->The program starts by initializing a named semaphore with an initial value of 4.
+    ->Multiple threads are created, each waiting for access to the critical section.
+    ->Threads acquire the semaphore in the order of their creation and enter the critical section.
+    ->One thread periodically releases the semaphore to simulate varying availability.
+    ->Threads continue to acquire and release the semaphore until interrupted.
+    ->Upon interruption (Ctrl+C), the program closes and unlinks the named semaphore before exiting.
+
+
+
+
+3. unnamed_semaphore
+
+	Upon execution, the program performs the following steps:
+	# ./unnamed_semaphore
+    		1. Semaphore Initialization:
+        		->Initializes an unnamed semaphore with an initial value of 0.
+
+    		2. Thread Creation:
+        		->Spawns multiple threads, each waiting for access to the critical section.
+        		->One thread increments the shared resource while the other thread releases the semaphore periodically to allow the other thread to access the critical section.
+
+    		3. Thread Execution:
+        		->Each thread waits for access to the critical section by calling sem_wait.
+        		->Upon acquiring the semaphore, it enters the critical section, increments the shared resource, and prints the updated value.
+        		->One thread releases the semaphore periodically using sem_post.
+
+    		4. Cleanup:
+        		->Waits for all threads to finish their work using pthread_join.
+        		->Destroys the semaphore using sem_destroy.
+
+
+Output Flow:
+
+	->The program starts by initializing an unnamed semaphore with an initial value of 0.
+	->Multiple threads are created, each waiting for access to the critical section.
+	->One thread increments the shared resource while the other thread releases the semaphore periodically.
+	->Threads continue to acquire and release the semaphore until all iterations are completed.
+	->Upon completion, the semaphore is destroyed.

@@ -20,6 +20,7 @@
 
 #include <signal.h>
 #include "common.h"
+#define CONST 5
 
 /*
  * Function: 	main
@@ -35,7 +36,7 @@
 
 int main(int argc, char *argv[])
 {
-	printf("Welcome to server-client application using FIFO\n");
+	printf("Welcome to server application program using FIFO\n");
 	/* variable declaration*/
 	int serverFd, dummyFd, clientFd;
 	char clientFifo[CLIENT_FIFO_NAME_LEN];
@@ -47,14 +48,12 @@ int main(int argc, char *argv[])
 	/* Using umask(0) we can get the permissions needed */
 	umask(0);
 	/* creating server FIFO */
-	printf("Server FIFO is created\n");
 	if (mkfifo(SERVER_FIFO, S_IRUSR | S_IWUSR | S_IWGRP) == -1 && errno != EEXIST){
 		fprintf(stderr,"mkfifo %s", SERVER_FIFO);
 		exit(EXIT_FAILURE);
 	}
-
+	printf("Server FIFO is created_%d\n",getpid());
 	/* Open server fifo to Read the request from client */
-	printf("Server FIFO opened to read from clients\n");
 	serverFd = open(SERVER_FIFO, O_RDONLY);
 	if (serverFd == -1){
 		fprintf(stderr,"open %s", SERVER_FIFO);
@@ -64,6 +63,7 @@ int main(int argc, char *argv[])
 	dummyFd = open(SERVER_FIFO, O_WRONLY);
 	if (dummyFd == -1)
 		fprintf(stderr,"open %s", SERVER_FIFO);
+	printf("Server FIFO is ready to read from clients\n");
 	/* Ignore SIGPIPE signal to prevent process termination 
 	 * SIGPIPE is generated when writing to a closed FIFO (named pipe).
 	 * By ignoring SIGPIPE, we ensure that the process does not terminate
@@ -89,11 +89,11 @@ int main(int argc, char *argv[])
 			continue;
 		}
 		/* Send response and close FIFO */
-		resp.RespNum = resp.RespNum+req.ReqNum;
+		resp.RespNum = CONST+req.ReqNum;
 
 		if (write(clientFd, &resp, sizeof(struct response)) != sizeof(struct response))
 			fprintf(stderr, "Error writing to FIFO %s\n", clientFifo);
-		printf("Sent response to the client\n");
+		printf("Response sent to the client\n");
 		resp.RespNum=0;
 		/*close client fifo */
 	if (close(clientFd) == -1)

@@ -48,31 +48,31 @@ void *threadfunction(void *arg) {
 
 	/* structure to get the argumets */
     	struct ThreadArgs *StrTArgs = (struct ThreadArgs *)arg;
-
+	sleep(1);
     	/* Printing message and size of message based on thread number */
     	switch (StrTArgs->u8ThreadNum) {
         case 1:
 		/* if u8ThreadNum is 1 it will execute */
-            	printf("Thread %d received message %s and its respective thread id(TID) is %ld\n", StrTArgs->u8ThreadNum, StrTArgs->s8Msg,syscall(SYS_gettid));
+            	printf("\nThread_%d received message \"%s\" and its respective thread id(TID) is %ld\n", StrTArgs->u8ThreadNum, StrTArgs->s8Msg,syscall(SYS_gettid));
             	printf("Size received: %lu bytes\n", StrTArgs->MsgSize);
 		sleep(10);
             	break;
         case 2:
 		/* if u8ThreadNum is 2 it will execute */
-            	printf("Thread %d received message %s and its respective thread id(TID) is %ld\n", StrTArgs->u8ThreadNum,StrTArgs->s8Msg,syscall(SYS_gettid));
+            	printf("\nThread_%d received message \"%s\" and its respective thread id(TID) is %ld\n", StrTArgs->u8ThreadNum,StrTArgs->s8Msg,syscall(SYS_gettid));
             	printf("Size received: %lu bytes\n", StrTArgs->MsgSize);
 		sleep(10);
             	break;
         case 3:
 		/* if u8ThreadNum is 3 it will execute */
-            	printf("Thread %d received message %s and its respective thread id(TID) is %ld\n", StrTArgs->u8ThreadNum,StrTArgs->s8Msg,syscall(SYS_gettid));
+            	printf("\nThread_%d received message \"%s\" and its respective thread id(TID) is %ld\n", StrTArgs->u8ThreadNum,StrTArgs->s8Msg,syscall(SYS_gettid));
             	printf("Size received: %lu bytes\n", StrTArgs->MsgSize);
 		sleep(10);
             	break;
         default:
 		/* if u8ThreadNum is unknown it will execute */
-            	printf("Unknown thread %d with thread id(TID):%ld\n", StrTArgs->u8ThreadNum,syscall(SYS_gettid));
-			sleep(10);
+            	printf("\nUnknown thread %d with thread id(TID):%ld\n", StrTArgs->u8ThreadNum,syscall(SYS_gettid));
+		sleep(10);
 		break;
     	}
 
@@ -89,47 +89,45 @@ void *threadfunction(void *arg) {
  * Returns	: 0 upon successful execution of the program.
  */
 int main(void) {
-    printf("This program demonstrates the use of Thread Attributes \n");
-    pthread_t Threads[NUM_THREADS];
-    pthread_attr_t ThreadAttr;
+   	 printf("This program demonstrates the use of Thread Attributes \n");
+   	 pthread_t Threads[NUM_THREADS];
+   	 pthread_attr_t ThreadAttr;
 
-    /* 1MB stack MsgSize Attribute to thread */
-    size_t stack_size = 1024 * 1024; 
+   	 /* 1MB stack MsgSize Attribute to thread */
+   	 size_t stack_size = 1024 * 1024; 
 
-    /* Initialize thread attributes */
-    printf("The function pthread_attr_init(&ThreadAttr) is used to initialize a pthread attribute object attr\n");
-    pthread_attr_init(&ThreadAttr);
+   	 /* Initialize thread attributes */
+   	 pthread_attr_init(&ThreadAttr);
+   	 printf("\nThread attributes initialized\n");
 
+   	 /*set the stack MsgSize to new thread */
+   	 pthread_attr_setstacksize(&ThreadAttr, stack_size);
+   	 printf("\nSets the stack size to thread attribute.\n");
 
-    /*set the stack MsgSize to new thread */
-    printf("The pthread_attr_setstacksize() sets the stack size attribute of the pthread attribute.\n");
-    pthread_attr_setstacksize(&ThreadAttr, stack_size);
+   	 /* set thread as detached */
+   	 pthread_attr_setdetachstate(&ThreadAttr, PTHREAD_CREATE_DETACHED);
+   	 printf("\nAssigned the detach state to thread attribute\n");
 
-    /* set thread as detached */
-    printf("Assigning the detach state of the thread attribute to detached.\n");
-    pthread_attr_setdetachstate(&ThreadAttr, PTHREAD_CREATE_DETACHED);
+   	 /* Create thread arguments and pass to new thread*/
+   	 struct ThreadArgs Thread_StrTArgs[NUM_THREADS] = {
+   	     {1, "Hello", sizeof("Hello")},
+   	     {2, "Greetings",sizeof("Greetings")},
+   	     {3, "Hi there", sizeof("Hi there")}
+   	 };
 
-    /* Create thread arguments and pass to new thread*/
-    struct ThreadArgs Thread_StrTArgs[NUM_THREADS] = {
-        {1, "Hello", sizeof("Hello from Thread 1")},
-        {2, "Greetings",sizeof("Greetings from Thread 2")},
-        {3, "Hi there", sizeof("Hi there from Thread 3")}
-    };
+   	 /* Creating multiple threads */
+   	 for (int i = 0; i < NUM_THREADS; i++) {
+   	     if (pthread_create(&Threads[i], &ThreadAttr, threadfunction, (void *)&Thread_StrTArgs[i]) != 0) {
+   	         fprintf(stderr, "Error creating thread %d.\n", i + 1);
+   	         return 1;
+   	     }
+   	 }
 
-    /* Creating multiple threads */
-    for (int i = 0; i < NUM_THREADS; i++) {
-        if (pthread_create(&Threads[i], &ThreadAttr, threadfunction, (void *)&Thread_StrTArgs[i]) != 0) {
-            fprintf(stderr, "Error creating thread %d.\n", i + 1);
-            return 1;
-        }
-    }
-
-    /* Destroy thread attributes */
-    printf("Thread attributes can be destroyed using pthread_attr_destroy() system call without affecting the threads.\n");
-    pthread_attr_destroy(&ThreadAttr);
-
-    /* Main thread exits without waiting for detached threads to finish */
-    printf("Main thread with TID:%ld exited without waiting for other threads to finish\n",syscall(SYS_gettid));
-    pthread_exit(NULL);    
+   	 /* Destroy thread attributes */
+   	 pthread_attr_destroy(&ThreadAttr);
+   	 printf("\nThread attributes destroyed\n");
+   	 /* Main thread exits without waiting for detached threads to finish */
+   	 printf("Main thread with TID:%ld exited\n",syscall(SYS_gettid));
+   	 pthread_exit(NULL);    
 }
 

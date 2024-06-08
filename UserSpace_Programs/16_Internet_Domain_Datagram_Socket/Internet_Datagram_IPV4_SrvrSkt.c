@@ -12,7 +12,7 @@
  *  
  * Date:        02/03/2024
  *
- * Reference:   "The Linux Programming Interface" book.
+ * Reference:   The "Linux Programming Interface" book.
  *
  ******************************************************************************/
 #include <stdio.h>
@@ -42,7 +42,7 @@ void errExit(const char *message) {
 
 
 int main(void){
-	printf("\nWelcome to the server-client application program using datagram sockets in the internet domain\n");
+	printf("\nWelcome to the server application program using datagram sockets in the internet domain\n");
 	/*Variable Declaration */
     	int SrvrFd;
     	struct sockaddr_in strSrvrAddr, strClntAdrr;

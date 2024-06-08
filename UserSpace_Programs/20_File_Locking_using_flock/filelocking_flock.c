@@ -52,18 +52,27 @@ void errExit(char *msg){
  * Return: 	int
 */
 int main(int argc, char *argv[]){
-	printf("Welcome to File Locking concept using flock() system call\n");
 	/* variable declaration */
 	int fd, lock;
+
 	const char *lname;
+
+	char *parray = "Hi there How are you";
+
 	/*To fetch current time */
 	time_t CurrTime = time(NULL);
 	/* check the number of arguments passed */
-	if(argc < 3 || strcmp(argv[1], "--help") == 0 ||strchr("sx", argv[2][0]) == NULL)
-		fprintf(stderr,"%s file lock [sleep-time]\n"
-		"'lock' is 's' (shared) or 'x' (exclusive)\n"
-		"optionally followed by 'n' (nonblocking)\n"
-		"'secs' specifies time to hold lock\n", argv[0]);
+	if(argc < 3 || strcmp(argv[1], "--help") == 0 ||strchr("sx", argv[2][0]) == NULL){
+		fprintf(stderr,"\nSyntax 		: %s 'file' 'lock' [sleep-time]\n"
+		"\nfile		: file to lock\n"		
+		"lock		: 's' (shared) or 'x' (exclusive)\n"
+		"	  	  optionally followed by 'n' (nonblocking)\n"
+		"[sleep-time] 	: specifies time to hold lock\n", argv[0]);
+		exit(EXIT_FAILURE);
+	}
+
+
+	printf("Welcome to File Locking concept using flock() system call\n");
 	
 	/* check the lock reqested from user */
 	lock = (argv[2][0] == 's') ? LOCK_SH : LOCK_EX;
@@ -77,6 +86,7 @@ int main(int argc, char *argv[]){
 
 	/* Open file to be locked */
 	lname = (lock & LOCK_SH) ? "LOCK_SH" : "LOCK_EX";
+	printf("\n");
 	printf("PID %ld: requesting %s at %s sec\n", (long) getpid(), lname,ctime(&CurrTime));
 	if(flock(fd, lock) == -1){
 		if(errno == EWOULDBLOCK){
@@ -87,6 +97,7 @@ int main(int argc, char *argv[]){
 			fprintf(stderr,"flock (PID=%ld)", (long) getpid());
 	}
 	printf("PID %ld: granted %s at %s sec\n", (long) getpid(), lname,ctime(&CurrTime));
+	fprintf(fd, "%s", parray);
 	/* sleep time get from argument provided by user */
 	sleep((argc == 4) ? atoi(argv[3]) : 10);
 	/* release lock */

@@ -8,7 +8,7 @@
  *
  * Date		: 23/02/2024.
  *
- * Reference    : "The Linux Programming Interface" book.
+ * Reference    : The "Linux Programming Interface" book.
 
 * *******************************************************************************/
 #include<stdio.h>
@@ -37,7 +37,7 @@
 
 int main(void)
 { 
-	printf("Entered into the main() function\n");
+	printf("This porgram demonstrates the use of execl () system call\n");
 	/* Create a Child Process using fork() system call  */
 	pid_t child = fork();
 	int status;
@@ -49,10 +49,10 @@ int main(void)
 	/* This is Child Process because the fork() returns zero */
 	else if(child == 0)
 	{
-		printf("Entered into child Process(PID)=%d with parent Process id(PID)=%d\n",getpid(),getppid());
+		printf("Child process created with id (PID):%d and its parent Process id(PID)=%d\n",getpid(),getppid());
 		/* Execute the program with execl */
 		/* Replacing child process with new process using execl() system call */
-		printf("The child process is replaced with new process(ls command) executed by execl() system call \n");
+		printf("Child process is replaced with new process(ls command) by using execl() system call \n");
 		if(execl("/bin/ls","ls","-l",NULL)== -1)
 		{
 			/* execl function returns only if an error occurs */
@@ -68,7 +68,7 @@ int main(void)
 		if (WIFEXITED(status)) 
 		{
 			int exit_status = WEXITSTATUS(status);
-			printf("Child process exited normally with status %d\n", exit_status);
+			printf("\nChild process exited normally with status %d\n", exit_status);
 		} 
 		else if (WIFSIGNALED(status)) 
 		{

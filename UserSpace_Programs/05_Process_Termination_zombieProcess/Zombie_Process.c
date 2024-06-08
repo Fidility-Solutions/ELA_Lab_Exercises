@@ -13,7 +13,7 @@
  *
  * Date	  	: 23/02/2024.
  *
- * Reference   	: "The Linux Programming Interface" book.
+ * Reference   	: The "Linux Programming Interface" book.
  ********************************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
@@ -31,8 +31,7 @@
 
 int main(void)
 {
-	printf("Entered into the main() function\n");
-	printf("Creating Child Process\n");
+	printf("This program demonistrates how process become zombie\n");
 	/* Create a Child Process using fork() system call  */
 	pid_t child = fork();
     	if (child < 0)
@@ -41,11 +40,13 @@ int main(void)
         	exit(EXIT_FAILURE);
 	}
 	/* This is Child Process because the fork() returns zero */
-	else if (child == 0)
+	else if(child == 0)
 	{
+		printf("\nChild process created\n");
         	printf("Child process ID(PID): %d created with parent process ID(PID): %d\n", getpid(), getppid());
 		/* Child process exits immediately after printing */       
-		printf("The Child Process completes its execution\n");
+		sleep(5);
+		printf("The Child Process completed its execution\n");
 		exit(1);
 	}
        /*  Parent of Child Process */	
@@ -54,7 +55,7 @@ int main(void)
         	printf("Parent process ID(PID): %d is entering into sleep\n", getpid());
 		/* Parent process waits for a few seconds before terminating */
 		sleep(10);
-		printf("After sleep the Parent process exiting\n");
+		printf("\nAfter sleep the Parent process exited\n");
 		return 0;
    	}
 	return 0;

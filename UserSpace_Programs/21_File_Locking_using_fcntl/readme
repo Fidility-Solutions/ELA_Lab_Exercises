@@ -1,0 +1,171 @@
+*************
+Introduction
+*************
+filelocking_fcntl.c
+
+	This program demonstrates how to use the fcntl() system call for file locking in a Unix-like environment. The program interacts with the user to set and query file locks. It supports the following functionalities:
+
+    Setting read locks (shared locks)
+    Setting write locks (exclusive locks)
+    Unlocking file regions
+    Querying the status of file locks
+
+The program allows the user to interactively specify the type of lock, the region of the file to be locked, and the behavior of the fcntl() call.
+
+*******************************
+Execution steps for RaspberryPi
+*******************************
+Step 1:
+-----------
+1. Set the ARCH and CROSS_COMPILE environment Variables
+        $ export ARCH=arm64
+        $ export CROSS_COMPILE=aarch64-linux-gnu-
+
+2. Set the PATH to the Cross-Toolchain
+        $ export PATH=${HOME}/ela_lab_exercises_rpi/rpi_build/toolchain/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/bin/:$PATH
+
+Step 2:
+-----------
+3. Issue the make command
+        $ make
+
+Step 3:
+-----------
+4. Copy Simple_pipe and pipe_using_dup to /usr directory of target using SCP.
+        Syntax: scp <file> <target-name>@<ipaddress>:<destination-path>
+
+        $ scp filelocking_fcntl root@10.10.10.1.27:/usr
+
+Step 4:
+-----------
+5. Boot the board and go to /usr directory
+6. Run the compiled program.
+
+
+**************
+Progarm Usage
+**************
+
+	#./filelocking_fcntl <filename>
+
+
+Once the program is running, it will prompt you for commands. You can use the following commands to interact with the program:
+
+    		
+	Welcome to file locking program using fcntl () system call
+	file opened
+	Enter '?' for help
+	PID = 11487>?
+	Format: cmd lock start length [whence]
+
+	cmd   : 'g' (GETLK), 's' (SETLK), or 'w' (SETLKW)
+	lock  : 'r' (READ), 'w' (WRITE), or 'u' (UNLOCK)
+	start : Starting byte from lock
+	length: Ending byte to lock
+	whence: 's' (SEEK_SET, default), 'c' (SEEK_CUR), or 'e' (SEEK_END)
+	
+		g: Query the lock (GETLK)
+    		s: Set the lock (SETLK)
+    		w: Set the lock and wait if necessary (SETLKW)
+    		r: Read lock (shared lock)
+    		w: Write lock (exclusive lock)
+    		u: Unlock
+
+
+	For example:
+		s r 0 10 c
+	This command sets a read lock on the first 10 bytes from the current file position.
+
+*************
+Example Usage
+*************
+
+
+We start a first instance (process A) of the program, placing a read lock on bytes 0 to 39 of the file:
+	Terminal window 1
+		1. create file
+		   	# touch file
+			# ./filelocking_fcntl file
+				Welcome to file locking program using fcntl () system call
+        			file opened
+        			Enter '?' for help
+        			PID = 11487>?
+			
+				PID=790> s r 0 40
+				[PID=790] got lock 
+	Then we start a second instance of the program (process B), placing a read lock on a bytes 70 through to the end of the file:
+	Terminal window 2
+			# ./filelocking_fcntl file
+				Welcome to file locking program using fcntl () system call
+                                file opened
+                                Enter '?' for help
+                                PID = 11565>?
+
+				PID=11565> s r 40 60 e
+				[PID=11565] got lock
+
+
+	->At this point, where process A (process ID 11487) and process B (process ID 11565) hold locks on different parts of the file.
+	->Now we return to process A, where we try to place a write lock on the entire file. We first employ F_GETLK to test whether the lock can be placed and are informed that there is a conflicting lock. Then we try placing the lock with F_SETLK, which also fails. Finally, we try placing the lock with F_SETLKW, which blocks.
+			PID=11487> g w 0 0
+			[PID=11487] Denied by READ lock on 70:0 (held by PID 11565)
+			PID=11487> s w 0 0
+			[PID=11487] failed (incompatible lock)
+			PID=11487> w w 0 0
+
+	->At this point, where process A and process B each hold a lock on different parts of the file, and process A has a queued lock request on the whole file.
+	->We continue in process B, by trying to place a write lock on the entire file. We first test whether the lock can be placed using F_GETLK, which informs us that there is a conflicting lock. We then try placing the lock using F_SETLKW.
+
+			PID=11565> g w 0 0
+			[PID=11565] Denied by READ lock on 0:40 (held by PID 11487)
+			PID=11565> w w 0 0
+			[PID=11565] failed (deadlock)
+
+	->In this shows what happened when process B made a blocking request to place a write lock on the entire file: a deadlock. 
+	->At this point, the kernel selected one of the lock requests to fail—in this case, the request by process B, which then receives the EDEADLK error from its fcntl() call.
+	->We continue in process B, by removing all of its locks on the file:
+	
+			PID=11565> s u 0 0
+			[PID=11565] unlocked
+	-> now process A got the write lock
+			PID = 11487>w w 0 0
+			[PID=11487] got lock
+			PID = 11487>
+
+
+
+
+
+************
+Observation
+************
+
+    1. File Locking:
+        ->When setting a lock, the program will attempt to apply the specified lock to the file.
+        ->If successful, it will inform you that the lock has been acquired.
+        ->If unsuccessful (due to another process holding an incompatible lock), it will print an error message indicating that the lock failed.
+
+    2. Querying Locks:
+        ->When querying a lock, the program will check if the specified region can be locked.
+        ->If the region can be locked, it will inform you that the lock can be placed.
+        ->If the region cannot be locked, it will provide details about the existing lock, including the type of lock and the PID of the process holding the lock.
+
+    3. Unlocking:
+        ->When unlocking a region, the program will attempt to remove any locks on the specified region.
+        ->If successful, it will inform you that the region has been unlocked.
+
+    4. Error Handling:
+        ->The program includes error handling for common issues, such as invalid commands and system call failures.
+
+
+	The file_locking program provides an interactive way to experiment with file locking using the fcntl() system call. It is a useful tool for understanding how file locks work in Unix-like systems and can be helpful in debugging and managing file access in multi-process applications.
+
+
+
+
+
+
+
+
+
+

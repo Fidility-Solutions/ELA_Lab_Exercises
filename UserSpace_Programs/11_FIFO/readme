@@ -1,0 +1,81 @@
+*************
+Introduction
+*************
+1. Simple_fifo.c
+
+	This C program demonstrates inter-process communication (IPC) between a parent and a child process using a FIFO (First In, First Out), also known as a named pipe. In this program, the parent process writes a message to the FIFO, and the child process reads the message from it.
+
+2. server_fifo.c & client_fifo.c
+
+	This pair of C programs demonstrates inter-process communication (IPC) in a client-server model using FIFOs (named pipes). The server program listens for requests from clients, processes these requests, and responds back. The client program sends a request to the server and waits for a response.
+	
+
+Note: Always start server fifo before client fifio start
+
+
+*******************************
+Execution steps for RaspberryPi
+*******************************
+Step 1:
+-----------
+1. Set the ARCH and CROSS_COMPILE environment Variables
+        $ export ARCH=arm64
+        $ export CROSS_COMPILE=aarch64-linux-gnu-
+
+2. Set the PATH to the Cross-Toolchain
+        $ export PATH=${HOME}/ela_lab_exercises_rpi/rpi_build/toolchain/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/bin/:$PATH
+
+Step 2:
+-----------
+3. Issue the make command
+        $ make
+
+Step 3:
+-----------
+4. Copy Simple_pipe and pipe_using_dup to /usr directory of target using SCP.
+        Syntax: scp <file> <target-name>@<ipaddress>:<destination-path>
+
+        $ scp Simple_fifo server_fifo client_fifo pipe_using_dup root@10.10.10.1.27:/usr
+
+Step 4:
+-----------
+5. Boot the board and go to /usr directory
+6. Run the compiled program.
+
+        # ./Simple_fifo
+
+        # ./server_fifo
+	# ./client_fifo
+
+************
+Observation:
+************
+1. Simple_fifo
+	Upon execution, the program performs the following:
+
+	# ./simple_fifo
+    		1. Parent Process:
+        		->The parent process writes the message "Hello from parent" to the FIFO.
+
+    		2. Child Process:
+        		->The child process reads the message from the FIFO and prints it.
+		3. The parent process (PID 12345) writes "Hello from parent" to the FIFO and prints a confirmation message.
+		4. The child process (PID 12346) reads the message from the FIFO and prints "child process received message
+
+
+ 
+2. server_fifo & client_fifo
+	Upon execution, the program performs the following:
+
+	# ./server_fifo in one terminal
+	# ./client_fifo in another terminal
+
+		1. The server program (server_fifo) starts and creates a named pipe, then waits for client requests.
+		2. The client program (client_fifo) sends a request number (e.g., 10) to the server.
+		3. The server receives the request, processes it by adding a constant (e.g., 5), and sends the result (e.g., 15) back to the client.
+		4. The client receives the response and prints it.
+
+
+
+
+ 

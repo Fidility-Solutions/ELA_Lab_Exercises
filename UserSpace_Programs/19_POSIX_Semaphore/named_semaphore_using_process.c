@@ -22,6 +22,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <stdint.h>
+#include <errno.h>
 #include <sys/wait.h>
 #include <sys/mman.h>
 
@@ -60,7 +61,7 @@ void ParentProcess(void)
 	/* To get the current value of semaphore we will use sem_getvalue() sys call */
 	if(sem_getvalue(sem,&RetriveValue) == -1)
                 errExit("sem_getRetriveValue error");
-	printf("Semaphore acquired! The sem value after wait in parent process is:%d\n",RetriveValue);
+	printf("Parent acquired semaphore! The sem value after wait is:%d\n",RetriveValue);
 
 	/* perform action from parent */
 	if(*ps8count>1)
@@ -68,7 +69,7 @@ void ParentProcess(void)
 	else{
 	for(int i=0;i<10;i++)
 		(*ps8count)++;
-	printf("The counter value  after operation in parent is :%d\n",*ps8count);
+	printf("Counter value  after operation in parent is :%d\n",*ps8count);
 	}
 	/* Increment the semaphore value using sem_post () sys call */
 	if(sem_post(sem) == -1)
@@ -76,7 +77,7 @@ void ParentProcess(void)
 	/* Get the current value after post */
 	if(sem_getvalue(sem,&RetriveValue) == -1)
 		errExit("sem_getRetriveValue error");
-	printf("Semaphore released! The sem value after post from parent process is:%d\n",RetriveValue);
+	printf("Parent released semaphore! The sem value after post is:%d\n",RetriveValue);
 	/* wait fro child to finish work*/
 	wait(NULL);
 }
@@ -96,7 +97,7 @@ void ChildProcess(void){
 	/* Get the current value of semaphore before proceed*/
 	if(sem_getvalue(sem,&RetriveValue) == -1)
                 errExit("sem_getRetriveValue error");
-	printf("The sem value before wait in child process is:%d\n",RetriveValue);
+	printf("Sem value before wait in child process is:%d\n",RetriveValue);
 	/* Decrement the value of semaphore if it is greater than 0 */
 	printf("Waiting for semaphore in child process...\n");
 	if(sem_wait(sem)== -1)
@@ -105,14 +106,14 @@ void ChildProcess(void){
 	/* perform some action */
 	if(sem_getvalue(sem,&RetriveValue) == -1)
                 errExit("sem_getRetriveValue error");
-	printf("Semaphore acquired! The semaphore value after wait in child process is:%d\n",RetriveValue);
+	printf("Child process acquired semaphore! The semaphore value after wait is:%d\n",RetriveValue);
 
 	if(*ps8count <1)
 		printf("The count value is: %d\n",*ps8count);
 	else{
 		for(int i=0;i<10;i++)
 			(*ps8count)++;
-		printf("The count value in child after operation on count is: %d\n",*ps8count);
+		printf("Count value in child after operation on count is: %d\n",*ps8count);
 	}
 	/* Increment the semaphore value */
 	if(sem_post(sem) == -1)
@@ -121,7 +122,7 @@ void ChildProcess(void){
 	/* After post check the value of semaphore */
 	if(sem_getvalue(sem,&RetriveValue) == -1)
                 errExit("sem_getRetriveValue error");
-	printf("Semaphore released! The sem value after post in child process is:%d\n",RetriveValue);
+	printf("Child Process released semaphore! The sem value after post is:%d\n",RetriveValue);
 
 	exit(EXIT_SUCCESS);
 }
@@ -135,11 +136,16 @@ void ChildProcess(void){
  * Returns	: 0 upon successful execution of the program
  */
 int main(void){
-	printf("Welcome to POSIX named semaphore program\n");
+	printf("Welcome to POSIX named semaphore program using processes\n");
 	/* mmap() is a POSIX function used to map a region of memory into the address space of a process. By specifying the MAP_SHARED flag, we indicate that the mapped memory region should be shared among multiple processes. */
 	ps8count = mmap(NULL, sizeof(int), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	/* Specify the initial count value */
 	*ps8count =1;
+	/* Attempt to unlink the semaphore if it already exists */
+    	if(sem_unlink(SEM_NAME) == -1 && errno != ENOENT) {
+        	perror("sem_unlink");
+        	exit(EXIT_FAILURE);
+    	}
 	/* Create/Open the sempahore */
 	sem=sem_open(SEM_NAME,O_CREAT|O_EXCL, S_IRUSR | S_IWUSR,1);
 	if(sem==SEM_FAILED)

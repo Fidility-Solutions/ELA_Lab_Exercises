@@ -3,16 +3,12 @@
 ifdef ARCH
     ifeq ($(ARCH),arm)
         CC := arm-linux-gnueabihf-gcc
-        CFLAGS += -static
     endif
-    ifeq ($(ARCH),aarch64)
+    ifeq ($(ARCH),arm64)
         CC := aarch64-linux-gnu-gcc
-        CFLAGS += -static
     endif
 endif
 
-# CFLAGS will be the options passed to the compiler.
-CFLAGS= -c -Wall
 
 .PHONY: clean
 
@@ -20,13 +16,13 @@ CFLAGS= -c -Wall
 all: named_semaphore_using_process unnamed_semaphore named_semaphore_using_thread
 
 named_semaphore_using_process:named_semaphore_using_process.c
-	$(CC) $(FLAGS) -o named_semaphore_using_process named_semaphore_using_process.c
+	$(CC) -o named_semaphore_using_process named_semaphore_using_process.c
 
 unnamed_semaphore:unnamed_semaphore.c
-	$(CC) $(FLAGS) -o unnamed_semaphore unnamed_semaphore.c
+	$(CC) -o unnamed_semaphore unnamed_semaphore.c
 
 named_semaphore_using_thread:named_semaphore_using_thread.c
-	$(CC) $(FLAGS) -o named_semaphore_using_thread named_semaphore_using_thread.c
+	$(CC) -o named_semaphore_using_thread named_semaphore_using_thread.c
 
 clean:
 	rm -rf *.o named_semaphore_using_process unnamed_semaphore named_semaphore_using_thread

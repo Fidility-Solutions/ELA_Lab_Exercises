@@ -1,0 +1,64 @@
+*************
+Introduction
+*************
+
+Internet_Stream_Client_Socket.c  Internet_Stream_Server_Socket.c
+
+	The programs demonstrate a client-server application using Internet domain stream sockets. The server program listens for incoming TCP connections on a specified port, accepts client connections, and processes messages from clients by responding with a predefined message. The client program connects to the server, sends a message, and receives and displays the server's response.
+
+
+Note: Always start server socket on target(Raspi) before client socket start on ubuntu(x86)
+
+
+*******************************
+Execution steps for RaspberryPi
+*******************************
+Step 1:
+-----------
+1. Set the ARCH and CROSS_COMPILE environment Variables
+        $ export ARCH=arm64
+        $ export CROSS_COMPILE=aarch64-linux-gnu-
+
+2. Set the PATH to the Cross-Toolchain
+        $ export PATH=${HOME}/ela_lab_exercises_rpi/rpi_build/toolchain/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/bin/:$PATH
+
+Step 2:
+-----------
+3. Issue the make command
+        $ make
+
+Step 3:
+-----------
+4. Copy Simple_pipe and pipe_using_dup to /usr directory of target using SCP.
+        Syntax: scp <file> <target-name>@<ipaddress>:<destination-path>
+
+        $ scp Unix_Datagram_ServerSocket root@10.10.10.1.27:/usr
+
+Step 4:
+-----------
+5. Boot the board and go to /usr directory
+6. Run the compiled program.
+
+        # ./Internet_Stream_Server_Socket in target(Raspi) terminal
+        $ ./Internet_Stream_Client_Socket in ubuntu(x86) terminal
+
+************
+Observation:
+************
+Upon execution, the programs perform the following:
+
+    1. Server Program:
+        ->Starts and creates a TCP socket, then binds it to port 9640.
+        ->Listens for incoming connections.
+        ->Accepts client connections and prints the client's address.
+        ->Receives messages from clients and responds with a predefined message ("Message received!").
+        ->Closes the client connection after responding.
+
+    2.Client Program:
+        ->Creates a TCP socket and connects to the server at a specified IP address and port 9640.
+        ->Sends a message ("Hello, server!") to the server.
+        ->Receives and prints the server's response ("Message received!").
+        ->Continues to send messages and receive responses in a loop.
+        ->Closes the connection on exit.
+
+The communication continues in a loop, demonstrating successful TCP communication between the client and server.

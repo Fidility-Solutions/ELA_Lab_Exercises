@@ -4,13 +4,11 @@ ifdef ARCH
     ifeq ($(ARCH),arm)
         CC := arm-linux-gnueabihf-gcc
     endif
-    ifeq ($(ARCH),aarch64)
+  ifeq ($(ARCH),arm64)
         CC := aarch64-linux-gnu-gcc
     endif
 endif
 
-# CFLAGS will be the options passed to the compiler.
-CFLAGS= -c -Wall
 
 .PHONY: clean
 
@@ -18,10 +16,10 @@ CFLAGS= -c -Wall
 all: Unix_Datagram_ServerSocket Unix_Datagram_ClientSocket
 
 Unix_Datagram_ServerSocket:Unix_Datagram_ServerSocket.c
-	$(CC) $(FLAGS) -o Unix_Datagram_ServerSocket Unix_Datagram_ServerSocket.c
+	$(CC) -o Unix_Datagram_ServerSocket Unix_Datagram_ServerSocket.c
 
 Unix_Datagram_ClientSocket:Unix_Datagram_ClientSocket.c
-	$(CC) $(FLAGS) -o Unix_Datagram_ClientSocket Unix_Datagram_ClientSocket.c
+	$(CC) -o Unix_Datagram_ClientSocket Unix_Datagram_ClientSocket.c
 
 clean:
 	rm -rf *.o Unix_Datagram_ServerSocket Unix_Datagram_ClientSocket

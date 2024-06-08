@@ -1,0 +1,83 @@
+*************
+Introduction
+*************
+
+1. User_MsgQueue.c (With User Input):
+
+	The User_MsgQueue.c program demonstrates inter-process communication (IPC) using POSIX message queues in C. This program creates a message queue, forks a child process, and facilitates communication between the parent and child processes using the message queue. The parent process sends messages to the queue, and the child process receives these messages. The program continues this communication loop until the user enters "exit," at which point the message queue is closed and unlinked.
+
+
+2. Message_Queue.c
+
+	This program creates a message queue, sets up a notification mechanism for message arrival using signals, forks a child process, and facilitates communication between the parent and child processes using the message queue. The parent process sends a message to the queue, and the child process receives the message upon notification. The program demonstrating the handling of message queue notifications and signal-driven I/O.
+
+
+*******************************
+Execution steps for RaspberryPi
+*******************************
+Step 1:
+-----------
+1. Set the ARCH and CROSS_COMPILE environment Variables
+        $ export ARCH=arm64
+        $ export CROSS_COMPILE=aarch64-linux-gnu-
+
+2. Set the PATH to the Cross-Toolchain
+        $ export PATH=${HOME}/ela_lab_exercises_rpi/rpi_build/toolchain/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/bin/:$PATH
+
+Step 2:
+-----------
+3. Issue the make command
+        $ make
+
+Step 3:
+-----------
+4. Copy Simple_pipe and pipe_using_dup to /usr directory of target using SCP.
+        Syntax: scp <file> <target-name>@<ipaddress>:<destination-path>
+
+        $ scp User_MsgQueue Message_Queue root@10.10.10.1.27:/usr
+
+Step 4:
+-----------
+5. Boot the board and go to /usr directory
+6. Run the compiled program.
+
+        # ./User_MsgQueue
+        # ./Message_Queue
+
+************
+Observation:
+************
+
+1. User_MsgQueue
+
+    1. Message Queue Creation:
+        ->The message queue is created or opened successfully, allowing for communication between processes.
+
+    2. Inter-Process Communication:
+        ->The parent process sends messages to the message queue, which the child process receives and prints.
+        ->The communication continues until the user enters "exit".
+
+    3.Synchronization:
+        ->The use of mq_receive and mq_send ensures that messages are properly synchronized between the parent and child processes.
+
+    4. Resource Management:
+        ->The program ensures proper cleanup of the message queue by closing and unlinking it before exiting.
+
+
+2. Message_Queue
+
+
+	1. Message Queue Creation:
+    		->The message queue is created or opened successfully, allowing for communication between processes.
+
+	2. Inter-Process Communication:
+    		->The parent process sends messages to the message queue, which the child process receives and prints upon notification.
+
+	3. Signal-Driven I/O:
+    		->The child process uses sigaction to register a signal handler for SIGUSR1, demonstrating the use of signals for asynchronous notification.
+    		->The child process re-registers for notifications after each message is received, ensuring continuous monitoring of the message queue.
+
+	4. Synchronization:
+    		->The use of mq_notify ensures that messages are properly synchronized and the child process is notified immediately upon message arrival.
+
+    	5. The program ensures proper cleanup of the message queue by closing and unlinking it before exiting.

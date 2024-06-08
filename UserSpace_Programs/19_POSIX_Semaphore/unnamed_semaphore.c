@@ -11,7 +11,7 @@
  *  
  * Date:        6/03/2024
  *
- * Reference:   The Linux Programming Interface book
+ * Reference:   The "Linux Programming Interface" book
  ******************************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
@@ -71,7 +71,7 @@ void *theadfn(void *arg){
 			printf("Thread%d got semaphore\n",ThreadNum);
 			/* Increment the shared resource value */
 			SharedResource++;
-			printf("Thread%d incremented shared resource to: 	 %d\n",ThreadNum,SharedResource);
+			printf("Thread%d incremented shared resource to: 	%d\n",ThreadNum,SharedResource);
 		}
 		pthread_exit(NULL);
 	}

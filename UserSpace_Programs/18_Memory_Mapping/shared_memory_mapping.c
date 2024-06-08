@@ -162,6 +162,7 @@ int main(void) {
         	/* Parent process */
         	ParentProcess();
     	}
+	unlink(FILE_PATH);
 	printf("Exiting from main program...\n");
     	return 0;
 }

@@ -8,7 +8,7 @@
  *
  * Date		: 23/02/2024.
  *
- * Reference 	: "The Linux Programming Interface" book.
+ * Reference 	: The "Linux Programming Interface" book.
 
 * *******************************************************************************/
 
@@ -36,8 +36,8 @@
 int main(void)
 {
         /* Parent Process */
-	printf("Entered into the main() function\n");
-	printf("Entered into Parent Process with Process ID(PID)=%d\n",getpid());
+	printf("This program demonstrates the use of execve() function\n");
+	printf("Parent Process ID(PID):%d\n",getpid());
 	/* Create a Child Process using fork() system call  */
 	pid_t child = fork();
 	int status;
@@ -49,13 +49,13 @@ int main(void)
 	/* This is Child Process because the fork() returns zero */
 	else if(child == 0)
 	{
-		printf("Entered into child Process with process ID(PID)=%d with the parent Process ID(PID)=%d\n",getpid(),getppid());
+		printf("\nChild Process with process ID(PID)=%d and its parent Process ID(PID)=%d\n",getpid(),getppid());
 		/* Command-line arguments to be passed */
-		printf("The Command-line arguments are passed\n");
 		char *args[]={"/bin/echo","Welcome to New Program!\n",NULL};
 		/* Environment variables to be passed */
     		char *env_vars[] = {"VAR1=value1", "VAR2=value2", NULL};
 		/* Execute the program with execve */
+		printf("Child process is replaced with echo, it display a message from argument\n");
 		/* Replacing child process with new process using execve() system vall */
 		if(execve("/bin/echo",args,env_vars)== -1)
 		{
@@ -72,7 +72,7 @@ int main(void)
 		if (WIFEXITED(status)) 
 		{
 			int exit_status = WEXITSTATUS(status);
-			printf("Child process exited normally with status %d\n", exit_status);
+			printf("\nChild process exited normally with status %d\n", exit_status);
 		} 
 		else if (WIFSIGNALED(status)) 
 		{

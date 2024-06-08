@@ -12,7 +12,7 @@
  *
  * Date:        23/02/2024.
  *
- * Reference    "The Linux Programming Interface" book.
+ * Reference    The "Linux Programming Interface" book.
 
 * *******************************************************************************/
 
@@ -34,8 +34,7 @@
 
 int main(void)
 {
-	printf("Entered into the main() function\n");
-	printf("Creating Child process \n");
+	printf("This program demonstrates, how the process become orphan\n");
 	/* Create a Child Process using fork() system call  */
 	pid_t pid = fork();
 	if (pid < 0)
@@ -46,10 +45,11 @@ int main(void)
 	/* This is Child Process because the fork() returns zero */
 	else if (pid == 0)
 	{
+		printf("Child process ID (PID):%d and its parent process ID (PPID):%d\n",getpid(),getppid());
         	printf("\nChild Process Entering into sleep\n");
 		/* Child process sleeps for a longer time to simulate longer execution time */
         	sleep(15);
-		printf("Here the Child Process is reassigned to a special Process called the init Process which becomes the Parent Process");
+		printf("Child Process is reassigned to a special Process called the init Process which becomes the Parent Process to child");
         	printf("\nAfter sleep Child process (PID): %d and parent Process (PID):%d\n", getpid(),getppid());
 		exit(1);
 	}
@@ -58,7 +58,8 @@ int main(void)
 	{
         	/* The parent process terminates immediately after creating the child */
 		printf("Parent process ID (PID): %d \n", getpid());
-		printf("Parent Process is terminated\n Thus the child Process becomes Orphan\n");
+		sleep(2);
+		printf("Parent Process is terminated\nNow child Process becomes Orphan\n");
 
 	}
     return 0;

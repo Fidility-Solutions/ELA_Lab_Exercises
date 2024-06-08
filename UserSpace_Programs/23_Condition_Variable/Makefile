@@ -3,27 +3,21 @@
 ifdef ARCH
     ifeq ($(ARCH),arm)
         CC := arm-linux-gnueabihf-gcc
-        CFLAGS += -static
     endif
-    ifeq ($(ARCH),aarch64)
+    ifeq ($(ARCH),arm64)
         CC := aarch64-linux-gnu-gcc
-        CFLAGS += -static
     endif
 endif
-
-# CFLAGS will be the options passed to the compiler.
-CFLAGS= -c -Wall
-
 .PHONY: clean
 
 # Explicit Rule
-all: condition_variable_static condition_variable_dynamic
+all: Static_Condition_Variable Dynamic_Condition_Variable
 
-condition_variable_static:condition_variable_static.c
-	$(CC) $(FLAGS) -o condition_variable_static condition_variable_static.c
+Static_Condition_Variable:Static_Condition_Variable.c
+	$(CC) -o Static_Condition_Variable Static_Condition_Variable.c
 
-condition_variable_dynamic:condition_variable_dynamic.c
-	$(CC) $(FLAGS) -o condition_variable_dynamic condition_variable_dynamic.c
+Dynamic_Condition_Variable:Dynamic_Condition_Variable.c
+	$(CC) -o Dynamic_Condition_Variable Dynamic_Condition_Variable.c
 
 clean:
-	rm -rf *.o condition_variable_dynamic condition_variable_static
+	rm -rf *.o Dynamic_Condition_Variable Static_Condition_Variable

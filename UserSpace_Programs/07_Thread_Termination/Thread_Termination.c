@@ -33,12 +33,13 @@
 
 void *threadfunction(void *arg) 
 {
+	printf("\n");
 	printf("New Thread function started...\n New Thread ID(TID):%ld\n",syscall(SYS_gettid));
 	/* Simulating some work done by the thread */
-	printf("The New Thread function is exiting while the Main thread remains in a state of waiting for the termination of the new thread\n");
+	printf("Main thread remains in a state of waiting for the termination of the new thread\n");
 	sleep(3); 
 	/* Terminating the thread */
-	printf("The New Thread function exited\n");
+	printf("New Thread function exited\n");
 	sleep(2);
 	pthread_exit(NULL);
 }
@@ -54,9 +55,9 @@ void *threadfunction(void *arg)
  * Returns	: 0 on successful execution.
  *
  */
-int main() 
+int main(void) 
 {
-	printf("Entered into the main program\n");
+	printf("This program demonistrates the Thread termination\n");
 
 	/* Variables Declaration */
     	pthread_t thread;
@@ -71,15 +72,16 @@ int main()
         	exit(EXIT_FAILURE);
     	}
 	 /* Main thread continues execution while the other thread runs */
-	printf("This is the Main Thread with ID(TID):%ld\n",syscall(SYS_gettid));
+	printf("\nThis is the Main Thread with ID(TID):%ld\n",syscall(SYS_gettid));
 
     	/* Wait for the created thread to finish */
 	/* pthread_join blocks the main thread until the specified thread terminates */
+	printf("Main thread waiting for New thread to exit..\n");
     	if (pthread_join(thread, NULL) != 0) {
         	fprintf(stderr, "Error joining thread.\n");
         	exit(EXIT_FAILURE);
     	}
 	/* Main thread exiting */
- 	printf("Upon the exit of the New Thread function, the Main thread is exited\n");
+ 	printf("\nUpon the exit of the New thread function, the Main thread is exited\n");
     	return 0;
 }

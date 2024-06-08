@@ -35,17 +35,14 @@
 void *threadfunction(void *args)
 {
 	/* Print a message indicating entry into the thread function */
+	printf("\n");
 	printf("Entered into the thread function\n");
-	/* Get the process ID (PID) of the current process (main process). */
-	pid_t pid=getpid();
-	printf("The process is initiated upon the commencement of the main function with the Process (PID):%d\n",pid);
-	/* Print a message explaining the purpose of the syscall(SYS_gettid) call */
-	printf("The syscall(SYS_gettid) is a system call that retrieves the thread ID (TID) of the current thread\n");
 	/* Get the thread ID (TID) of the current thread. */
 	pid_t thread = syscall(SYS_gettid);
 	printf("The retrieved thread ID(TID):%d.\n",thread);
 	/* print the argument passed from pthread_create() system call. */
-	printf("Argument passed to the thread: \"%s\"\n", (char *)args);
+	printf("Argument passed to the thread function: \"%s\"\n", (char *)args);
+	sleep(10);
 	return NULL;
 }
 /*
@@ -63,9 +60,10 @@ void *threadfunction(void *args)
 
 int main(void)
 {
-	printf("Entered into main program which is the main thread \n");
+	printf("This program demonistrates the creation of thread\n");
 	/* Declare variables */
 	pthread_t thread_id;
+	printf("This is main thread with TID:%d\n",getpid());
 	char *message = "Hello, from the main thread.";
 	 /* Create a new thread */
 	if (pthread_create(&thread_id, NULL, threadfunction, (void *)message) != 0)
@@ -84,6 +82,6 @@ int main(void)
 		return 1;
 	}
 	/* main thread is exiting */
-	printf("Main thread exiting.\n");
+	printf("Main thread exiting...\n");
 	return 0;
 }

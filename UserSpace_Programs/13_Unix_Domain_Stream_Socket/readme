@@ -1,0 +1,63 @@
+************
+Introduction
+************
+UNIX_Stream_SrvrSkt.c & UNIX_Stream_ClntSkt.c
+
+	The following C programs demonstrate a client-server application using Unix domain stream sockets. These programs illustrate how to create a server that listens for client connections, processes incoming messages by converting them to uppercase, and sends the processed messages back to the clients. The client program connects to the server, sends messages, and receives responses from the server.
+
+
+
+Note: Always start server socket before client socket start
+
+
+*******************************
+Execution steps for RaspberryPi
+*******************************
+Step 1:
+-----------
+1. Set the ARCH and CROSS_COMPILE environment Variables
+        $ export ARCH=arm64
+        $ export CROSS_COMPILE=aarch64-linux-gnu-
+
+2. Set the PATH to the Cross-Toolchain
+        $ export PATH=${HOME}/ela_lab_exercises_rpi/rpi_build/toolchain/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/bin/:$PATH
+
+Step 2:
+-----------
+3. Issue the make command
+        $ make
+
+Step 3:
+-----------
+4. Copy Simple_pipe and pipe_using_dup to /usr directory of target using SCP.
+        Syntax: scp <file> <target-name>@<ipaddress>:<destination-path>
+
+        $ scp UNIX_Stream_SrvrSkt UNIX_Stream_ClntSkt root@10.10.10.1.27:/usr
+
+Step 4:
+-----------
+5. Boot the board and go to /usr directory
+6. Run the compiled program.
+
+        # ./UNIX_Stream_SrvrSkt in one terminal
+        # ./UNIX_Stream_ClntSkt in other terminal
+
+************
+Observation:
+************
+
+Upon execution, the programs perform the following:
+
+   1. Server Program:
+       -> Starts and creates a Unix domain socket, then binds it to /tmp/UNIX_Stream_Socket.
+       -> Listens for client connections and accepts them in an infinite loop.
+       -> Receives messages from clients, converts them to uppercase, and sends them back.
+       -> Closes client sockets when clients disconnect and continues to accept new connections.
+
+    2. Client Program:
+       -> Creates a Unix domain socket and binds it to a unique path.
+       -> Connects to the server socket.
+       -> Sends user-entered messages to the server and prints the server's response.
+       -> Disconnects and exits when the user types exit.
+
+

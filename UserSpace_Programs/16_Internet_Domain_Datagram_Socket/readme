@@ -1,0 +1,65 @@
+*************
+Introduction
+*************
+
+Internet_Datagram_IPV4_ClntSkt.c  Internet_Datagram_IPV4_SrvrSkt.c
+
+	The provided C programs demonstrate a client-server application using Internet domain datagram (UDP) sockets. The server program listens for incoming UDP messages on a specified port, processes the messages by converting them to uppercase, and sends them back to the client. The client program sends messages to the server and receives the processed responses. This interaction continues until the client sends an "exit" message, at which point both the client and server close their respective sockets.
+Note: 
+
+
+Always start server socket on target(Raspi) before client socket start on ubuntu(x86)
+
+
+*******************************
+Execution steps for RaspberryPi
+*******************************
+Step 1:
+-----------
+1. Set the ARCH and CROSS_COMPILE environment Variables
+        $ export ARCH=arm64
+        $ export CROSS_COMPILE=aarch64-linux-gnu-
+
+2. Set the PATH to the Cross-Toolchain
+        $ export PATH=${HOME}/ela_lab_exercises_rpi/rpi_build/toolchain/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/bin/:$PATH
+
+Step 2:
+-----------
+3. Issue the make command
+        $ make
+
+Step 3:
+-----------
+4. Copy Simple_pipe and pipe_using_dup to /usr directory of target using SCP.
+        Syntax: scp <file> <target-name>@<ipaddress>:<destination-path>
+
+        $ scp Internet_Datagram_IPV4_SrvrSkt root@10.10.10.1.27:/usr
+
+Step 4:
+-----------
+5. Boot the board and go to /usr directory
+6. Run the compiled program.
+
+        # ./Internet_Datagram_IPV4_SrvrSkt in target(Raspi) terminal
+        $ ./Internet_Datagram_IPV4_ClntSkt in ubuntu(x86) terminal
+
+************
+Observation:
+************
+Upon execution, the programs perform the following:
+
+    1. Server Program:
+        ->Starts and creates a UDP socket, then binds it to port 8080.
+        ->Listens for incoming messages from clients.
+        ->Receives a message, converts it to uppercase, and sends it back to the client.
+        ->Continues to listen for messages and process them until an "exit" message is received from a client.
+        ->Closes the server socket on receiving an "exit" message.
+
+    2. Client Program:
+        ->Creates a UDP socket and connects to the server at the specified IP address and port 8080.
+        ->Takes user input and sends it to the server.
+        ->Receives and prints the server's response.
+        ->Continues to send messages and receive responses in a loop.
+        ->Closes the client socket on sending an "exit" message.
+
+The programs demonstrate successful UDP communication between the client and server.

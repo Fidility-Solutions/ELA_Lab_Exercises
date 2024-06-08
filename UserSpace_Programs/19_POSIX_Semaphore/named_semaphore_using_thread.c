@@ -85,6 +85,11 @@ int main(void){
 	pthread_t Thread[NUM_THREADS];
 	int8_t au8ThreadArgs[NUM_THREADS];
 	int8_t s8Thread;
+	/* Attempt to unlink the semaphore if it already exists */
+        if(sem_unlink(SEM_NAME) == -1 && errno != ENOENT) {
+                perror("sem_unlink");
+                exit(EXIT_FAILURE);
+        }
 	/* Create/Open the named semaphore */
 	printf("Semaphore is created/opened\n");
 	Semaphore = sem_open(SEM_NAME,O_CREAT|O_EXCL,0644,4);
