@@ -1,0 +1,91 @@
+******************
+tlpi-dist codes :
+******************
+1. Clone the folowing git repository to your local system.
+
+	https://github.com/bradfa/tlpi-dist.git
+
+	$ cd 
+	$ git clone https://github.com/bradfa/tlpi-dist.git
+
+2. Navigate the directory
+	$ cd tlpi-dist
+
+
+3. Installing Following library dependencies
+
+	Various programs depend on libraries that may not be installed by default on your system. If you have build problems,
+	then in the first instance you should make sure that the following libraries are installed.
+
+	i. Debian, Ubuntu, and similar distributions:
+
+        	$ sudo apt-get install libcap-dev
+        	$ sudo apt-get install libacl1-dev
+        	$ sudo apt-get install libselinux1-dev
+        	$ sudo apt-get install libseccomp-dev
+
+	ii. RPM-based distributions (Fedora, OpenSUSE, CentOS, etc.):
+
+        	libcap-devel
+        	libacl-devel
+        	libselinux-devel
+        	libseccomp-devel
+
+4. Copy patch file from Misc repo to tlpi-dist and apply the patch in cloned repository.
+	
+	$ cp tlpi_01.patch ~/tlpi-dist
+	$ cd tlpi-dist
+	$ git apply tlpi_01.patch
+
+5. Finally build the program by issueing the make command.
+	
+	Method A - Building all programs in all directories
+	--------
+
+		Go into the 'tlpi' subdirectory, and type 'make':
+
+       			$ cd tlpi-dist
+        		$ make
+
+	This will build all programs in (nearly) all subdirectories (a few
+	subdirectories are excluded, as noted in the Makefile.)
+
+
+	Method B - Build programs in individual directories
+	--------
+
+	1) First, build the library used by all programs:
+
+        	cd lib
+        	make            # This will make libtlpi.a and place
+                2) Build programs using the 'Makefile' in each subdirectory.
+
+	2) Build programs using the 'Makefile' in each subdirectory.
+
+		In each subdirectory, there is a file called 'Makefile' that can be
+	used with the 'make' command to build the programs in that directory.
+	To build a particular program you can simply say:
+
+        	$ make progname
+
+		where 'progname' is one of the C (main) programs in the directory.
+	Thus, to build the executable for the program 'copy.c' you would use
+	the command:
+
+        	$ make copy
+
+	Each makefile also contains the following special targets (which are
+	named according to the usual 'make' conventions):
+
+	all     This target will build all programs in the subdirectory.
+        	Simply enter the command:
+
+                	$ make all
+
+	clean   This target cleans up, by removing all executables and object
+        	files created by the makefile:
+
+                	$ make clean
+        		# it in the parent directory
+
+
