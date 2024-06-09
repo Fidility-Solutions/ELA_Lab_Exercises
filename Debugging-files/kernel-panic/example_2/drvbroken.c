@@ -3,11 +3,14 @@
  * Copyright Thomas Petazzoni <thomas.petazzoni@bootlin.com>
  * License: GNU General Public License 2.0 or later
  * Permission to break this driver even further!
+ * broken_cdev = kzalloc(sizeof(struct cdev), GFP_KERNEL);
+ * Before cdev_init
  */
 #include <linux/module.h>
 #include <linux/errno.h>
 #include <linux/fs.h>
 #include <linux/cdev.h>
+#include <linux/slab.h>
 
 static dev_t broken_dev;
 static int broken_first_minor;
@@ -44,7 +47,6 @@ int __init broken_init(void)
 		pr_err("broken: unable to find free device numbers\n");
 		return -EIO;
 	}
-
 	cdev_init(broken_cdev, &broken_fops);
 
 	if (cdev_add(broken_cdev, broken_dev, 1) < 0) {

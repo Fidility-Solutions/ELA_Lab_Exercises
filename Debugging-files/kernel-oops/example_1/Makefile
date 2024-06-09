@@ -15,7 +15,7 @@ else
 endif
 
 # Module name
-obj-m += oops-test-app.o
+obj-m += kernel-oops-test-module.o
 
 # Targets
 .PHONY: all clean help host

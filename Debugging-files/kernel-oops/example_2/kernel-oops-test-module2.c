@@ -2,7 +2,9 @@
 #include <linux/init.h>
 
 static int __init kernel_oops_init(void) {
-    int *ptr = NULL;
+    int *ptr = (int*)0xDEADBEEF;  /* Invalid memory access */
+        *ptr = 42;
+
     if (ptr != NULL) {
         /* If ptr is not NULL, print the value it points to */
         printk(KERN_INFO "Kernel Oops Module: %d\n", *ptr);
