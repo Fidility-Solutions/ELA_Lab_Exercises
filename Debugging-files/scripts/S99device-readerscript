@@ -1,0 +1,35 @@
+#!/bin/sh
+#
+# Start device_rw.sh to read from/write to /dev/sda1
+#
+
+start() {
+        /usr/debugging-files/device_rw.sh &
+}
+
+stop() {
+        pkill -f "/usr/debugging-files/device_rw.sh"
+}
+
+restart() {
+        stop
+        start
+}
+
+case "$1" in
+  start)
+        start
+        ;;
+  stop)
+        stop
+        ;;
+  restart|reload)
+        restart
+        ;;
+  *)
+        echo "Usage: $0 {start|stop|restart}"
+        exit 1
+esac
+
+exit $?
+
