@@ -31,7 +31,12 @@ static int __init device_auto_init(void)
         pr_info("Major = %d Minor = %d \n",MAJOR(dev), MINOR(dev));
  
         /*Creating struct class*/
-        dev_class = class_create(THIS_MODULE,"ext_class");
+	#ifdef CONFIG_ARM64
+        dev_class = class_create(THIS_MODULE, "ext_class");
+        #else
+        dev_class = class_create("ext_class");
+        #endif
+
         if(IS_ERR(dev_class)){
             pr_err("Cannot create the struct class for device\n");
             goto r_class;

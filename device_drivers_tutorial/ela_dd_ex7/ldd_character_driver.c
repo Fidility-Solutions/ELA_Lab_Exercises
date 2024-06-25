@@ -117,7 +117,13 @@ static int __init etx_driver_init(void)
         }
  
         /*Creating struct class*/
-        if(IS_ERR(dev_class = class_create(THIS_MODULE,"etx_class"))){
+	#ifdef CONFIG_ARM64
+        dev_class = class_create(THIS_MODULE, "ext_class");
+        #else
+        dev_class = class_create("ext_class");
+        #endif
+
+        if(IS_ERR(dev_class)){
             pr_info("Cannot create the struct class\n");
             goto r_class;
         }
