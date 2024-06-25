@@ -48,7 +48,7 @@ int main(void)
 		printf("Child process ID (PID):%d and its parent process ID (PPID):%d\n",getpid(),getppid());
         	printf("\nChild Process Entering into sleep\n");
 		/* Child process sleeps for a longer time to simulate longer execution time */
-        	sleep(15);
+        	sleep(60);
 		printf("Child Process is reassigned to a special Process called the init Process which becomes the Parent Process to child");
         	printf("\nAfter sleep Child process (PID): %d and parent Process (PID):%d\n", getpid(),getppid());
 		exit(1);
@@ -58,7 +58,7 @@ int main(void)
 	{
         	/* The parent process terminates immediately after creating the child */
 		printf("Parent process ID (PID): %d \n", getpid());
-		sleep(2);
+		sleep(20);
 		printf("Parent Process is terminated\nNow child Process becomes Orphan\n");
 
 	}

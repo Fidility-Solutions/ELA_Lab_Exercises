@@ -15,49 +15,65 @@
  *
  * Reference   	: The "Linux Programming Interface" book.
  ********************************************************************************/
-#include <stdio.h>
+
+#include <signal.h>
+#include <libgen.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <errno.h>
+#include <stdio.h>
+#include <string.h>
+#define CMD_SIZE 200
+
+
 /*
- * Function	: main()
+ * Function     : main()
  *
- * Description	: Entry point of the program. Demonstrates the concept of an zombie process.
+ * Description  : Entry point of the program. Demonstrates the concept of an zombie process.
  *
- * Parameters	: None
- *  
- * Returns	: 0 on successful execution, 1 on failure.
+ * Parameters   : None
+ *
+ * Returns      : 0 on successful execution, 1 on failure.
  *
  */
 
-int main(void)
+int main(int argc, char *argv[])
 {
 	printf("This program demonistrates how process become zombie\n");
-	/* Create a Child Process using fork() system call  */
-	pid_t child = fork();
-    	if (child < 0)
-    	{
-        	perror("fork failed");
-        	exit(EXIT_FAILURE);
+	char cmd[CMD_SIZE];
+	pid_t childPid;
+	setbuf(stdout, NULL);
+	/* Disable buffering of stdout */
+	printf("Parent PID=%ld\n", (long) getpid());
+	switch (childPid = fork()) {
+		case -1:
+			perror("fork error");
+			exit(EXIT_FAILURE);
+		case 0:
+		/* Child: immediately exits to become zombie */
+			printf("Child (PID=%ld) exiting\n", (long) getpid());
+			exit(EXIT_SUCCESS);
+		default:	/* Parent */
+			sleep(3);
+			/* Give child a chance to start and exit */
+			snprintf(cmd, CMD_SIZE, "ps | grep %s", basename(argv[0]));
+			cmd[CMD_SIZE - 1] = '\0';
+			/* Ensure string is null-terminated */
+			printf("running ps command to check process entry in process table\n");
+			system(cmd);
+			/* View zombie child */
+			/* Now send the "sure kill" signal to the zombie */
+			if (kill(childPid, SIGKILL) == -1){
+					perror("failed to kill child");
+					exit(EXIT_FAILURE);
+			}
+			printf("sent kill signal to zombie process\n");
+			sleep(3);
+			/* Give child a chance to react to signal */
+			printf("After sending SIGKILL to zombie (PID=%ld):\n", (long) childPid);
+			system(cmd);
+			printf("Since the zombies can’t be killed by a signal, \nThe only way to remove them from the system is to kill their parent (or wait for it to exit), \nAt which time the zombies are adopted and waited on by init, and consequently removed from the system.\n");
+			/* View zombie child again */
+			exit(EXIT_SUCCESS);
 	}
-	/* This is Child Process because the fork() returns zero */
-	else if(child == 0)
-	{
-		printf("\nChild process created\n");
-        	printf("Child process ID(PID): %d created with parent process ID(PID): %d\n", getpid(), getppid());
-		/* Child process exits immediately after printing */       
-		sleep(5);
-		printf("The Child Process completed its execution\n");
-		exit(1);
-	}
-       /*  Parent of Child Process */	
-	else 
-	{
-        	printf("Parent process ID(PID): %d is entering into sleep\n", getpid());
-		/* Parent process waits for a few seconds before terminating */
-		sleep(10);
-		printf("\nAfter sleep the Parent process exited\n");
-		return 0;
-   	}
-	return 0;
 }
-

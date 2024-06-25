@@ -81,7 +81,7 @@ int main(void)
 		}
 	}
 	printf("Exiting from parent process\n");
-	sleep(5);
+	sleep(15);
 	return 0;
 }
 

@@ -10,10 +10,14 @@ ifdef ARCH
 endif
 
 .PHONY: clean
+# Explicit Rule
+all: print_data child_process_execve
 
-# Implicit Rule
-all: child_process_execve.o
-	$(CC)  child_process_execve.o -o child_process_execve
+print_data:print_data.c
+	$(CC) -o print_data print_data.c
+
+child_process_execve:child_process_execve.c
+	$(CC) -o child_process_execve child_process_execve.c
 
 clean:
-	rm -rf *.o ./child_process_execve
+	rm -rf *.o ./child_process_execve print_data

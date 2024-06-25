@@ -39,6 +39,7 @@ int main(void)
 	printf("This program demonstrates the use of execve() function\n");
 	printf("Parent Process ID(PID):%d\n",getpid());
 	/* Create a Child Process using fork() system call  */
+	char *path = "./print_data";
 	pid_t child = fork();
 	int status;
 	if(child == -1)
@@ -49,15 +50,15 @@ int main(void)
 	/* This is Child Process because the fork() returns zero */
 	else if(child == 0)
 	{
-		printf("\nChild Process with process ID(PID)=%d and its parent Process ID(PID)=%d\n",getpid(),getppid());
+		printf("\nChild Process created with PID= %d and its parent PID = %d\n",getpid(),getppid());
 		/* Command-line arguments to be passed */
-		char *args[]={"/bin/echo","Welcome to New Program!\n",NULL};
+		char *const argv[] = {"print_data", "Hello,", "this", "is", "a", "test.", NULL};
 		/* Environment variables to be passed */
-    		char *env_vars[] = {"VAR1=value1", "VAR2=value2", NULL};
+		char *const envp[] = {"MY_VAR1=Hello", "MY_VAR2=World", NULL};
 		/* Execute the program with execve */
-		printf("Child process is replaced with echo, it display a message from argument\n");
+		printf("Child process is replaced with \"print_data\" file , it display argv and envp passsed\n");
 		/* Replacing child process with new process using execve() system vall */
-		if(execve("/bin/echo",args,env_vars)== -1)
+		if(execve(path,argv,envp)== -1)
 		{
 			/* execve function returns only if an error occurs */
 			perror("execl failure");
@@ -85,7 +86,7 @@ int main(void)
 		}
 	}
 	printf("Exiting from parent process\n");
-	sleep(5);
+	sleep(15);
 	return 0;
 }
 

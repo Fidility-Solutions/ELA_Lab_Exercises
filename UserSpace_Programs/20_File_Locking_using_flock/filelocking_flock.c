@@ -53,7 +53,8 @@ void errExit(char *msg){
 */
 int main(int argc, char *argv[]){
 	/* variable declaration */
-	int fd, lock;
+	int fd;
+	int lock;
 
 	const char *lname;
 
@@ -81,7 +82,8 @@ int main(int argc, char *argv[]){
 		lock |= LOCK_NB;
 	/* open file which is provided from argument */
 	fd = open(argv[1], O_RDONLY);
-	if(fd == -1)
+	FILE *file_stream = fdopen(fd,"r");
+	if(file_stream == NULL)
 		errExit("open");
 
 	/* Open file to be locked */
@@ -97,7 +99,7 @@ int main(int argc, char *argv[]){
 			fprintf(stderr,"flock (PID=%ld)", (long) getpid());
 	}
 	printf("PID %ld: granted %s at %s sec\n", (long) getpid(), lname,ctime(&CurrTime));
-	fprintf(fd, "%s", parray);
+	fprintf(file_stream, "%s", parray);
 	/* sleep time get from argument provided by user */
 	sleep((argc == 4) ? atoi(argv[3]) : 10);
 	/* release lock */
