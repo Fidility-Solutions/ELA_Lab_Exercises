@@ -1,0 +1,15 @@
+# Ignore compiled object files
+*.o
+*.ko
+*.mod.c
+*.symvers
+*.order
+*.cmd
+.tmp_versions/
+
+# Ignore build directory
+
+
+# Ignore generated executables
+*.exe
+*.out
