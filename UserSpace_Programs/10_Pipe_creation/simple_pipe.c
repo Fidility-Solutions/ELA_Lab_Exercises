@@ -6,7 +6,7 @@
 
 #define BUF_SIZE 10
 int main(int argc, char *argv[]){
-	printf("This program demonistrates communicaion between parent and child using pipe\n");
+	printf("This program demonstrates communicaion between parent and child using pipe\n");
 	int pfd[2];
 	char buf[BUF_SIZE];
 	ssize_t numRead;
