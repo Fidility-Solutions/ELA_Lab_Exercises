@@ -14,10 +14,10 @@ endif
 all: Static_Condition_Variable Dynamic_Condition_Variable
 
 Static_Condition_Variable:Static_Condition_Variable.c
-	$(CC) -o Static_Condition_Variable Static_Condition_Variable.c
-
+	$(CC) -o Static_Condition_Variable Static_Condition_Variable.c -pthread
+ 
 Dynamic_Condition_Variable:Dynamic_Condition_Variable.c
-	$(CC) -o Dynamic_Condition_Variable Dynamic_Condition_Variable.c
+	$(CC) -o Dynamic_Condition_Variable Dynamic_Condition_Variable.c -pthread
 
 clean:
 	rm -rf *.o Dynamic_Condition_Variable Static_Condition_Variable

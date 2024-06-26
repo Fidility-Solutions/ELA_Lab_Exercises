@@ -15,11 +15,11 @@ endif
 all: pthread_mutex_static pthread_mutex_dynamic
 
 pthread_mutex_static:pthread_mutex_static.c
-	$(CC) -o pthread_mutex_static pthread_mutex_static.c
+	$(CC) -o pthread_mutex_static pthread_mutex_static.c -pthread
 
 
 pthread_mutex_dynamic:pthread_mutex_dynamic.c
-	$(CC) -o pthread_mutex_dynamic pthread_mutex_dynamic.c
+	$(CC) -o pthread_mutex_dynamic pthread_mutex_dynamic.c -pthread
 
 clean:
 	rm -rf *.o pthread_mutex_dynamic pthread_mutex_static
