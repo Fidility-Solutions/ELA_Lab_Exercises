@@ -14,3 +14,6 @@
 # Ignore generated executables
 *.exe
 *.out
+
+# ignore swap files
+*.swp
