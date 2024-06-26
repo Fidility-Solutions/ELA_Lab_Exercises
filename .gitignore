@@ -1,4 +1,5 @@
 # Ignore compiled object files
+*
 *.o
 *.ko
 *.mod.c
