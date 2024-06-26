@@ -39,7 +39,7 @@
 
 int main(int argc, char *argv[])
 {
-	printf("This program demonistrates how process become zombie\n");
+	printf("This program demonstrates how process become zombie\n");
 	char cmd[CMD_SIZE];
 	pid_t childPid;
 	setbuf(stdout, NULL);
@@ -72,7 +72,6 @@ int main(int argc, char *argv[])
 			/* Give child a chance to react to signal */
 			printf("After sending SIGKILL to zombie (PID=%ld):\n", (long) childPid);
 			system(cmd);
-			printf("Since the zombies can’t be killed by a signal, \nThe only way to remove them from the system is to kill their parent (or wait for it to exit), \nAt which time the zombies are adopted and waited on by init, and consequently removed from the system.\n");
 			/* View zombie child again */
 			exit(EXIT_SUCCESS);
 	}
