@@ -56,8 +56,9 @@ int main(void)
 		/* Environment variables to be passed */
 		char *const envp[] = {"MY_VAR1=Hello", "MY_VAR2=World", NULL};
 		/* Execute the program with execve */
-		printf("Child process is replaced with \"print_data\" file , it display argv and envp passsed\n");
-		/* Replacing child process with new process using execve() system vall */
+		printf("Child process is replaced with \"print_data\", it display argv and envp passsed\n");
+		
+		/* Replacing child process with new process using execve() system call */
 		if(execve(path,argv,envp)== -1)
 		{
 			/* execve function returns only if an error occurs */

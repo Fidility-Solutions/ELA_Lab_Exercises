@@ -34,7 +34,7 @@
 
 int main(void)
 {
-	printf("This program demonstrates, how the process become orphan\n");
+	printf("Program to demonstrate orphan process\n");
 	/* Create a Child Process using fork() system call  */
 	pid_t pid = fork();
 	if (pid < 0)
@@ -49,8 +49,7 @@ int main(void)
         	printf("\nChild Process Entering into sleep\n");
 		/* Child process sleeps for a longer time to simulate longer execution time */
         	sleep(60);
-		printf("Child Process is reassigned to a special Process called the init Process which becomes the Parent Process to child");
-        	printf("\nAfter sleep Child process (PID): %d and parent Process (PID):%d\n", getpid(),getppid());
+		printf("\nAfter sleep Child process (PID): %d and parent Process (PID):%d\n", getpid(),getppid());
 		exit(1);
 	}
 	 /*  Parent of Child Process */
@@ -59,7 +58,7 @@ int main(void)
         	/* The parent process terminates immediately after creating the child */
 		printf("Parent process ID (PID): %d \n", getpid());
 		sleep(20);
-		printf("Parent Process is terminated\nNow child Process becomes Orphan\n");
+		printf("Parent Process is terminated\n");
 
 	}
     return 0;
