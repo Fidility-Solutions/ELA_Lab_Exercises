@@ -1,0 +1,10 @@
+/Debug/*
+/Debug_*/*
+/*_Debug/*
+/Release/*
+/Release_*/*
+/*_Release/*
+**/STM32CubeIDE**/.settings/language.settings.xml
+**/STM32CubeIDE**/.settings/com.st.stm32cube.ide.mcu.sfrview.prefs
+**/STM32CubeIDE**/.settings/org.eclipse.cdt.core.prefs
+**/STM32CubeIDE**/.settings/stm32cubeide.project.prefs
