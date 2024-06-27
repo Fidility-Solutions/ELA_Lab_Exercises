@@ -83,13 +83,13 @@ void *threadfunction(void *arg) {
 
 
 int main(void) {
-    	printf("Demonstartion of thread IDs\n");
+    	printf("Demonstration of thread IDs\n");
 	pid_t Process_id=getpid();
-	printf("This is main Thread with PID:%d\n",Process_id);
+	printf("\nProcess has a  PID	:%d\n",Process_id);
 	
 	/* Get the thread ID (TID) of the current thread. */
         pid_t thread_id = syscall(SYS_gettid);
-        printf("Main Thread has a TID of %d\n", thread_id); 
+        printf("Main Thread has a TID	:%d\n", thread_id); 
 
 	/* Array to hold thread IDs */
     	pthread_t threads[3]; 

@@ -34,6 +34,7 @@
  */
 void *threadfunction(void *args)
 {
+	printf("\nThread is created using pthread\n");
 	/* Print a message indicating entry into the thread function */
 	printf("\n");
 	printf("Entered into the thread function\n");
@@ -42,7 +43,8 @@ void *threadfunction(void *args)
 	printf("The retrieved thread ID(TID):%d.\n",thread);
 	/* print the argument passed from pthread_create() system call. */
 	printf("Argument passed to the thread function: \"%s\"\n", (char *)args);
-	sleep(10);
+	sleep(15);
+	printf("Thread exting\n");
 	return NULL;
 }
 /*
@@ -60,10 +62,10 @@ void *threadfunction(void *args)
 
 int main(void)
 {
-	printf("This program demonistrates the creation of thread\n");
+	printf("Demonstration of thread creation\n");
 	/* Declare variables */
 	pthread_t thread_id;
-	printf("This is main thread with TID:%d\n",getpid());
+	printf("Main thread with TID:%d\n",getpid());
 	char *message = "Hello, from the main thread.";
 	 /* Create a new thread */
 	if (pthread_create(&thread_id, NULL, threadfunction, (void *)message) != 0)
@@ -81,6 +83,7 @@ int main(void)
 		/* Exit with error code */
 		return 1;
 	}
+	printf("Thread join successful in main thread\n");
 	/* main thread is exiting */
 	printf("Main thread exiting...\n");
 	return 0;
