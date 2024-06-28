@@ -57,6 +57,7 @@ int main(void)
 		}
 		printf("Parent sent data successfully:%s \n",message);
 		close(fd_write);
+		sleep(10);
 		unlink(FIFO_PATH);
 	}
 	return 0;
