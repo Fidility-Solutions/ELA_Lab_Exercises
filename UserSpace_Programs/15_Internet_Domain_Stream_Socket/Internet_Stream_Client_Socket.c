@@ -24,7 +24,7 @@
 
 #define PORT_NUM "9640"
 #define BUFFER_SIZE 50
-#define SERVER_IP "10.10.1.27"
+#define SERVER_IP "10.10.3.67"
 /* Function: main
  *
  * Description: Entry point of the client program. Creates a Internet domain stream socket client,

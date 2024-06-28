@@ -48,16 +48,16 @@ void *threadfunction(void *arg) {
     	/* Printing thread id and the message based on the thread number */
     	if (thread_args->thread_number == 0) {
         	printf("Thread_%d is running with Thread ID:%d and the argument passed to the thread_1 is:\"%s\" \n",thread_args->thread_number,thread_id,thread_args->message);
-		sleep(5);
+		sleep(15);
     	} 
 	else if (thread_args->thread_number == 1) {
         	printf("Thread_%d is running with Thread ID:%d and the argument passed to the thread_2 is:\"%s\" \n",thread_args->thread_number,thread_id,thread_args->message);
-		sleep(5);
+		sleep(15);
   
     	}
 	else if(thread_args->thread_number==2){
 		printf("Thread_%d is running with Thread ID:%d and the argument passed to the thread_3 is:\"%s\" \n",thread_args->thread_number,thread_id,thread_args->message); 
-		sleep(5);
+		sleep(15);
 	}
 
     	else {

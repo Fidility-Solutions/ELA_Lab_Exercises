@@ -127,7 +127,7 @@ int main(void) {
    	 pthread_attr_destroy(&ThreadAttr);
    	 printf("\nThread attributes destroyed\n");
    	 /* Main thread exits without waiting for detached threads to finish */
-   	 printf("Main thread with TID:%ld exited\n",syscall(SYS_gettid));
+   	 printf("Main thread with TID:%ld exited and now threads are in detached state\n",syscall(SYS_gettid));
    	 pthread_exit(NULL);    
 }
 

@@ -8,7 +8,7 @@
  *
  * Date		: 24/02/2024.
  *
- * Reference    : "The Linux Programming Interface" book.
+ * Reference    : The "Linux Programming Interface" book.
 
 * *******************************************************************************/
 
@@ -37,7 +37,7 @@ void *threadfunction(void *arg)
 	printf("New Thread function started...\n New Thread ID(TID):%ld\n",syscall(SYS_gettid));
 	/* Simulating some work done by the thread */
 	printf("Main thread remains in a state of waiting for the termination of the new thread\n");
-	sleep(3); 
+	sleep(10); 
 	/* Terminating the thread */
 	printf("New Thread function exited\n");
 	sleep(2);
@@ -57,7 +57,7 @@ void *threadfunction(void *arg)
  */
 int main(void) 
 {
-	printf("This program demonistrates the Thread termination\n");
+	printf("This program demonstrates the Thread termination\n");
 
 	/* Variables Declaration */
     	pthread_t thread;
