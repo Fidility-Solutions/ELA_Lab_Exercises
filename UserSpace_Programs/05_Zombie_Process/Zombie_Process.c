@@ -45,6 +45,7 @@ int main(int argc, char *argv[])
 	setbuf(stdout, NULL);
 	/* Disable buffering of stdout */
 	printf("Parent PID=%ld\n", (long) getpid());
+	sleep(5);
 	switch (childPid = fork()) {
 		case -1:
 			perror("fork error");

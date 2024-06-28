@@ -50,6 +50,7 @@ int main(void)
 		/* Child process sleeps for a longer time to simulate longer execution time */
         	sleep(30);
 		printf("\nAfter sleep Child process (PID): %d and parent Process (PID):%d\n", getpid(),getppid());
+		printf("child process exited\n");
 		exit(1);
 	}
 	 /*  Parent of Child Process */
@@ -58,7 +59,7 @@ int main(void)
         	/* The parent process terminates immediately after creating the child */
 		printf("Parent process ID (PID): %d \n", getpid());
 		sleep(20);
-		printf("Parent Process is terminated\n");
+		printf("Parent Process is exited\n");
 
 	}
     return 0;
