@@ -48,7 +48,7 @@ int main(void)
 		printf("Child process ID (PID):%d and its parent process ID (PPID):%d\n",getpid(),getppid());
         	printf("\nChild Process Entering into sleep\n");
 		/* Child process sleeps for a longer time to simulate longer execution time */
-        	sleep(60);
+        	sleep(30);
 		printf("\nAfter sleep Child process (PID): %d and parent Process (PID):%d\n", getpid(),getppid());
 		exit(1);
 	}
