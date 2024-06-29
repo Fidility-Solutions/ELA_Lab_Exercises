@@ -90,7 +90,7 @@ int  main(void){
     	else if (pid == 0) {
 		printf("The Child process id(PID):%d\n",getpid());
 		printf("The child process from shared memory reader process is replaced with shared memory writer process using execl system call\n");
-        	execl("./shared_memory_writter", "shared_memory_writter", (char *)NULL);
+        	execl("./shared_memory_writer", "shared_memory_writer", (char *)NULL);
         	errExit("execl error");
     	} 
 	/* Parent Process */
