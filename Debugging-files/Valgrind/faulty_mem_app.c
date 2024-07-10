@@ -50,5 +50,4 @@ static void do_something(int size)
 int main(void)
 {
 	do_something(100);
-	do_something(200);
 }

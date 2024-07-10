@@ -46,7 +46,7 @@ int find_max(int* array, size_t size) {
 }
 
 void sort_array(int* array, size_t size) {
-    for (size_t i = 0; i <=size; ++i) { // Introduce bug here: change size to size - 1
+    for (size_t i = 0; i <size; ++i) { // Introduce bug here: change size to size - 1
         for (size_t j = 0; j < size - 1 - i; ++j) {
             if (array[j] > array[j + 1]) {
                 int temp = array[j];
