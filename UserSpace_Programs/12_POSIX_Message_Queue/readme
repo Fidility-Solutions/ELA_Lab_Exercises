@@ -31,7 +31,7 @@ Step 2:
 
 Step 3:
 -----------
-4. Copy Simple_pipe and pipe_using_dup to /usr directory of target using SCP.
+4. Copy generated binary files to /usr directory of target using SCP.
         Syntax: scp <file> <target-name>@<ipaddress>:<destination-path>
 
         $ scp User_MsgQueue Message_Queue root@10.10.10.1.27:/usr

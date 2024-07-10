@@ -39,7 +39,7 @@ Step 2:
 
 Step 3:
 -----------
-4. Copy Simple_pipe and pipe_using_dup to /usr directory of target using SCP.
+4. Copy generated binary files to /usr directory of target using SCP.
         Syntax: scp <file> <target-name>@<ipaddress>:<destination-path>
 
         $ scp named_semaphore_using_process named_semaphore_using_thread unnamed_semaphore root@10.10.10.1.27:/usr
