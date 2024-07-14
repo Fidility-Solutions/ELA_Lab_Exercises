@@ -1,0 +1,74 @@
+*************
+Introduction
+*************
+private_memory_mapping.c  shared_memory_mapping.c
+
+	This program demonstrates inter-process communication using private shared memory mapping between a parent process and a child process. It involves creating a file, mapping it into memory, writing data from the parent process, and reading the data in the child process. Due to the private nature of the mapping (MAP_PRIVATE), changes made in one process are not visible to the other process.
+
+	This shared_memory_mapping.c showcases shared memory mapping between a parent process and a child process. It involves creating a file, mapping it into memory as shared memory (MAP_SHARED), writing data from the parent process, and reading the data in the child process. Shared memory allows both processes to access and modify the same memory region.
+
+
+*******************************
+Execution steps for RaspberryPi
+*******************************
+Step 1:
+-----------
+1. Set the ARCH and CROSS_COMPILE environment Variables
+        $ export ARCH=arm64
+        $ export CROSS_COMPILE=aarch64-linux-gnu-
+
+2. Set the PATH to the Cross-Toolchain
+        $ export PATH=${HOME}/ela_lab_exercises_rpi/rpi_build/toolchain/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/bin/:$PATH
+
+Step 2:
+-----------
+3. Issue the make command
+        $ make
+
+Step 3:
+-----------
+4. Copy generated binary files to /usr directory of target using SCP.
+        Syntax: scp <file> <target-name>@<ipaddress>:<destination-path>
+
+        $ scp private_memory_mapping shared_memory_mapping root@10.10.10.1.27:/usr
+
+Step 4:
+-----------
+5. Boot the board and go to /usr directory
+6. Run the compiled program.
+
+        # ./private_memory_mapping
+	# ./shared_memory_mapping
+
+************
+Observation:
+************
+
+	Upon execution, the program perform the following steps:
+	# ./shared_memory_mapping
+
+    		-> The program creates a file named Shared_Mapped_file.txt using open() with read/write permissions (O_RDWR) and creates it if it doesn't exist (O_CREAT).
+		-> It truncates the file to a specified size (FILE_SIZE) using ftruncate() to ensure the file is large enough for mapping.
+		-> The file's information (size and permissions) is obtained using fstat() and printed to the console.
+		-> The file is mapped into memory using mmap(). This establishes a shared memory region (MAP_SHARED), allowing multiple processes (in this case, the parent and child processes) to access a			nd modify the same memory area (ps8addr).
+		-> The parent process writes an initial message ("Hello, welcome to shared memory mapping") to the shared memory region (ps8addr).
+		-> It forks a child process using fork(). After forking, both parent and child processes have their own address space but share the same mapped memory.
+		-> The child process reads and prints the initial message from the shared memory region (ps8addr).
+		-> It then writes a new message ("Hello from child process!") to the same shared memory region.
+		-> After writing, it reads and prints the updated message from the shared memory.
+		-> Both parent and child processes unmap the shared memory region using munmap() to release the mapped memory.
+		-> They also close the file descriptor associated with Shared_Mapped_file.txt using close().
+		-> Finally, the program deletes (unlink()) the file to clean up resources used for mapping.
+
+	# ./private_memory_mapping
+
+		-> The program starts by creating a file named Private_Mapped_file.txt using open() with read/write permissions (O_RDWR) and creates it if it doesn't exist (O_CREAT).
+		-> It truncates the file to a specified size (FILE_SIZE) using ftruncate() to ensure the file is large enough for memory mapping.
+		-> The program retrieves and prints the file information (size and permissions) using fstat().
+		-> The file is mapped into memory using mmap(). It uses MAP_PRIVATE to create a private mapping, ensuring changes made by the process are not visible to other processes that might map the 			same file.
+		-> A string "Welcome to private memory mapping from IPC" is written into the mapped memory (ps8addr) using strcpy().
+		-> The program confirms the data has been successfully written by printing the content of ps8addr
+		-> The program forks a child process using fork(). After forking, both the parent and child processes have their own address space but share the same mapped memory (ps8addr).
+		-> Child Process: Executes ChildProcess(), which reads from and writes to the shared mapped memory (ps8addr).
+		-> Parent Process: Waits for the child process to complete (wait(NULL)) and then executes ParentProcess(). It also handles cleanup tasks such as deleting the file (unlink(FILE_PATH)).
+

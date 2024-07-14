@@ -28,6 +28,9 @@
 
 #define FILE_PATH "Shared_Mapped_file.txt"
 #define FILE_SIZE 100
+int8_t *ps8addr;
+int8_t s8FileDescriptor;
+
 /*
  * function	: errExit
  *
@@ -51,44 +54,14 @@ void errExit(const char *message) {
  * Return: None
  */
 void ParentProcess(void) {
-	printf("Entered into Parent Process\n");
-    	int8_t s8FileDescriptor;
-    	int8_t *ps8addr;
-	struct stat strinfo;
+	/* Wait for the child process to finish */
+        wait(NULL);
 
-    	/* Open the file */
-	printf("Creating a file for mapping... \n");
-    	s8FileDescriptor = open(FILE_PATH, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
-    	if (s8FileDescriptor == -1)
-	       errExit("file open fail");	
-    	
-    	/* Truncate the file to the desired size */
-	printf("Allocating size to the file to be mapped ...\n");
-    	if (ftruncate(s8FileDescriptor, FILE_SIZE) == -1) 
-        	errExit("ftruncate error");
-    
-	if (fstat(s8FileDescriptor, &strinfo) == -1) 
-                errExit("fstat error");
-        
-        /* printing file inforamtion */
-        printf("File Size: %ld bytes\n", strinfo.st_size);
-        printf("File Permissions: %o\n", strinfo.st_mode & 0777);
-
-
-    	/* Map the file into memory */
-	printf("Mapping the file into memory...\n");
-    	ps8addr = mmap(NULL, FILE_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, s8FileDescriptor, 0);
-    	if (ps8addr == MAP_FAILED) 
-        	errExit("mmap error");
-
-    	/* Write data to the mapped memory */
-    	strcpy(ps8addr, "Hello welcome to memory mapping in IPC");
-	printf("Data written to the mapped file\n");
-
-
-    	/* Wait for the child process to finish */
-    	wait(NULL);
-
+        printf("\nEntered into Parent Process\n");
+        sleep(2);
+        /* Read from the mapped memory */
+        printf("Parent read from mapped memory: \"%s\"\n", ps8addr);
+	sleep(1);
     	/* Unmap the memory */
     	if (munmap(ps8addr, FILE_SIZE) == -1) 
         	errExit("munmap error");
@@ -98,6 +71,7 @@ void ParentProcess(void) {
         	errExit("close error");
     	wait(NULL);
 	printf("Exiting from parent process...\n");
+	sleep(2);
 }
 
 /* Function	: ChildProcess
@@ -110,22 +84,15 @@ void ParentProcess(void) {
 void ChildProcess(void){
 	sleep(2);
 	printf("\nEntered into child process \n");
-    	int s8FileDescriptor;
-    	int8_t *ps8addr;
+	printf("Child read data from mapped memory: \"%s\"\n",ps8addr);
 
-    	/* Open the file */
-	printf("Opening mapped file ...\n");
-    	s8FileDescriptor = open(FILE_PATH, O_RDWR);
-    	if (s8FileDescriptor == -1) 
-		errExit("file open error");
-
-    	/* Map the file into memory */
-    	ps8addr = mmap(NULL, FILE_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, s8FileDescriptor, 0);
-    	if (ps8addr == MAP_FAILED) 
-        	errExit("mmap error");
-
-    	/* Print data from the mapped memory */
-    	printf("Data from parent process: \"%s\"\n", ps8addr);
+        /* Write to the mapped memory from child */
+        sleep(3);
+        const char *child = "Hello from child process!";
+        strcpy(ps8addr, child);
+        /* Read back what child wrote */
+        sleep(2);
+        printf("Child wrote and read from mapped memory: \"%s\" \n", ps8addr);
 
     	/* Unmap the memory */
     	if (munmap(ps8addr, FILE_SIZE) == -1) 
@@ -150,6 +117,38 @@ void ChildProcess(void){
 int main(void) {
 	printf("Welcome to Parent & Child shared memory mapping process\n");
     	/* Create child process */
+        struct stat strinfo;
+
+        /* Open the file */
+        printf("Creating a file for mapping... \n");
+        s8FileDescriptor = open(FILE_PATH, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+        if (s8FileDescriptor == -1)
+               errExit("file open fail");
+
+        /* Truncate the file to the desired size */
+        printf("Allocating size to the file to be mapped ...\n");
+        if (ftruncate(s8FileDescriptor, FILE_SIZE) == -1)
+                errExit("ftruncate error");
+
+        if (fstat(s8FileDescriptor, &strinfo) == -1)
+                errExit("fstat error");
+
+        /* printing file inforamtion */
+        printf("File Size: %ld bytes\n", strinfo.st_size);
+        printf("File Permissions: %o\n", strinfo.st_mode & 0777);
+
+
+        /* Map the file into memory */
+        printf("Mapping the file into memory...\n");
+        ps8addr = mmap(NULL, FILE_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, s8FileDescriptor, 0);
+        if (ps8addr == MAP_FAILED)
+                errExit("mmap error");
+
+
+        /* Write data to the mapped memory */
+        strcpy(ps8addr, "Hello, welcome to shared memory mapping");
+        printf("Data written to the mapped memory: \"%s\"\n",ps8addr);
+	sleep(2);
     	pid_t pid = fork();
 
     	if (pid == -1) 
