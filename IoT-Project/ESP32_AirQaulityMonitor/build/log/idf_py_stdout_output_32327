@@ -1,0 +1,233 @@
+�xxx����с1: paddr=ets Jul 29 2019 12:21:46
+
+rst:0x1 (POWERON_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+configsip: 0, SPIWP:0xee
+clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+mode:DIO, clock div:2
+load:0x3fff0030,len:6276
+load:0x40078000,len:15716
+load:0x40080400,len:4
+ho 8 tail 4 room 4
+load:0x40080404,len:3860
+entry 0x4008063c
+[0;32mI (31) boot: ESP-IDF v5.4 2nd stage bootloader[0m
+[0;32mI (31) boot: compile time Mar 17 2025 22:09:30[0m
+[0;32mI (31) boot: Multicore bootloader[0m
+[0;32mI (32) boot: chip revision: v3.0[0m
+[0;32mI (35) boot.esp32: SPI Speed      : 40MHz[0m
+[0;32mI (39) boot.esp32: SPI Mode       : DIO[0m
+[0;32mI (42) boot.esp32: SPI Flash Size : 4MB[0m
+[0;32mI (46) boot: Enabling RNG early entropy source...[0m
+[0;32mI (50) boot: Partition Table:[0m
+[0;32mI (53) boot: ## Label            Usage          Type ST Offset   Length[0m
+[0;32mI (59) boot:  0 nvs              WiFi data        01 02 00009000 00006000[0m
+[0;32mI (66) boot:  1 phy_init         RF data          01 01 0000f000 00001000[0m
+[0;32mI (72) boot:  2 factory          factory app      00 00 00010000 00100000[0m
+[0;32mI (79) boot: End of partition table[0m
+[0;32mI (82) esp_image: segment 0: paddr=00010020 vaddr=3f400020 size=0e8f4h ( 59636) map[0m
+[0;32mI (110) esp_image: segment 1: paddr=0001e91c vaddr=3ff80000 size=0001ch (    28) load[0m
+[0;32mI (110) esp_image: segment 2: paddr=0001e940 vaddr=3ffbdb60 size=016d8h (  5848) load[0m
+[0;32mI (116) esp_image: segment 3: paddr=00020020 vaddr=400d0020 size=27f54h (163668) map[0m
+[0;32mI (177) esp_image: segment 4: paddr=00047f7c vaddr=3ffbf238 size=022dch (  8924) load[0m
+[0;32mI (181) esp_image: segment 5: paddr=0004a260 vaddr=40080000 size=10d78h ( 68984) load[0m
+[0;32mI (216) boot: Loaded app from partition at offset 0x10000[0m
+[0;32mI (216) boot: Disabling RNG early entropy source...[0m
+[0;32mI (227) cpu_start: Multicore app[0m
+[0;32mI (235) cpu_start: Pro cpu start user code[0m
+[0;32mI (235) cpu_start: cpu freq: 160000000 Hz[0m
+[0;32mI (235) app_init: Application information:[0m
+[0;32mI (235) app_init: Project name:     IOT[0m
+[0;32mI (239) app_init: App version:      4f0986b-dirty[0m
+[0;32mI (243) app_init: Compile time:     Mar 17 2025 22:09:28[0m
+[0;32mI (248) app_init: ELF file SHA256:  27a168d88...[0m
+[0;32mI (253) app_init: ESP-IDF:          v5.4[0m
+[0;32mI (256) efuse_init: Min chip rev:     v0.0[0m
+[0;32mI (260) efuse_init: Max chip rev:     v3.99 [0m
+[0;32mI (264) efuse_init: Chip rev:         v3.0[0m
+[0;32mI (268) heap_init: Initializing. RAM available for dynamic allocation:[0m
+[0;32mI (274) heap_init: At 3FFAE6E0 len 0000F480 (61 KiB): DRAM[0m
+[0;32mI (280) heap_init: At 3FFC2030 len 0001DFD0 (119 KiB): DRAM[0m
+[0;32mI (285) heap_init: At 3FFE0440 len 00003AE0 (14 KiB): D/IRAM[0m
+[0;32mI (290) heap_init: At 3FFE4350 len 0001BCB0 (111 KiB): D/IRAM[0m
+[0;32mI (296) heap_init: At 40090D78 len 0000F288 (60 KiB): IRAM[0m
+[0;32mI (302) spi_flash: detected chip: gd[0m
+[0;32mI (304) spi_flash: flash io: dio[0m
+[0;33mW (307) i2c: This driver is an old driver, please migrate your application code to adapt `driver/i2c_master.h`[0m
+[0;32mI (318) coexist: coex firmware version: 49a8cdc[0m
+[0;32mI (322) main_task: Started on CPU0[0m
+[0;32mI (332) main_task: Calling app_main()[0m
+ESP32 Air Quality Monitor Starting...
+NVS initialization sucessfull...
+Operational mode running...
+Entered Driver initialization function
+Scanning I2C bus...
+I2C device found at address: 0x50
+I2C scan complete.
+This is sds011 diriver
+this is uart 
+[0;32mI (352) SDS011: SDS011 initialized[0m
+[0;32mI (352) Time: Time set to: 2025-03-18 11:00:00[0m
+[0;32mI (362) ADC: ADC initialized successfully[0m
+[0;32mI (362) gpio: GPIO[14]| InputEn: 0| OutputEn: 1| OpenDrain: 0| Pullup: 0| Pulldown: 0| Intr:0 [0m
+[0;32mI (372) gpio: GPIO[25]| InputEn: 0| OutputEn: 1| OpenDrain: 0| Pullup: 0| Pulldown: 0| Intr:0 [0m
+[0;32mI (382) gpio: GPIO[26]| InputEn: 0| OutputEn: 1| OpenDrain: 0| Pullup: 0| Pulldown: 0| Intr:0 [0m
+[0;32mI (392) gpio: GPIO[27]| InputEn: 0| OutputEn: 1| OpenDrain: 0| Pullup: 0| Pulldown: 0| Intr:0 [0m
+[0;32mI (392) gpio: GPIO[32]| InputEn: 0| OutputEn: 1| OpenDrain: 0| Pullup: 0| Pulldown: 0| Intr:0 [0m
+[0;32mI (402) gpio: GPIO[33]| InputEn: 0| OutputEn: 1| OpenDrain: 0| Pullup: 0| Pulldown: 0| Intr:0 [0m
+[0;32mI (462) main_task: Returned from app_main()[0m
+[0;33mW (602) bme680: Heater is not stable[0m
+ADC:raw value:1905
+[1;31mE (1102) SDS011: Invalid SDS011 data[0m
+[1;31mE (1102) DataCollection: Failed to read SDS011 sensor: ESP_FAIL[0m
+[0;32mI (1502) STORAGE: [34mStoring: Temp = 26.67°C, Hum = 48.76%, CO2 = 256.41 ppm,AQI = 0, time is 2025-03-18 11:00:00[0m[0m
+[0;32mI (1502) READING: Stored: Temp = 26.67°C, Hum = 48.76%, CO2 = 256.41 ppm, AQI = 0, time is 2025-03-18 11:00:00[0m
+ADC:raw value:1877
+[0;32mI (2212) STORAGE: [34mStoring: Temp = 26.67°C, Hum = 48.78%, CO2 = 241.73 ppm,AQI = 30, time is 2025-03-18 11:00:01[0m[0m
+[0;32mI (2212) READING: Stored: Temp = 26.67°C, Hum = 48.78%, CO2 = 241.73 ppm, AQI = 30, time is 2025-03-18 11:00:01[0m
+ADC:raw value:1910
+[0;32mI (2922) STORAGE: [34mStoring: Temp = 26.70°C, Hum = 48.75%, CO2 = 259.12 ppm,AQI = 30, time is 2025-03-18 11:00:02[0m[0m
+[0;32mI (2922) READING: Stored: Temp = 26.70°C, Hum = 48.75%, CO2 = 259.12 ppm, AQI = 30, time is 2025-03-18 11:00:02[0m
+ADC:raw value:1914
+[0;32mI (3632) STORAGE: [34mStoring: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm,AQI = 30, time is 2025-03-18 11:00:02[0m[0m
+[0;32mI (3632) READING: Stored: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm, AQI = 30, time is 2025-03-18 11:00:02[0m
+ADC:raw value:1899
+[0;32mI (4372) STORAGE: [34mStoring: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm,AQI = 30, time is 2025-03-18 11:00:02[0m[0m
+[0;32mI (4372) READING: Stored: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm, AQI = 30, time is 2025-03-18 11:00:02[0m
+ADC:raw value:1926
+[0;32mI (5382) STORAGE: [34mStoring: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm,AQI = 30, time is 2025-03-18 11:00:02[0m[0m
+[0;32mI (5382) READING: Stored: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm, AQI = 30, time is 2025-03-18 11:00:02[0m
+ADC:raw value:1910
+[0;32mI (6382) STORAGE: [34mStoring: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm,AQI = 30, time is 2025-03-18 11:00:02[0m[0m
+[0;32mI (6382) READING: Stored: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm, AQI = 30, time is 2025-03-18 11:00:02[0m
+ADC:raw value:1936
+[0;32mI (7412) STORAGE: [34mStoring: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm,AQI = 30, time is 2025-03-18 11:00:02[0m[0m
+[0;32mI (7412) READING: Stored: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm, AQI = 30, time is 2025-03-18 11:00:02[0m
+ADC:raw value:1922
+[0;32mI (8422) STORAGE: [34mStoring: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm,AQI = 30, time is 2025-03-18 11:00:02[0m[0m
+[0;32mI (8422) READING: Stored: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm, AQI = 30, time is 2025-03-18 11:00:02[0m
+ADC:raw value:1887
+[0;32mI (9422) STORAGE: [34mStoring: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm,AQI = 30, time is 2025-03-18 11:00:02[0m[0m
+[0;32mI (9422) READING: Stored: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm, AQI = 30, time is 2025-03-18 11:00:02[0m
+ADC:raw value:1882
+[0;32mI (10432) STORAGE: [34mStoring: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm,AQI = 29, time is 2025-03-18 11:00:02[0m[0m
+[0;32mI (10432) READING: Stored: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm, AQI = 29, time is 2025-03-18 11:00:02[0m
+ADC:raw value:1911
+[0;32mI (11432) STORAGE: [34mStoring: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm,AQI = 29, time is 2025-03-18 11:00:02[0m[0m
+[0;32mI (11432) READING: Stored: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm, AQI = 29, time is 2025-03-18 11:00:02[0m
+ADC:raw value:1918
+[0;32mI (12442) STORAGE: [34mStoring: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm,AQI = 29, time is 2025-03-18 11:00:02[0m[0m
+[0;32mI (12442) READING: Stored: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm, AQI = 29, time is 2025-03-18 11:00:02[0m
+ADC:raw value:1928
+[0;32mI (13442) STORAGE: [34mStoring: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm,AQI = 29, time is 2025-03-18 11:00:02[0m[0m
+[0;32mI (13442) READING: Stored: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm, AQI = 29, time is 2025-03-18 11:00:02[0m
+ADC:raw value:1934
+[0;32mI (14452) STORAGE: [34mStoring: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm,AQI = 29, time is 2025-03-18 11:00:02[0m[0m
+[0;32mI (14452) READING: Stored: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm, AQI = 29, time is 2025-03-18 11:00:02[0m
+ADC:raw value:1894
+[0;32mI (15452) STORAGE: [34mStoring: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm,AQI = 29, time is 2025-03-18 11:00:02[0m[0m
+[0;32mI (15452) READING: Stored: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm, AQI = 29, time is 2025-03-18 11:00:02[0m
+ADC:raw value:1913
+[0;32mI (16662) STORAGE: [34mStoring: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm,AQI = 29, time is 2025-03-18 11:00:02[0m[0m
+[0;32mI (16662) READING: Stored: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm, AQI = 29, time is 2025-03-18 11:00:02[0m
+ADC:raw value:1918
+[0;32mI (17462) STORAGE: [34mStoring: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm,AQI = 29, time is 2025-03-18 11:00:02[0m[0m
+[0;32mI (17462) READING: Stored: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm, AQI = 29, time is 2025-03-18 11:00:02[0m
+ADC:raw value:1926
+[0;32mI (18472) STORAGE: [34mStoring: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm,AQI = 29, time is 2025-03-18 11:00:02[0m[0m
+[0;32mI (18472) READING: Stored: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm, AQI = 29, time is 2025-03-18 11:00:02[0m
+ADC:raw value:1891
+[0;32mI (19472) STORAGE: [34mStoring: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm,AQI = 29, time is 2025-03-18 11:00:02[0m[0m
+[0;32mI (19472) READING: Stored: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm, AQI = 29, time is 2025-03-18 11:00:02[0m
+ADC:raw value:1889
+[0;32mI (20482) STORAGE: [34mStoring: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm,AQI = 29, time is 2025-03-18 11:00:02[0m[0m
+[0;32mI (20482) READING: Stored: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm, AQI = 29, time is 2025-03-18 11:00:02[0m
+ADC:raw value:1891
+[0;32mI (21482) STORAGE: [34mStoring: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm,AQI = 29, time is 2025-03-18 11:00:02[0m[0m
+[0;32mI (21482) READING: Stored: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm, AQI = 29, time is 2025-03-18 11:00:02[0m
+ADC:raw value:1900
+[0;32mI (22492) STORAGE: [34mStoring: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm,AQI = 29, time is 2025-03-18 11:00:02[0m[0m
+[0;32mI (22492) READING: Stored: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm, AQI = 29, time is 2025-03-18 11:00:02[0m
+ADC:raw value:1918
+[0;32mI (23492) STORAGE: [34mStoring: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm,AQI = 29, time is 2025-03-18 11:00:02[0m[0m
+[0;32mI (23492) READING: Stored: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm, AQI = 29, time is 2025-03-18 11:00:02[0m
+ADC:raw value:1907
+[0;32mI (24502) STORAGE: [34mStoring: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm,AQI = 29, time is 2025-03-18 11:00:02[0m[0m
+[0;32mI (24502) READING: Stored: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm, AQI = 29, time is 2025-03-18 11:00:02[0m
+ADC:raw value:1903
+[0;32mI (25502) STORAGE: [34mStoring: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm,AQI = 29, time is 2025-03-18 11:00:02[0m[0m
+[0;32mI (25502) READING: Stored: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm, AQI = 29, time is 2025-03-18 11:00:02[0m
+ADC:raw value:1906
+[0;32mI (26512) STORAGE: [34mStoring: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm,AQI = 29, time is 2025-03-18 11:00:02[0m[0m
+[0;32mI (26512) READING: Stored: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm, AQI = 29, time is 2025-03-18 11:00:02[0m
+ADC:raw value:1934
+[0;32mI (27512) STORAGE: [34mStoring: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm,AQI = 29, time is 2025-03-18 11:00:02[0m[0m
+[0;32mI (27512) READING: Stored: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm, AQI = 29, time is 2025-03-18 11:00:02[0m
+ADC:raw value:1920
+[0;32mI (28522) STORAGE: [34mStoring: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm,AQI = 29, time is 2025-03-18 11:00:02[0m[0m
+[0;32mI (28522) READING: Stored: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm, AQI = 29, time is 2025-03-18 11:00:02[0m
+ADC:raw value:1937
+[0;32mI (29522) STORAGE: [34mStoring: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm,AQI = 29, time is 2025-03-18 11:00:02[0m[0m
+[0;32mI (29522) READING: Stored: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm, AQI = 29, time is 2025-03-18 11:00:02[0m
+ADC:raw value:1926
+[0;32mI (30532) STORAGE: [34mStoring: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm,AQI = 29, time is 2025-03-18 11:00:02[0m[0m
+[0;32mI (30532) READING: Stored: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm, AQI = 29, time is 2025-03-18 11:00:02[0m
+ADC:raw value:1909
+[0;32mI (31532) STORAGE: [34mStoring: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm,AQI = 30, time is 2025-03-18 11:00:02[0m[0m
+[0;32mI (31532) READING: Stored: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm, AQI = 30, time is 2025-03-18 11:00:02[0m
+ADC:raw value:1898
+[0;32mI (32742) STORAGE: [34mStoring: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm,AQI = 30, time is 2025-03-18 11:00:02[0m[0m
+[0;32mI (32742) READING: Stored: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm, AQI = 30, time is 2025-03-18 11:00:02[0m
+ADC:raw value:1914
+[0;32mI (33542) STORAGE: [34mStoring: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm,AQI = 30, time is 2025-03-18 11:00:02[0m[0m
+[0;32mI (33542) READING: Stored: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm, AQI = 30, time is 2025-03-18 11:00:02[0m
+ADC:raw value:1915
+[0;32mI (34552) STORAGE: [34mStoring: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm,AQI = 30, time is 2025-03-18 11:00:02[0m[0m
+[0;32mI (34552) READING: Stored: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm, AQI = 30, time is 2025-03-18 11:00:02[0m
+ADC:raw value:1930
+[0;32mI (35552) STORAGE: [34mStoring: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm,AQI = 30, time is 2025-03-18 11:00:02[0m[0m
+[0;32mI (35552) READING: Stored: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm, AQI = 30, time is 2025-03-18 11:00:02[0m
+ADC:raw value:1903
+[0;32mI (36562) STORAGE: [34mStoring: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm,AQI = 30, time is 2025-03-18 11:00:02[0m[0m
+[0;32mI (36562) READING: Stored: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm, AQI = 30, time is 2025-03-18 11:00:02[0m
+ADC:raw value:1909
+[0;32mI (37562) STORAGE: [34mStoring: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm,AQI = 30, time is 2025-03-18 11:00:02[0m[0m
+[0;32mI (37562) READING: Stored: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm, AQI = 30, time is 2025-03-18 11:00:02[0m
+ADC:raw value:1922
+[0;32mI (38572) STORAGE: [34mStoring: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm,AQI = 30, time is 2025-03-18 11:00:02[0m[0m
+[0;32mI (38572) READING: Stored: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm, AQI = 30, time is 2025-03-18 11:00:02[0m
+ADC:raw value:1925
+[0;32mI (39582) STORAGE: [34mStoring: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm,AQI = 30, time is 2025-03-18 11:00:02[0m[0m
+[0;32mI (39582) READING: Stored: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm, AQI = 30, time is 2025-03-18 11:00:02[0m
+ADC:raw value:1932
+[0;32mI (40582) STORAGE: [34mStoring: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm,AQI = 30, time is 2025-03-18 11:00:02[0m[0m
+[0;32mI (40582) READING: Stored: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm, AQI = 30, time is 2025-03-18 11:00:02[0m
+ADC:raw value:1903
+[0;32mI (41582) STORAGE: [34mStoring: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm,AQI = 30, time is 2025-03-18 11:00:02[0m[0m
+[0;32mI (41582) READING: Stored: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm, AQI = 30, time is 2025-03-18 11:00:02[0m
+ADC:raw value:1907
+[0;32mI (42592) STORAGE: [34mStoring: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm,AQI = 30, time is 2025-03-18 11:00:02[0m[0m
+[0;32mI (42592) READING: Stored: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm, AQI = 30, time is 2025-03-18 11:00:02[0m
+ADC:raw value:1891
+[0;32mI (43602) STORAGE: [34mStoring: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm,AQI = 30, time is 2025-03-18 11:00:02[0m[0m
+[0;32mI (43602) READING: Stored: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm, AQI = 30, time is 2025-03-18 11:00:02[0m
+ADC:raw value:1907
+[0;32mI (44602) STORAGE: [34mStoring: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm,AQI = 30, time is 2025-03-18 11:00:02[0m[0m
+[0;32mI (44602) READING: Stored: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm, AQI = 30, time is 2025-03-18 11:00:02[0m
+ADC:raw value:1904
+[0;32mI (45612) STORAGE: [34mStoring: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm,AQI = 30, time is 2025-03-18 11:00:02[0m[0m
+[0;32mI (45612) READING: Stored: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm, AQI = 30, time is 2025-03-18 11:00:02[0m
+ADC:raw value:1903
+[0;32mI (46612) STORAGE: [34mStoring: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm,AQI = 30, time is 2025-03-18 11:00:02[0m[0m
+[0;32mI (46612) READING: Stored: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm, AQI = 30, time is 2025-03-18 11:00:02[0m
+ADC:raw value:1920
+[0;32mI (47622) STORAGE: [34mStoring: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm,AQI = 30, time is 2025-03-18 11:00:02[0m[0m
+[0;32mI (47622) READING: Stored: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm, AQI = 30, time is 2025-03-18 11:00:02[0m
+ADC:raw value:1930
+[0;32mI (48822) STORAGE: [34mStoring: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm,AQI = 30, time is 2025-03-18 11:00:02[0m[0m
+[0;32mI (48822) READING: Stored: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm, AQI = 30, time is 2025-03-18 11:00:02[0m
+ADC:raw value:1905
+[0;32mI (49632) STORAGE: [34mStoring: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm,AQI = 32, time is 2025-03-18 11:00:02[0m[0m
+[0;32mI (49632) READING: Stored: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm, AQI = 32, time is 2025-03-18 11:00:02[0m
+ADC:raw value:1901
+[0;32mI (50632) STORAGE: [34mStoring: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm,AQI = 31, time is 2025-03-18 11:00:02[0m[0m
+[0;32mI (50632) READING: Stored: Temp = 26.73°C, Hum = 48.65%, CO2 = 261.29 ppm, AQI = 31, time is 2025-03-18 11:00:02[0m

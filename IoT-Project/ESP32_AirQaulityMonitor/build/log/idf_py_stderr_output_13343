@@ -1,0 +1,8 @@
+CMake Error at /home/fidility/esp/esp-idf-v5.4/tools/cmake/project.cmake:465 (message):
+  Directory specified in EXTRA_COMPONENT_DIRS doesn't exist:
+  /home/fidility/new/IoT-Smart-AQI/IOT/esp-idf-lib/components
+Call Stack (most recent call first):
+  /home/fidility/esp/esp-idf-v5.4/tools/cmake/project.cmake:549 (__project_init)
+  CMakeLists.txt:15 (project)
+
+

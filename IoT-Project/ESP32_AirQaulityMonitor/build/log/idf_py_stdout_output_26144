@@ -1,0 +1,482 @@
+ets Jul 29 2019 12:21:46
+
+rst:0x1 (POWERON_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+configsip: 0, SPIWP:0xee
+clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+mode:DIO, clock div:2
+load:0x3fff0030,len:6276
+load:0x40078000,len:15716
+load:0x40080400,len:4
+ho 8 tail 4 room 4
+load:0x40080404,len:3860
+entry 0x4008063c
+[0;32mI (31) boot: ESP-IDF v5.4 2nd stage bootloader[0m
+[0;32mI (31) boot: compile time Mar 17 2025 22:09:30[0m
+[0;32mI (31) boot: Multicore bootloader[0m
+[0;32mI (32) boot: chip revision: v3.0[0m
+[0;32mI (35) boot.esp32: SPI Speed      : 40MHz[0m
+[0;32mI (39) boot.esp32: SPI Mode       : DIO[0m
+[0;32mI (42) boot.esp32: SPI Flash Size : 4MB[0m
+[0;32mI (46) boot: Enabling RNG early entropy source...[0m
+[0;32mI (50) boot: Partition Table:[0m
+[0;32mI (53) boot: ## Label            Usage          Type ST Offset   Length[0m
+[0;32mI (59) boot:  0 nvs              WiFi data        01 02 00009000 00006000[0m
+[0;32mI (66) boot:  1 phy_init         RF data          01 01 0000f000 00001000[0m
+[0;32mI (72) boot:  2 factory          factory app      00 00 00010000 00100000[0m
+[0;32mI (79) boot: End of partition table[0m
+[0;32mI (82) esp_image: segment 0: paddr=00010020 vaddr=3f400020 size=0e8f4h ( 59636) map[0m
+[0;32mI (110) esp_image: segment 1: paddr=0001e91c vaddr=3ff80000 size=0001ch (    28) load[0m
+[0;32mI (110) esp_image: segment 2: paddr=0001e940 vaddr=3ffbdb60 size=016d8h (  5848) load[0m
+[0;32mI (116) esp_image: segment 3: paddr=00020020 vaddr=400d0020 size=27f6ch (163692) map[0m
+[0;32mI (177) esp_image: segment 4: paddr=00047f94 vaddr=3ffbf238 size=022dch (  8924) load[0m
+[0;32mI (181) esp_image: segment 5: paddr=0004a278 vaddr=40080000 size=10d78h ( 68984) load[0m
+[0;32mI (216) boot: Loaded app from partition at offset 0x10000[0m
+[0;32mI (216) boot: Disabling RNG early entropy source...[0m
+[0;32mI (227) cpu_start: Multicore app[0m
+[0;32mI (235) cpu_start: Pro cpu start user code[0m
+[0;32mI (235) cpu_start: cpu freq: 160000000 Hz[0m
+[0;32mI (235) app_init: Application information:[0m
+[0;32mI (235) app_init: Project name:     IOT[0m
+[0;32mI (239) app_init: App version:      4f0986b-dirty[0m
+[0;32mI (243) app_init: Compile time:     Mar 17 2025 22:09:28[0m
+[0;32mI (248) app_init: ELF file SHA256:  57b2dc389...[0m
+[0;32mI (253) app_init: ESP-IDF:          v5.4[0m
+[0;32mI (256) efuse_init: Min chip rev:     v0.0[0m
+[0;32mI (260) efuse_init: Max chip rev:     v3.99 [0m
+[0;32mI (264) efuse_init: Chip rev:         v3.0[0m
+[0;32mI (268) heap_init: Initializing. RAM available for dynamic allocation:[0m
+[0;32mI (275) heap_init: At 3FFAE6E0 len 0000F480 (61 KiB): DRAM[0m
+[0;32mI (280) heap_init: At 3FFC2030 len 0001DFD0 (119 KiB): DRAM[0m
+[0;32mI (285) heap_init: At 3FFE0440 len 00003AE0 (14 KiB): D/IRAM[0m
+[0;32mI (290) heap_init: At 3FFE4350 len 0001BCB0 (111 KiB): D/IRAM[0m
+[0;32mI (296) heap_init: At 40090D78 len 0000F288 (60 KiB): IRAM[0m
+[0;32mI (302) spi_flash: detected chip: gd[0m
+[0;32mI (304) spi_flash: flash io: dio[0m
+[0;33mW (307) i2c: This driver is an old driver, please migrate your application code to adapt `driver/i2c_master.h`[0m
+[0;32mI (318) coexist: coex firmware version: 49a8cdc[0m
+[0;32mI (322) main_task: Started on CPU0[0m
+[0;32mI (332) main_task: Calling app_main()[0m
+ESP32 Air Quality Monitor Starting...
+NVS initialization sucessfull...
+Operational mode running...
+Entered Driver initialization function
+Scanning I2C bus...
+I2C device found at address: 0x50
+I2C scan complete.
+This is sds011 diriver
+this is uart 
+[0;32mI (352) SDS011: SDS011 initialized[0m
+[0;32mI (352) Time: Time set to: 2025-03-18 11:00:00[0m
+[0;32mI (362) ADC: ADC initialized successfully[0m
+[0;32mI (362) gpio: GPIO[14]| InputEn: 0| OutputEn: 1| OpenDrain: 0| Pullup: 0| Pulldown: 0| Intr:0 [0m
+[0;32mI (372) gpio: GPIO[25]| InputEn: 0| OutputEn: 1| OpenDrain: 0| Pullup: 0| Pulldown: 0| Intr:0 [0m
+[0;32mI (382) gpio: GPIO[26]| InputEn: 0| OutputEn: 1| OpenDrain: 0| Pullup: 0| Pulldown: 0| Intr:0 [0m
+[0;32mI (392) gpio: GPIO[27]| InputEn: 0| OutputEn: 1| OpenDrain: 0| Pullup: 0| Pulldown: 0| Intr:0 [0m
+[0;32mI (392) gpio: GPIO[32]| InputEn: 0| OutputEn: 1| OpenDrain: 0| Pullup: 0| Pulldown: 0| Intr:0 [0m
+[0;32mI (402) gpio: GPIO[33]| InputEn: 0| OutputEn: 1| OpenDrain: 0| Pullup: 0| Pulldown: 0| Intr:0 [0m
+[0;32mI (462) main_task: Returned from app_main()[0m
+[0;33mW (602) bme680: Heater is not stable[0m
+ADC:raw value:1833
+[0;32mI (1002) STORAGE: [34mStoring: Temp = 26.27°C, Hum = 50.69%, CO2 = 220.11 ppm,AQI = 24, time is 2025-03-18 11:00:00[0m[0m
+[0;32mI (1002) READING: Stored: Temp = 26.27°C, Hum = 50.69%, CO2 = 220.11 ppm, AQI = 24, time is 2025-03-18 11:00:00[0m
+ADC:raw value:1818
+[1;31mE (1242) SDS011: Invalid SDS011 data[0m
+[1;31mE (1242) DataCollection: Failed to read SDS011 sensor: ESP_FAIL[0m
+[0;32mI (1712) STORAGE: [34mStoring: Temp = 26.28°C, Hum = 50.72%, CO2 = 213.13 ppm,AQI = 24, time is 2025-03-18 11:00:00[0m[0m
+[0;32mI (1712) READING: Stored: Temp = 26.28°C, Hum = 50.72%, CO2 = 213.13 ppm, AQI = 24, time is 2025-03-18 11:00:00[0m
+ADC:raw value:1823
+[0;32mI (2412) STORAGE: [34mStoring: Temp = 26.31°C, Hum = 50.72%, CO2 = 215.43 ppm,AQI = 24, time is 2025-03-18 11:00:01[0m[0m
+[0;32mI (2412) READING: Stored: Temp = 26.31°C, Hum = 50.72%, CO2 = 215.43 ppm, AQI = 24, time is 2025-03-18 11:00:01[0m
+ADC:raw value:1827
+[1;31mE (2562) SDS011: Invalid SDS011 data[0m
+[1;31mE (2562) DataCollection: Failed to read SDS011 sensor: ESP_FAIL[0m
+[0;32mI (3122) STORAGE: [34mStoring: Temp = 26.34°C, Hum = 50.66%, CO2 = 217.29 ppm,AQI = 24, time is 2025-03-18 11:00:02[0m[0m
+[0;32mI (3122) READING: Stored: Temp = 26.34°C, Hum = 50.66%, CO2 = 217.29 ppm, AQI = 24, time is 2025-03-18 11:00:02[0m
+ADC:raw value:1828
+[0;32mI (3832) STORAGE: [34mStoring: Temp = 26.37°C, Hum = 50.58%, CO2 = 217.76 ppm,AQI = 24, time is 2025-03-18 11:00:02[0m[0m
+[0;32mI (3832) READING: Stored: Temp = 26.37°C, Hum = 50.58%, CO2 = 217.76 ppm, AQI = 24, time is 2025-03-18 11:00:02[0m
+ADC:raw value:1823
+[0;32mI (4542) STORAGE: [34mStoring: Temp = 26.40°C, Hum = 50.50%, CO2 = 215.43 ppm,AQI = 24, time is 2025-03-18 11:00:03[0m[0m
+[0;32mI (4542) READING: Stored: Temp = 26.40°C, Hum = 50.50%, CO2 = 215.43 ppm, AQI = 24, time is 2025-03-18 11:00:03[0m
+ADC:raw value:1815
+[0;32mI (5252) STORAGE: [34mStoring: Temp = 26.43°C, Hum = 50.41%, CO2 = 211.75 ppm,AQI = 24, time is 2025-03-18 11:00:04[0m[0m
+[0;32mI (5252) READING: Stored: Temp = 26.43°C, Hum = 50.41%, CO2 = 211.75 ppm, AQI = 24, time is 2025-03-18 11:00:04[0m
+ADC:raw value:1820
+[1;31mE (5402) SDS011: Invalid SDS011 data[0m
+[1;31mE (5402) DataCollection: Failed to read SDS011 sensor: ESP_FAIL[0m
+[0;32mI (5962) STORAGE: [34mStoring: Temp = 26.45°C, Hum = 50.33%, CO2 = 214.05 ppm,AQI = 24, time is 2025-03-18 11:00:05[0m[0m
+[0;32mI (5962) READING: Stored: Temp = 26.45°C, Hum = 50.33%, CO2 = 214.05 ppm, AQI = 24, time is 2025-03-18 11:00:05[0m
+ADC:raw value:1794
+[0;32mI (6672) STORAGE: [34mStoring: Temp = 26.47°C, Hum = 50.28%, CO2 = 202.35 ppm,AQI = 24, time is 2025-03-18 11:00:05[0m[0m
+[0;32mI (6672) READING: Stored: Temp = 26.47°C, Hum = 50.28%, CO2 = 202.35 ppm, AQI = 24, time is 2025-03-18 11:00:05[0m
+ADC:raw value:1815
+[0;32mI (7382) STORAGE: [34mStoring: Temp = 26.50°C, Hum = 50.22%, CO2 = 211.75 ppm,AQI = 23, time is 2025-03-18 11:00:06[0m[0m
+[0;32mI (7382) READING: Stored: Temp = 26.50°C, Hum = 50.22%, CO2 = 211.75 ppm, AQI = 23, time is 2025-03-18 11:00:06[0m
+ADC:raw value:1809
+[1;31mE (7532) SDS011: Invalid SDS011 data[0m
+[1;31mE (7532) DataCollection: Failed to read SDS011 sensor: ESP_FAIL[0m
+[0;32mI (8092) STORAGE: [34mStoring: Temp = 26.52°C, Hum = 50.18%, CO2 = 209.03 ppm,AQI = 23, time is 2025-03-18 11:00:07[0m[0m
+[0;32mI (8092) READING: Stored: Temp = 26.52°C, Hum = 50.18%, CO2 = 209.03 ppm, AQI = 23, time is 2025-03-18 11:00:07[0m
+ADC:raw value:1818
+[0;32mI (8802) STORAGE: [34mStoring: Temp = 26.54°C, Hum = 50.13%, CO2 = 213.13 ppm,AQI = 23, time is 2025-03-18 11:00:07[0m[0m
+[0;32mI (8802) READING: Stored: Temp = 26.54°C, Hum = 50.13%, CO2 = 213.13 ppm, AQI = 23, time is 2025-03-18 11:00:07[0m
+ADC:raw value:1811
+[0;32mI (9512) STORAGE: [34mStoring: Temp = 26.55°C, Hum = 50.10%, CO2 = 209.93 ppm,AQI = 23, time is 2025-03-18 11:00:08[0m[0m
+[0;32mI (9512) READING: Stored: Temp = 26.55°C, Hum = 50.10%, CO2 = 209.93 ppm, AQI = 23, time is 2025-03-18 11:00:08[0m
+ADC:raw value:1825
+[0;32mI (10222) STORAGE: [34mStoring: Temp = 26.57°C, Hum = 50.03%, CO2 = 216.36 ppm,AQI = 23, time is 2025-03-18 11:00:09[0m[0m
+[0;32mI (10222) READING: Stored: Temp = 26.57°C, Hum = 50.03%, CO2 = 216.36 ppm, AQI = 23, time is 2025-03-18 11:00:09[0m
+ADC:raw value:1787
+[1;31mE (10372) SDS011: Invalid SDS011 data[0m
+[1;31mE (10372) DataCollection: Failed to read SDS011 sensor: ESP_FAIL[0m
+[0;32mI (10932) STORAGE: [34mStoring: Temp = 26.58°C, Hum = 50.00%, CO2 = 199.29 ppm,AQI = 23, time is 2025-03-18 11:00:10[0m[0m
+[0;32mI (10932) READING: Stored: Temp = 26.58°C, Hum = 50.00%, CO2 = 199.29 ppm, AQI = 23, time is 2025-03-18 11:00:10[0m
+ADC:raw value:1824
+[0;32mI (11642) STORAGE: [34mStoring: Temp = 26.60°C, Hum = 49.98%, CO2 = 215.90 ppm,AQI = 24, time is 2025-03-18 11:00:10[0m[0m
+[0;32mI (11642) READING: Stored: Temp = 26.60°C, Hum = 49.98%, CO2 = 215.90 ppm, AQI = 24, time is 2025-03-18 11:00:10[0m
+ADC:raw value:1797
+[0;32mI (12552) STORAGE: [34mStoring: Temp = 26.61°C, Hum = 49.96%, CO2 = 203.67 ppm,AQI = 24, time is 2025-03-18 11:00:11[0m[0m
+[0;32mI (12552) READING: Stored: Temp = 26.61°C, Hum = 49.96%, CO2 = 203.67 ppm, AQI = 24, time is 2025-03-18 11:00:11[0m
+ADC:raw value:1827
+[0;32mI (13262) STORAGE: [34mStoring: Temp = 26.61°C, Hum = 49.94%, CO2 = 217.29 ppm,AQI = 24, time is 2025-03-18 11:00:12[0m[0m
+[0;32mI (13262) READING: Stored: Temp = 26.61°C, Hum = 49.94%, CO2 = 217.29 ppm, AQI = 24, time is 2025-03-18 11:00:12[0m
+ADC:raw value:1836
+[1;31mE (13412) SDS011: Invalid SDS011 data[0m
+[1;31mE (13412) DataCollection: Failed to read SDS011 sensor: ESP_FAIL[0m
+[0;32mI (13972) STORAGE: [34mStoring: Temp = 26.62°C, Hum = 49.94%, CO2 = 221.53 ppm,AQI = 24, time is 2025-03-18 11:00:13[0m[0m
+[0;32mI (13972) READING: Stored: Temp = 26.62°C, Hum = 49.94%, CO2 = 221.53 ppm, AQI = 24, time is 2025-03-18 11:00:13[0m
+ADC:raw value:1793
+[0;32mI (14682) STORAGE: [34mStoring: Temp = 26.63°C, Hum = 49.95%, CO2 = 201.91 ppm,AQI = 25, time is 2025-03-18 11:00:13[0m[0m
+[0;32mI (14682) READING: Stored: Temp = 26.63°C, Hum = 49.95%, CO2 = 201.91 ppm, AQI = 25, time is 2025-03-18 11:00:13[0m
+ADC:raw value:1822
+[0;32mI (15392) STORAGE: [34mStoring: Temp = 26.64°C, Hum = 49.92%, CO2 = 214.97 ppm,AQI = 25, time is 2025-03-18 11:00:14[0m[0m
+[0;32mI (15392) READING: Stored: Temp = 26.64°C, Hum = 49.92%, CO2 = 214.97 ppm, AQI = 25, time is 2025-03-18 11:00:14[0m
+ADC:raw value:1821
+[1;31mE (15542) SDS011: Invalid SDS011 data[0m
+[1;31mE (15542) DataCollection: Failed to read SDS011 sensor: ESP_FAIL[0m
+[0;32mI (16102) STORAGE: [34mStoring: Temp = 26.65°C, Hum = 49.91%, CO2 = 214.51 ppm,AQI = 25, time is 2025-03-18 11:00:15[0m[0m
+[0;32mI (16102) READING: Stored: Temp = 26.65°C, Hum = 49.91%, CO2 = 214.51 ppm, AQI = 25, time is 2025-03-18 11:00:15[0m
+ADC:raw value:1822
+[0;32mI (16812) STORAGE: [34mStoring: Temp = 26.66°C, Hum = 49.90%, CO2 = 214.97 ppm,AQI = 25, time is 2025-03-18 11:00:15[0m[0m
+[0;32mI (16812) READING: Stored: Temp = 26.66°C, Hum = 49.90%, CO2 = 214.97 ppm, AQI = 25, time is 2025-03-18 11:00:15[0m
+ADC:raw value:1823
+[0;32mI (17522) STORAGE: [34mStoring: Temp = 26.67°C, Hum = 49.87%, CO2 = 215.43 ppm,AQI = 25, time is 2025-03-18 11:00:16[0m[0m
+[0;32mI (17522) READING: Stored: Temp = 26.67°C, Hum = 49.87%, CO2 = 215.43 ppm, AQI = 25, time is 2025-03-18 11:00:16[0m
+ADC:raw value:1822
+[0;32mI (18232) STORAGE: [34mStoring: Temp = 26.67°C, Hum = 49.87%, CO2 = 214.97 ppm,AQI = 25, time is 2025-03-18 11:00:17[0m[0m
+[0;32mI (18232) READING: Stored: Temp = 26.67°C, Hum = 49.87%, CO2 = 214.97 ppm, AQI = 25, time is 2025-03-18 11:00:17[0m
+ADC:raw value:1818
+[1;31mE (18382) SDS011: Invalid SDS011 data[0m
+[1;31mE (18382) DataCollection: Failed to read SDS011 sensor: ESP_FAIL[0m
+[0;32mI (18942) STORAGE: [34mStoring: Temp = 26.68°C, Hum = 49.84%, CO2 = 213.13 ppm,AQI = 25, time is 2025-03-18 11:00:18[0m[0m
+[0;32mI (18942) READING: Stored: Temp = 26.68°C, Hum = 49.84%, CO2 = 213.13 ppm, AQI = 25, time is 2025-03-18 11:00:18[0m
+ADC:raw value:1805
+[0;32mI (19652) STORAGE: [34mStoring: Temp = 26.69°C, Hum = 49.84%, CO2 = 207.23 ppm,AQI = 25, time is 2025-03-18 11:00:18[0m[0m
+[0;32mI (19652) READING: Stored: Temp = 26.69°C, Hum = 49.84%, CO2 = 207.23 ppm, AQI = 25, time is 2025-03-18 11:00:18[0m
+ADC:raw value:1840
+[0;32mI (20362) STORAGE: [34mStoring: Temp = 26.70°C, Hum = 49.83%, CO2 = 223.43 ppm,AQI = 25, time is 2025-03-18 11:00:19[0m[0m
+[0;32mI (20362) READING: Stored: Temp = 26.70°C, Hum = 49.83%, CO2 = 223.43 ppm, AQI = 25, time is 2025-03-18 11:00:19[0m
+ADC:raw value:1799
+[1;31mE (20512) SDS011: Invalid SDS011 data[0m
+[1;31mE (20512) DataCollection: Failed to read SDS011 sensor: ESP_FAIL[0m
+[0;32mI (21072) STORAGE: [34mStoring: Temp = 26.70°C, Hum = 49.80%, CO2 = 204.55 ppm,AQI = 25, time is 2025-03-18 11:00:20[0m[0m
+[0;32mI (21072) READING: Stored: Temp = 26.70°C, Hum = 49.80%, CO2 = 204.55 ppm, AQI = 25, time is 2025-03-18 11:00:20[0m
+ADC:raw value:1826
+[0;32mI (21782) STORAGE: [34mStoring: Temp = 26.71°C, Hum = 49.79%, CO2 = 216.83 ppm,AQI = 25, time is 2025-03-18 11:00:20[0m[0m
+[0;32mI (21782) READING: Stored: Temp = 26.71°C, Hum = 49.79%, CO2 = 216.83 ppm, AQI = 25, time is 2025-03-18 11:00:20[0m
+ADC:raw value:1830
+[0;32mI (22492) STORAGE: [34mStoring: Temp = 26.72°C, Hum = 49.79%, CO2 = 218.70 ppm,AQI = 25, time is 2025-03-18 11:00:21[0m[0m
+[0;32mI (22492) READING: Stored: Temp = 26.72°C, Hum = 49.79%, CO2 = 218.70 ppm, AQI = 25, time is 2025-03-18 11:00:21[0m
+ADC:raw value:1840
+[1;31mE (22642) SDS011: Invalid SDS011 data[0m
+[1;31mE (22642) DataCollection: Failed to read SDS011 sensor: ESP_FAIL[0m
+[0;32mI (23202) STORAGE: [34mStoring: Temp = 26.72°C, Hum = 49.76%, CO2 = 223.43 ppm,AQI = 25, time is 2025-03-18 11:00:22[0m[0m
+[0;32mI (23202) READING: Stored: Temp = 26.72°C, Hum = 49.76%, CO2 = 223.43 ppm, AQI = 25, time is 2025-03-18 11:00:22[0m
+ADC:raw value:1840
+[0;32mI (24112) STORAGE: [34mStoring: Temp = 26.73°C, Hum = 49.74%, CO2 = 223.43 ppm,AQI = 25, time is 2025-03-18 11:00:22[0m[0m
+[0;32mI (24112) READING: Stored: Temp = 26.73°C, Hum = 49.74%, CO2 = 223.43 ppm, AQI = 25, time is 2025-03-18 11:00:22[0m
+ADC:raw value:1861
+[0;32mI (24822) STORAGE: [34mStoring: Temp = 26.72°C, Hum = 49.73%, CO2 = 233.67 ppm,AQI = 25, time is 2025-03-18 11:00:23[0m[0m
+[0;32mI (24822) READING: Stored: Temp = 26.72°C, Hum = 49.73%, CO2 = 233.67 ppm, AQI = 25, time is 2025-03-18 11:00:23[0m
+ADC:raw value:1849
+[0;32mI (25532) STORAGE: [34mStoring: Temp = 26.72°C, Hum = 49.75%, CO2 = 227.77 ppm,AQI = 25, time is 2025-03-18 11:00:24[0m[0m
+[0;32mI (25532) READING: Stored: Temp = 26.72°C, Hum = 49.75%, CO2 = 227.77 ppm, AQI = 25, time is 2025-03-18 11:00:24[0m
+ADC:raw value:1842
+[1;31mE (25682) SDS011: Invalid SDS011 data[0m
+[1;31mE (25682) DataCollection: Failed to read SDS011 sensor: ESP_FAIL[0m
+[0;32mI (26242) STORAGE: [34mStoring: Temp = 26.73°C, Hum = 49.74%, CO2 = 224.39 ppm,AQI = 25, time is 2025-03-18 11:00:25[0m[0m
+[0;32mI (26242) READING: Stored: Temp = 26.73°C, Hum = 49.74%, CO2 = 224.39 ppm, AQI = 25, time is 2025-03-18 11:00:25[0m
+ADC:raw value:1839
+[0;32mI (26952) STORAGE: [34mStoring: Temp = 26.73°C, Hum = 49.73%, CO2 = 222.96 ppm,AQI = 25, time is 2025-03-18 11:00:26[0m[0m
+[0;32mI (26952) READING: Stored: Temp = 26.73°C, Hum = 49.73%, CO2 = 222.96 ppm, AQI = 25, time is 2025-03-18 11:00:26[0m
+ADC:raw value:1834
+[0;32mI (27662) STORAGE: [34mStoring: Temp = 26.74°C, Hum = 49.71%, CO2 = 220.58 ppm,AQI = 25, time is 2025-03-18 11:00:26[0m[0m
+[0;32mI (27662) READING: Stored: Temp = 26.74°C, Hum = 49.71%, CO2 = 220.58 ppm, AQI = 25, time is 2025-03-18 11:00:26[0m
+ADC:raw value:1853
+[0;32mI (28372) STORAGE: [34mStoring: Temp = 26.74°C, Hum = 49.68%, CO2 = 229.72 ppm,AQI = 25, time is 2025-03-18 11:00:27[0m[0m
+[0;32mI (28372) READING: Stored: Temp = 26.74°C, Hum = 49.68%, CO2 = 229.72 ppm, AQI = 25, time is 2025-03-18 11:00:27[0m
+ADC:raw value:1829
+[1;31mE (28522) SDS011: Invalid SDS011 data[0m
+[1;31mE (28522) DataCollection: Failed to read SDS011 sensor: ESP_FAIL[0m
+[0;32mI (29082) STORAGE: [34mStoring: Temp = 26.74°C, Hum = 49.66%, CO2 = 218.23 ppm,AQI = 25, time is 2025-03-18 11:00:28[0m[0m
+[0;32mI (29082) READING: Stored: Temp = 26.74°C, Hum = 49.66%, CO2 = 218.23 ppm, AQI = 25, time is 2025-03-18 11:00:28[0m
+ADC:raw value:1853
+[0;32mI (29792) STORAGE: [34mStoring: Temp = 26.75°C, Hum = 49.65%, CO2 = 229.72 ppm,AQI = 25, time is 2025-03-18 11:00:28[0m[0m
+[0;32mI (29792) READING: Stored: Temp = 26.75°C, Hum = 49.65%, CO2 = 229.72 ppm, AQI = 25, time is 2025-03-18 11:00:28[0m
+ADC:raw value:1859
+[0;32mI (30502) STORAGE: [34mStoring: Temp = 26.75°C, Hum = 49.63%, CO2 = 232.67 ppm,AQI = 25, time is 2025-03-18 11:00:29[0m[0m
+[0;32mI (30502) READING: Stored: Temp = 26.75°C, Hum = 49.63%, CO2 = 232.67 ppm, AQI = 25, time is 2025-03-18 11:00:29[0m
+ADC:raw value:1872
+[1;31mE (30652) SDS011: Invalid SDS011 data[0m
+[1;31mE (30652) DataCollection: Failed to read SDS011 sensor: ESP_FAIL[0m
+[0;32mI (31212) STORAGE: [34mStoring: Temp = 26.76°C, Hum = 49.62%, CO2 = 239.18 ppm,AQI = 25, time is 2025-03-18 11:00:30[0m[0m
+[0;32mI (31212) READING: Stored: Temp = 26.76°C, Hum = 49.62%, CO2 = 239.18 ppm, AQI = 25, time is 2025-03-18 11:00:30[0m
+ADC:raw value:1873
+[0;32mI (31922) STORAGE: [34mStoring: Temp = 26.76°C, Hum = 49.60%, CO2 = 239.69 ppm,AQI = 25, time is 2025-03-18 11:00:31[0m[0m
+[0;32mI (31922) READING: Stored: Temp = 26.76°C, Hum = 49.60%, CO2 = 239.69 ppm, AQI = 25, time is 2025-03-18 11:00:31[0m
+ADC:raw value:1875
+[0;32mI (32632) STORAGE: [34mStoring: Temp = 26.77°C, Hum = 49.60%, CO2 = 240.71 ppm,AQI = 25, time is 2025-03-18 11:00:31[0m[0m
+[0;32mI (32632) READING: Stored: Temp = 26.77°C, Hum = 49.60%, CO2 = 240.71 ppm, AQI = 25, time is 2025-03-18 11:00:31[0m
+ADC:raw value:1883
+[0;32mI (33342) STORAGE: [34mStoring: Temp = 26.77°C, Hum = 49.59%, CO2 = 244.81 ppm,AQI = 25, time is 2025-03-18 11:00:32[0m[0m
+[0;32mI (33342) READING: Stored: Temp = 26.77°C, Hum = 49.59%, CO2 = 244.81 ppm, AQI = 25, time is 2025-03-18 11:00:32[0m
+ADC:raw value:1875
+[1;31mE (33492) SDS011: Invalid SDS011 data[0m
+[1;31mE (33492) DataCollection: Failed to read SDS011 sensor: ESP_FAIL[0m
+[0;32mI (34052) STORAGE: [34mStoring: Temp = 26.77°C, Hum = 49.59%, CO2 = 240.71 ppm,AQI = 25, time is 2025-03-18 11:00:33[0m[0m
+[0;32mI (34052) READING: Stored: Temp = 26.77°C, Hum = 49.59%, CO2 = 240.71 ppm, AQI = 25, time is 2025-03-18 11:00:33[0m
+ADC:raw value:1872
+[0;32mI (34762) STORAGE: [34mStoring: Temp = 26.78°C, Hum = 49.59%, CO2 = 239.18 ppm,AQI = 25, time is 2025-03-18 11:00:33[0m[0m
+[0;32mI (34762) READING: Stored: Temp = 26.78°C, Hum = 49.59%, CO2 = 239.18 ppm, AQI = 25, time is 2025-03-18 11:00:33[0m
+ADC:raw value:1876
+[0;32mI (35672) STORAGE: [34mStoring: Temp = 26.78°C, Hum = 49.59%, CO2 = 241.22 ppm,AQI = 25, time is 2025-03-18 11:00:34[0m[0m
+[0;32mI (35672) READING: Stored: Temp = 26.78°C, Hum = 49.59%, CO2 = 241.22 ppm, AQI = 25, time is 2025-03-18 11:00:34[0m
+ADC:raw value:1888
+[0;32mI (36382) STORAGE: [34mStoring: Temp = 26.77°C, Hum = 49.60%, CO2 = 247.41 ppm,AQI = 26, time is 2025-03-18 11:00:35[0m[0m
+[0;32mI (36382) READING: Stored: Temp = 26.77°C, Hum = 49.60%, CO2 = 247.41 ppm, AQI = 26, time is 2025-03-18 11:00:35[0m
+ADC:raw value:1881
+[1;31mE (36532) SDS011: Invalid SDS011 data[0m
+[1;31mE (36532) DataCollection: Failed to read SDS011 sensor: ESP_FAIL[0m
+[0;32mI (37092) STORAGE: [34mStoring: Temp = 26.78°C, Hum = 49.65%, CO2 = 243.78 ppm,AQI = 26, time is 2025-03-18 11:00:36[0m[0m
+[0;32mI (37092) READING: Stored: Temp = 26.78°C, Hum = 49.65%, CO2 = 243.78 ppm, AQI = 26, time is 2025-03-18 11:00:36[0m
+ADC:raw value:1856
+[0;32mI (37802) STORAGE: [34mStoring: Temp = 26.78°C, Hum = 49.68%, CO2 = 231.19 ppm,AQI = 26, time is 2025-03-18 11:00:36[0m[0m
+[0;32mI (37802) READING: Stored: Temp = 26.78°C, Hum = 49.68%, CO2 = 231.19 ppm, AQI = 26, time is 2025-03-18 11:00:36[0m
+ADC:raw value:1899
+[0;32mI (38512) STORAGE: [34mStoring: Temp = 26.78°C, Hum = 49.69%, CO2 = 253.20 ppm,AQI = 26, time is 2025-03-18 11:00:37[0m[0m
+[0;32mI (38512) READING: Stored: Temp = 26.78°C, Hum = 49.69%, CO2 = 253.20 ppm, AQI = 26, time is 2025-03-18 11:00:37[0m
+ADC:raw value:1886
+[1;31mE (38662) SDS011: Invalid SDS011 data[0m
+[1;31mE (38662) DataCollection: Failed to read SDS011 sensor: ESP_FAIL[0m
+[0;32mI (39222) STORAGE: [34mStoring: Temp = 26.79°C, Hum = 49.73%, CO2 = 246.37 ppm,AQI = 26, time is 2025-03-18 11:00:38[0m[0m
+[0;32mI (39222) READING: Stored: Temp = 26.79°C, Hum = 49.73%, CO2 = 246.37 ppm, AQI = 26, time is 2025-03-18 11:00:38[0m
+ADC:raw value:1891
+[0;32mI (39932) STORAGE: [34mStoring: Temp = 26.80°C, Hum = 49.77%, CO2 = 248.98 ppm,AQI = 26, time is 2025-03-18 11:00:39[0m[0m
+[0;32mI (39932) READING: Stored: Temp = 26.80°C, Hum = 49.77%, CO2 = 248.98 ppm, AQI = 26, time is 2025-03-18 11:00:39[0m
+ADC:raw value:1874
+[0;32mI (40642) STORAGE: [34mStoring: Temp = 26.80°C, Hum = 49.80%, CO2 = 240.20 ppm,AQI = 26, time is 2025-03-18 11:00:39[0m[0m
+[0;32mI (40642) READING: Stored: Temp = 26.80°C, Hum = 49.80%, CO2 = 240.20 ppm, AQI = 26, time is 2025-03-18 11:00:39[0m
+ADC:raw value:1873
+[0;32mI (41352) STORAGE: [34mStoring: Temp = 26.81°C, Hum = 49.82%, CO2 = 239.69 ppm,AQI = 26, time is 2025-03-18 11:00:40[0m[0m
+[0;32mI (41352) READING: Stored: Temp = 26.81°C, Hum = 49.82%, CO2 = 239.69 ppm, AQI = 26, time is 2025-03-18 11:00:40[0m
+ADC:raw value:1883
+[1;31mE (41502) SDS011: Invalid SDS011 data[0m
+[1;31mE (41502) DataCollection: Failed to read SDS011 sensor: ESP_FAIL[0m
+[0;32mI (42062) STORAGE: [34mStoring: Temp = 26.81°C, Hum = 49.84%, CO2 = 244.81 ppm,AQI = 26, time is 2025-03-18 11:00:41[0m[0m
+[0;32mI (42062) READING: Stored: Temp = 26.81°C, Hum = 49.84%, CO2 = 244.81 ppm, AQI = 26, time is 2025-03-18 11:00:41[0m
+ADC:raw value:1891
+[0;32mI (42772) STORAGE: [34mStoring: Temp = 26.82°C, Hum = 49.86%, CO2 = 248.98 ppm,AQI = 26, time is 2025-03-18 11:00:41[0m[0m
+[0;32mI (42772) READING: Stored: Temp = 26.82°C, Hum = 49.86%, CO2 = 248.98 ppm, AQI = 26, time is 2025-03-18 11:00:41[0m
+ADC:raw value:1903
+[0;32mI (43482) STORAGE: [34mStoring: Temp = 26.82°C, Hum = 49.89%, CO2 = 255.34 ppm,AQI = 26, time is 2025-03-18 11:00:42[0m[0m
+[0;32mI (43482) READING: Stored: Temp = 26.82°C, Hum = 49.89%, CO2 = 255.34 ppm, AQI = 26, time is 2025-03-18 11:00:42[0m
+ADC:raw value:1863
+[1;31mE (43632) SDS011: Invalid SDS011 data[0m
+[1;31mE (43632) DataCollection: Failed to read SDS011 sensor: ESP_FAIL[0m
+[0;32mI (44192) STORAGE: [34mStoring: Temp = 26.83°C, Hum = 49.90%, CO2 = 234.66 ppm,AQI = 26, time is 2025-03-18 11:00:43[0m[0m
+[0;32mI (44192) READING: Stored: Temp = 26.83°C, Hum = 49.90%, CO2 = 234.66 ppm, AQI = 26, time is 2025-03-18 11:00:43[0m
+ADC:raw value:1861
+[0;32mI (44902) STORAGE: [34mStoring: Temp = 26.83°C, Hum = 49.90%, CO2 = 233.67 ppm,AQI = 26, time is 2025-03-18 11:00:43[0m[0m
+[0;32mI (44902) READING: Stored: Temp = 26.83°C, Hum = 49.90%, CO2 = 233.67 ppm, AQI = 26, time is 2025-03-18 11:00:43[0m
+ADC:raw value:1881
+[0;32mI (45612) STORAGE: [34mStoring: Temp = 26.83°C, Hum = 49.89%, CO2 = 243.78 ppm,AQI = 26, time is 2025-03-18 11:00:44[0m[0m
+[0;32mI (45612) READING: Stored: Temp = 26.83°C, Hum = 49.89%, CO2 = 243.78 ppm, AQI = 26, time is 2025-03-18 11:00:44[0m
+ADC:raw value:1899
+[1;31mE (45762) SDS011: Invalid SDS011 data[0m
+[1;31mE (45762) DataCollection: Failed to read SDS011 sensor: ESP_FAIL[0m
+[0;32mI (46322) STORAGE: [34mStoring: Temp = 26.84°C, Hum = 49.89%, CO2 = 253.20 ppm,AQI = 26, time is 2025-03-18 11:00:45[0m[0m
+[0;32mI (46322) READING: Stored: Temp = 26.84°C, Hum = 49.89%, CO2 = 253.20 ppm, AQI = 26, time is 2025-03-18 11:00:45[0m
+ADC:raw value:1888
+[0;32mI (47232) STORAGE: [34mStoring: Temp = 26.84°C, Hum = 49.89%, CO2 = 247.41 ppm,AQI = 26, time is 2025-03-18 11:00:46[0m[0m
+[0;32mI (47232) READING: Stored: Temp = 26.84°C, Hum = 49.89%, CO2 = 247.41 ppm, AQI = 26, time is 2025-03-18 11:00:46[0m
+ADC:raw value:1903
+[0;32mI (47942) STORAGE: [34mStoring: Temp = 26.83°C, Hum = 49.89%, CO2 = 255.34 ppm,AQI = 25, time is 2025-03-18 11:00:47[0m[0m
+[0;32mI (47942) READING: Stored: Temp = 26.83°C, Hum = 49.89%, CO2 = 255.34 ppm, AQI = 25, time is 2025-03-18 11:00:47[0m
+ADC:raw value:1897
+[0;32mI (48652) STORAGE: [34mStoring: Temp = 26.84°C, Hum = 49.92%, CO2 = 252.14 ppm,AQI = 25, time is 2025-03-18 11:00:47[0m[0m
+[0;32mI (48652) READING: Stored: Temp = 26.84°C, Hum = 49.92%, CO2 = 252.14 ppm, AQI = 25, time is 2025-03-18 11:00:47[0m
+ADC:raw value:1875
+[1;31mE (48802) SDS011: Invalid SDS011 data[0m
+[1;31mE (48802) DataCollection: Failed to read SDS011 sensor: ESP_FAIL[0m
+[0;32mI (49362) STORAGE: [34mStoring: Temp = 26.84°C, Hum = 49.94%, CO2 = 240.71 ppm,AQI = 25, time is 2025-03-18 11:00:48[0m[0m
+[0;32mI (49362) READING: Stored: Temp = 26.84°C, Hum = 49.94%, CO2 = 240.71 ppm, AQI = 25, time is 2025-03-18 11:00:48[0m
+ADC:raw value:1904
+[0;32mI (50072) STORAGE: [34mStoring: Temp = 26.85°C, Hum = 49.97%, CO2 = 255.88 ppm,AQI = 26, time is 2025-03-18 11:00:49[0m[0m
+[0;32mI (50072) READING: Stored: Temp = 26.85°C, Hum = 49.97%, CO2 = 255.88 ppm, AQI = 26, time is 2025-03-18 11:00:49[0m
+ADC:raw value:1898
+[0;32mI (50782) STORAGE: [34mStoring: Temp = 26.85°C, Hum = 49.97%, CO2 = 252.67 ppm,AQI = 26, time is 2025-03-18 11:00:49[0m[0m
+[0;32mI (50782) READING: Stored: Temp = 26.85°C, Hum = 49.97%, CO2 = 252.67 ppm, AQI = 26, time is 2025-03-18 11:00:49[0m
+ADC:raw value:1911
+[0;32mI (51492) STORAGE: [34mStoring: Temp = 26.85°C, Hum = 49.98%, CO2 = 259.66 ppm,AQI = 26, time is 2025-03-18 11:00:50[0m[0m
+[0;32mI (51492) READING: Stored: Temp = 26.85°C, Hum = 49.98%, CO2 = 259.66 ppm, AQI = 26, time is 2025-03-18 11:00:50[0m
+ADC:raw value:1895
+[1;31mE (51642) SDS011: Invalid SDS011 data[0m
+[1;31mE (51642) DataCollection: Failed to read SDS011 sensor: ESP_FAIL[0m
+[0;32mI (52202) STORAGE: [34mStoring: Temp = 26.86°C, Hum = 49.99%, CO2 = 251.08 ppm,AQI = 26, time is 2025-03-18 11:00:51[0m[0m
+[0;32mI (52202) READING: Stored: Temp = 26.86°C, Hum = 49.99%, CO2 = 251.08 ppm, AQI = 26, time is 2025-03-18 11:00:51[0m
+ADC:raw value:1911
+[0;32mI (52912) STORAGE: [34mStoring: Temp = 26.86°C, Hum = 49.98%, CO2 = 259.66 ppm,AQI = 26, time is 2025-03-18 11:00:51[0m[0m
+[0;32mI (52912) READING: Stored: Temp = 26.86°C, Hum = 49.98%, CO2 = 259.66 ppm, AQI = 26, time is 2025-03-18 11:00:51[0m
+ADC:raw value:1870
+[0;32mI (53622) STORAGE: [34mStoring: Temp = 26.87°C, Hum = 49.99%, CO2 = 238.17 ppm,AQI = 26, time is 2025-03-18 11:00:52[0m[0m
+[0;32mI (53622) READING: Stored: Temp = 26.87°C, Hum = 49.99%, CO2 = 238.17 ppm, AQI = 26, time is 2025-03-18 11:00:52[0m
+ADC:raw value:1901
+[1;31mE (53772) SDS011: Invalid SDS011 data[0m
+[1;31mE (53772) DataCollection: Failed to read SDS011 sensor: ESP_FAIL[0m
+[0;32mI (54332) STORAGE: [34mStoring: Temp = 26.87°C, Hum = 49.97%, CO2 = 254.27 ppm,AQI = 26, time is 2025-03-18 11:00:53[0m[0m
+[0;32mI (54332) READING: Stored: Temp = 26.87°C, Hum = 49.97%, CO2 = 254.27 ppm, AQI = 26, time is 2025-03-18 11:00:53[0m
+ADC:raw value:1907
+[0;32mI (55042) STORAGE: [34mStoring: Temp = 26.87°C, Hum = 50.00%, CO2 = 257.49 ppm,AQI = 26, time is 2025-03-18 11:00:54[0m[0m
+[0;32mI (55042) READING: Stored: Temp = 26.87°C, Hum = 50.00%, CO2 = 257.49 ppm, AQI = 26, time is 2025-03-18 11:00:54[0m
+ADC:raw value:1925
+[0;32mI (55752) STORAGE: [34mStoring: Temp = 26.88°C, Hum = 50.00%, CO2 = 267.37 ppm,AQI = 26, time is 2025-03-18 11:00:54[0m[0m
+[0;32mI (55752) READING: Stored: Temp = 26.88°C, Hum = 50.00%, CO2 = 267.37 ppm, AQI = 26, time is 2025-03-18 11:00:54[0m
+ADC:raw value:1872
+[0;32mI (56462) STORAGE: [34mStoring: Temp = 26.88°C, Hum = 50.00%, CO2 = 239.18 ppm,AQI = 26, time is 2025-03-18 11:00:55[0m[0m
+[0;32mI (56462) READING: Stored: Temp = 26.88°C, Hum = 50.00%, CO2 = 239.18 ppm, AQI = 26, time is 2025-03-18 11:00:55[0m
+ADC:raw value:1904
+[1;31mE (56612) SDS011: Invalid SDS011 data[0m
+[1;31mE (56612) DataCollection: Failed to read SDS011 sensor: ESP_FAIL[0m
+[0;32mI (57172) STORAGE: [34mStoring: Temp = 26.89°C, Hum = 50.02%, CO2 = 255.88 ppm,AQI = 26, time is 2025-03-18 11:00:56[0m[0m
+[0;32mI (57172) READING: Stored: Temp = 26.89°C, Hum = 50.02%, CO2 = 255.88 ppm, AQI = 26, time is 2025-03-18 11:00:56[0m
+ADC:raw value:1904
+[0;32mI (57882) STORAGE: [34mStoring: Temp = 26.89°C, Hum = 50.04%, CO2 = 255.88 ppm,AQI = 26, time is 2025-03-18 11:00:56[0m[0m
+[0;32mI (57882) READING: Stored: Temp = 26.89°C, Hum = 50.04%, CO2 = 255.88 ppm, AQI = 26, time is 2025-03-18 11:00:56[0m
+ADC:raw value:1906
+[0;32mI (58792) STORAGE: [34mStoring: Temp = 26.89°C, Hum = 50.06%, CO2 = 256.95 ppm,AQI = 26, time is 2025-03-18 11:00:57[0m[0m
+[0;32mI (58792) READING: Stored: Temp = 26.89°C, Hum = 50.06%, CO2 = 256.95 ppm, AQI = 26, time is 2025-03-18 11:00:57[0m
+ADC:raw value:1913
+[0;32mI (59502) STORAGE: [34mStoring: Temp = 26.89°C, Hum = 50.12%, CO2 = 260.75 ppm,AQI = 26, time is 2025-03-18 11:00:58[0m[0m
+[0;32mI (59502) READING: Stored: Temp = 26.89°C, Hum = 50.12%, CO2 = 260.75 ppm, AQI = 26, time is 2025-03-18 11:00:58[0m
+ADC:raw value:1909
+[1;31mE (59652) SDS011: Invalid SDS011 data[0m
+[1;31mE (59652) DataCollection: Failed to read SDS011 sensor: ESP_FAIL[0m
+[0;32mI (60212) STORAGE: [34mStoring: Temp = 26.89°C, Hum = 50.15%, CO2 = 258.57 ppm,AQI = 26, time is 2025-03-18 11:00:59[0m[0m
+[0;32mI (60212) READING: Stored: Temp = 26.89°C, Hum = 50.15%, CO2 = 258.57 ppm, AQI = 26, time is 2025-03-18 11:00:59[0m
+ADC:raw value:1905
+[0;32mI (60922) STORAGE: [34mStoring: Temp = 26.89°C, Hum = 50.20%, CO2 = 256.41 ppm,AQI = 26, time is 2025-03-18 11:01:00[0m[0m
+[0;32mI (60922) READING: Stored: Temp = 26.89°C, Hum = 50.20%, CO2 = 256.41 ppm, AQI = 26, time is 2025-03-18 11:01:00[0m
+ADC:raw value:1900
+[0;32mI (61632) STORAGE: [34mStoring: Temp = 26.89°C, Hum = 50.20%, CO2 = 253.74 ppm,AQI = 26, time is 2025-03-18 11:01:00[0m[0m
+[0;32mI (61632) READING: Stored: Temp = 26.89°C, Hum = 50.20%, CO2 = 253.74 ppm, AQI = 26, time is 2025-03-18 11:01:00[0m
+ADC:raw value:1899
+[1;31mE (61782) SDS011: Invalid SDS011 data[0m
+[1;31mE (61782) DataCollection: Failed to read SDS011 sensor: ESP_FAIL[0m
+[0;32mI (62342) STORAGE: [34mStoring: Temp = 26.90°C, Hum = 50.23%, CO2 = 253.20 ppm,AQI = 26, time is 2025-03-18 11:01:01[0m[0m
+[0;32mI (62342) READING: Stored: Temp = 26.90°C, Hum = 50.23%, CO2 = 253.20 ppm, AQI = 26, time is 2025-03-18 11:01:01[0m
+ADC:raw value:1872
+[0;32mI (63052) STORAGE: [34mStoring: Temp = 26.90°C, Hum = 50.24%, CO2 = 239.18 ppm,AQI = 26, time is 2025-03-18 11:01:02[0m[0m
+[0;32mI (63052) READING: Stored: Temp = 26.90°C, Hum = 50.24%, CO2 = 239.18 ppm, AQI = 26, time is 2025-03-18 11:01:02[0m
+ADC:raw value:1902
+[0;32mI (63762) STORAGE: [34mStoring: Temp = 26.90°C, Hum = 50.25%, CO2 = 254.80 ppm,AQI = 26, time is 2025-03-18 11:01:02[0m[0m
+[0;32mI (63762) READING: Stored: Temp = 26.90°C, Hum = 50.25%, CO2 = 254.80 ppm, AQI = 26, time is 2025-03-18 11:01:02[0m
+ADC:raw value:1893
+[0;32mI (64472) STORAGE: [34mStoring: Temp = 26.90°C, Hum = 50.25%, CO2 = 250.03 ppm,AQI = 26, time is 2025-03-18 11:01:03[0m[0m
+[0;32mI (64472) READING: Stored: Temp = 26.90°C, Hum = 50.25%, CO2 = 250.03 ppm, AQI = 26, time is 2025-03-18 11:01:03[0m
+ADC:raw value:1884
+[1;31mE (64622) SDS011: Invalid SDS011 data[0m
+[1;31mE (64622) DataCollection: Failed to read SDS011 sensor: ESP_FAIL[0m
+[0;32mI (65182) STORAGE: [34mStoring: Temp = 26.91°C, Hum = 50.25%, CO2 = 245.33 ppm,AQI = 26, time is 2025-03-18 11:01:04[0m[0m
+[0;32mI (65182) READING: Stored: Temp = 26.91°C, Hum = 50.25%, CO2 = 245.33 ppm, AQI = 26, time is 2025-03-18 11:01:04[0m
+ADC:raw value:1891
+[0;32mI (65892) STORAGE: [34mStoring: Temp = 26.91°C, Hum = 50.26%, CO2 = 248.98 ppm,AQI = 26, time is 2025-03-18 11:01:04[0m[0m
+[0;32mI (65892) READING: Stored: Temp = 26.91°C, Hum = 50.26%, CO2 = 248.98 ppm, AQI = 26, time is 2025-03-18 11:01:04[0m
+ADC:raw value:1885
+[0;32mI (66602) STORAGE: [34mStoring: Temp = 26.91°C, Hum = 50.26%, CO2 = 245.85 ppm,AQI = 26, time is 2025-03-18 11:01:05[0m[0m
+[0;32mI (66602) READING: Stored: Temp = 26.91°C, Hum = 50.26%, CO2 = 245.85 ppm, AQI = 26, time is 2025-03-18 11:01:05[0m
+ADC:raw value:1891
+[1;31mE (66752) SDS011: Invalid SDS011 data[0m
+[1;31mE (66752) DataCollection: Failed to read SDS011 sensor: ESP_FAIL[0m
+[0;32mI (67312) STORAGE: [34mStoring: Temp = 26.91°C, Hum = 50.27%, CO2 = 248.98 ppm,AQI = 26, time is 2025-03-18 11:01:06[0m[0m
+[0;32mI (67312) READING: Stored: Temp = 26.91°C, Hum = 50.27%, CO2 = 248.98 ppm, AQI = 26, time is 2025-03-18 11:01:06[0m
+ADC:raw value:1904
+[0;32mI (68022) STORAGE: [34mStoring: Temp = 26.92°C, Hum = 50.28%, CO2 = 255.88 ppm,AQI = 26, time is 2025-03-18 11:01:07[0m[0m
+[0;32mI (68022) READING: Stored: Temp = 26.92°C, Hum = 50.28%, CO2 = 255.88 ppm, AQI = 26, time is 2025-03-18 11:01:07[0m
+ADC:raw value:1890
+[0;32mI (68732) STORAGE: [34mStoring: Temp = 26.92°C, Hum = 50.30%, CO2 = 248.45 ppm,AQI = 26, time is 2025-03-18 11:01:07[0m[0m
+[0;32mI (68732) READING: Stored: Temp = 26.92°C, Hum = 50.30%, CO2 = 248.45 ppm, AQI = 26, time is 2025-03-18 11:01:07[0m
+ADC:raw value:1866
+[1;31mE (68882) SDS011: Invalid SDS011 data[0m
+[1;31mE (68882) DataCollection: Failed to read SDS011 sensor: ESP_FAIL[0m
+[0;32mI (69442) STORAGE: [34mStoring: Temp = 26.93°C, Hum = 50.31%, CO2 = 236.16 ppm,AQI = 26, time is 2025-03-18 11:01:08[0m[0m
+[0;32mI (69442) READING: Stored: Temp = 26.93°C, Hum = 50.31%, CO2 = 236.16 ppm, AQI = 26, time is 2025-03-18 11:01:08[0m
+ADC:raw value:1874
+[0;32mI (70352) STORAGE: [34mStoring: Temp = 26.93°C, Hum = 50.34%, CO2 = 240.20 ppm,AQI = 26, time is 2025-03-18 11:01:09[0m[0m
+[0;32mI (70352) READING: Stored: Temp = 26.93°C, Hum = 50.34%, CO2 = 240.20 ppm, AQI = 26, time is 2025-03-18 11:01:09[0m
+ADC:raw value:1877
+[0;32mI (71062) STORAGE: [34mStoring: Temp = 26.92°C, Hum = 50.36%, CO2 = 241.73 ppm,AQI = 26, time is 2025-03-18 11:01:10[0m[0m
+[0;32mI (71062) READING: Stored: Temp = 26.92°C, Hum = 50.36%, CO2 = 241.73 ppm, AQI = 26, time is 2025-03-18 11:01:10[0m
+ADC:raw value:1890
+[0;32mI (71772) STORAGE: [34mStoring: Temp = 26.92°C, Hum = 50.42%, CO2 = 248.45 ppm,AQI = 26, time is 2025-03-18 11:01:10[0m[0m
+[0;32mI (71772) READING: Stored: Temp = 26.92°C, Hum = 50.42%, CO2 = 248.45 ppm, AQI = 26, time is 2025-03-18 11:01:10[0m
+ADC:raw value:1899
+[1;31mE (71922) SDS011: Invalid SDS011 data[0m
+[1;31mE (71922) DataCollection: Failed to read SDS011 sensor: ESP_FAIL[0m
+[0;32mI (72482) STORAGE: [34mStoring: Temp = 26.92°C, Hum = 50.43%, CO2 = 253.20 ppm,AQI = 26, time is 2025-03-18 11:01:11[0m[0m
+[0;32mI (72482) READING: Stored: Temp = 26.92°C, Hum = 50.43%, CO2 = 253.20 ppm, AQI = 26, time is 2025-03-18 11:01:11[0m
+ADC:raw value:1895
+[0;32mI (73192) STORAGE: [34mStoring: Temp = 26.93°C, Hum = 50.45%, CO2 = 251.08 ppm,AQI = 26, time is 2025-03-18 11:01:12[0m[0m
+[0;32mI (73192) READING: Stored: Temp = 26.93°C, Hum = 50.45%, CO2 = 251.08 ppm, AQI = 26, time is 2025-03-18 11:01:12[0m
+ADC:raw value:1907
+[0;32mI (73902) STORAGE: [34mStoring: Temp = 26.93°C, Hum = 50.46%, CO2 = 257.49 ppm,AQI = 26, time is 2025-03-18 11:01:12[0m[0m
+[0;32mI (73902) READING: Stored: Temp = 26.93°C, Hum = 50.46%, CO2 = 257.49 ppm, AQI = 26, time is 2025-03-18 11:01:12[0m
+ADC:raw value:1910
+[0;32mI (74612) STORAGE: [34mStoring: Temp = 26.93°C, Hum = 50.46%, CO2 = 259.12 ppm,AQI = 27, time is 2025-03-18 11:01:13[0m[0m
+[0;32mI (74612) READING: Stored: Temp = 26.93°C, Hum = 50.46%, CO2 = 259.12 ppm, AQI = 27, time is 2025-03-18 11:01:13[0m
+ADC:raw value:1916
+[1;31mE (74762) SDS011: Invalid SDS011 data[0m
+[1;31mE (74762) DataCollection: Failed to read SDS011 sensor: ESP_FAIL[0m
+[0;32mI (75322) STORAGE: [34mStoring: Temp = 26.94°C, Hum = 50.47%, CO2 = 262.39 ppm,AQI = 27, time is 2025-03-18 11:01:14[0m[0m
+[0;32mI (75322) READING: Stored: Temp = 26.94°C, Hum = 50.47%, CO2 = 262.39 ppm, AQI = 27, time is 2025-03-18 11:01:14[0m
+ADC:raw value:1909
+[0;32mI (76032) STORAGE: [34mStoring: Temp = 26.94°C, Hum = 50.49%, CO2 = 258.57 ppm,AQI = 27, time is 2025-03-18 11:01:15[0m[0m
+[0;32mI (76032) READING: Stored: Temp = 26.94°C, Hum = 50.49%, CO2 = 258.57 ppm, AQI = 27, time is 2025-03-18 11:01:15[0m
+ADC:raw value:1904
+[0;32mI (76742) STORAGE: [34mStoring: Temp = 26.94°C, Hum = 50.52%, CO2 = 255.88 ppm,AQI = 27, time is 2025-03-18 11:01:15[0m[0m
+[0;32mI (76742) READING: Stored: Temp = 26.94°C, Hum = 50.52%, CO2 = 255.88 ppm, AQI = 27, time is 2025-03-18 11:01:15[0m
+ADC:raw value:1895
+[1;31mE (76892) SDS011: Invalid SDS011 data[0m
+[1;31mE (76892) DataCollection: Failed to read SDS011 sensor: ESP_FAIL[0m
+[0;32mI (77452) STORAGE: [34mStoring: Temp = 26.95°C, Hum = 50.53%, CO2 = 251.08 ppm,AQI = 27, time is 2025-03-18 11:01:16[0m[0m
+[0;32mI (77452) READING: Stored: Temp = 26.95°C, Hum = 50.53%, CO2 = 251.08 ppm, AQI = 27, time is 2025-03-18 11:01:16[0m
+ADC:raw value:1875
+[0;32mI (78162) STORAGE: [34mStoring: Temp = 26.95°C, Hum = 50.56%, CO2 = 240.71 ppm,AQI = 27, time is 2025-03-18 11:01:17[0m[0m
+[0;32mI (78162) READING: Stored: Temp = 26.95°C, Hum = 50.56%, CO2 = 240.71 ppm, AQI = 27, time is 2025-03-18 11:01:17[0m
+ADC:raw value:1877
+[0;32mI (78872) STORAGE: [34mStoring: Temp = 26.95°C, Hum = 50.58%, CO2 = 241.73 ppm,AQI = 27, time is 2025-03-18 11:01:17[0m[0m
+[0;32mI (78872) READING: Stored: Temp = 26.95°C, Hum = 50.58%, CO2 = 241.73 ppm, AQI = 27, time is 2025-03-18 11:01:17[0m
+ADC:raw value:1895
+[0;32mI (79582) STORAGE: [34mStoring: Temp = 26.95°C, Hum = 50.59%, CO2 = 251.08 ppm,AQI = 27, time is 2025-03-18 11:01:18[0m[0m
+[0;32mI (79582) READING: Stored: Temp = 26.95°C, Hum = 50.59%, CO2 = 251.08 ppm, AQI = 27, time is 2025-03-18 11:01:18[0m
+ADC:raw value:1885
+[1;31mE (79732) SDS011: Invalid SDS011 data[0m
+[1;31mE (79732) DataCollection: Failed to read SDS011 sensor: ESP_FAIL[0m
+[0;32mI (80292) STORAGE: [34mStoring: Temp = 26.95°C, Hum = 50.63%, CO2 = 245.85 ppm,AQI = 27, time is 2025-03-18 11:01:19[0m[0m
+[0;32mI (80292) READING: Stored: Temp = 26.95°C, Hum = 50.63%, CO2 = 245.85 ppm, AQI = 27, time is 2025-03-18 11:01:19[0m
+ADC:raw value:1904
+[0;32mI (81002) STORAGE: [34mStoring: Temp = 26.96°C, Hum = 50.64%, CO2 = 255.88 ppm,AQI = 27, time is 2025-03-18 11:01:20[0m[0m
+[0;32mI (81002) READING: Stored: Temp = 26.96°C, Hum = 50.64%, CO2 = 255.88 ppm, AQI = 27, time is 2025-03-18 11:01:20[0m
+ADC:raw value:1894
+[0;32mI (81912) STORAGE: [34mStoring: Temp = 26.96°C, Hum = 50.66%, CO2 = 250.56 ppm,AQI = 27, time is 2025-03-18 11:01:20[0m[0m
+[0;32mI (81912) READING: Stored: Temp = 26.96°C, Hum = 50.66%, CO2 = 250.56 ppm, AQI = 27, time is 2025-03-18 11:01:20[0m
+ADC:raw value:1907

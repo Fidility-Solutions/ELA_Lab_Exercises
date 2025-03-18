@@ -1,0 +1,100 @@
+[1/9] Performing build step for 'bootloader'
+[1/1] cd /home/fidility/new/IoT-Smart-AQI/IOT/build/bootloader/esp-idf/esptool_py && /home/fidility/.espressif/python_env/idf5.4_py3.10_env/bin/python /home/fidility/esp/esp-idf-v5.4/components/partition_table/check_sizes.py --offset 0x8000 bootloader 0x1000 /home/fidility/new/IoT-Smart-AQI/IOT/build/bootloader/bootloader.bin
+Bootloader binary size 0x6560 bytes. 0xaa0 bytes (9%) free.
+[2/7] Building C object esp-idf/sds011/CMakeFiles/__idf_sds011.dir/sds011.c.obj
+/home/fidility/new/IoT-Smart-AQI/IOT/components/sds011/sds011.c:3:1: warning: missing initializer for field 'sds011_valid' of 'sds011_data_t' [-Wmissing-field-initializers]
+    3 | sds011_data_t sds011_data = {0, 0};
+      | ^~~~~~~~~~~~~
+In file included from /home/fidility/new/IoT-Smart-AQI/IOT/components/sds011/sds011.c:2:
+/home/fidility/new/IoT-Smart-AQI/IOT/components/sds011/sds011.h:20:14: note: 'sds011_valid' declared here
+   20 |         bool sds011_valid;
+      |              ^~~~~~~~~~~~
+[3/7] Linking C static library esp-idf/sds011/libsds011.a
+[4/7] Generating ld/sections.ld
+info: INFO: Symbol MQTT_PROTOCOL_311 defined in multiple locations (see below). Please check if this is a correct behavior or a random name match:
+    /home/fidility/esp/esp-idf-v5.4/components/esp-mqtt/Kconfig:3
+    /home/fidility/esp/esp-idf-v5.4/components/mqtt/esp-mqtt/Kconfig:3
+info: INFO: Symbol MQTT_PROTOCOL_5 defined in multiple locations (see below). Please check if this is a correct behavior or a random name match:
+    /home/fidility/esp/esp-idf-v5.4/components/esp-mqtt/Kconfig:9
+    /home/fidility/esp/esp-idf-v5.4/components/mqtt/esp-mqtt/Kconfig:9
+info: INFO: Symbol MQTT_TRANSPORT_SSL defined in multiple locations (see below). Please check if this is a correct behavior or a random name match:
+    /home/fidility/esp/esp-idf-v5.4/components/esp-mqtt/Kconfig:15
+    /home/fidility/esp/esp-idf-v5.4/components/mqtt/esp-mqtt/Kconfig:15
+info: INFO: Symbol MQTT_TRANSPORT_WEBSOCKET defined in multiple locations (see below). Please check if this is a correct behavior or a random name match:
+    /home/fidility/esp/esp-idf-v5.4/components/esp-mqtt/Kconfig:21
+    /home/fidility/esp/esp-idf-v5.4/components/mqtt/esp-mqtt/Kconfig:21
+info: INFO: Symbol MQTT_TRANSPORT_WEBSOCKET_SECURE defined in multiple locations (see below). Please check if this is a correct behavior or a random name match:
+    /home/fidility/esp/esp-idf-v5.4/components/mqtt/esp-mqtt/Kconfig:28
+    /home/fidility/esp/esp-idf-v5.4/components/esp-mqtt/Kconfig:28
+info: INFO: Symbol MQTT_MSG_ID_INCREMENTAL defined in multiple locations (see below). Please check if this is a correct behavior or a random name match:
+    /home/fidility/esp/esp-idf-v5.4/components/esp-mqtt/Kconfig:36
+    /home/fidility/esp/esp-idf-v5.4/components/mqtt/esp-mqtt/Kconfig:36
+info: INFO: Symbol MQTT_SKIP_PUBLISH_IF_DISCONNECTED defined in multiple locations (see below). Please check if this is a correct behavior or a random name match:
+    /home/fidility/esp/esp-idf-v5.4/components/mqtt/esp-mqtt/Kconfig:43
+    /home/fidility/esp/esp-idf-v5.4/components/esp-mqtt/Kconfig:43
+info: INFO: Symbol MQTT_REPORT_DELETED_MESSAGES defined in multiple locations (see below). Please check if this is a correct behavior or a random name match:
+    /home/fidility/esp/esp-idf-v5.4/components/mqtt/esp-mqtt/Kconfig:53
+    /home/fidility/esp/esp-idf-v5.4/components/esp-mqtt/Kconfig:53
+info: INFO: Symbol MQTT_USE_CUSTOM_CONFIG defined in multiple locations (see below). Please check if this is a correct behavior or a random name match:
+    /home/fidility/esp/esp-idf-v5.4/components/esp-mqtt/Kconfig:60
+    /home/fidility/esp/esp-idf-v5.4/components/mqtt/esp-mqtt/Kconfig:60
+info: INFO: Symbol MQTT_TCP_DEFAULT_PORT defined in multiple locations (see below). Please check if this is a correct behavior or a random name match:
+    /home/fidility/esp/esp-idf-v5.4/components/esp-mqtt/Kconfig:66
+    /home/fidility/esp/esp-idf-v5.4/components/mqtt/esp-mqtt/Kconfig:66
+info: INFO: Symbol MQTT_SSL_DEFAULT_PORT defined in multiple locations (see below). Please check if this is a correct behavior or a random name match:
+    /home/fidility/esp/esp-idf-v5.4/components/mqtt/esp-mqtt/Kconfig:73
+    /home/fidility/esp/esp-idf-v5.4/components/esp-mqtt/Kconfig:73
+info: INFO: Symbol MQTT_WS_DEFAULT_PORT defined in multiple locations (see below). Please check if this is a correct behavior or a random name match:
+    /home/fidility/esp/esp-idf-v5.4/components/mqtt/esp-mqtt/Kconfig:81
+    /home/fidility/esp/esp-idf-v5.4/components/esp-mqtt/Kconfig:81
+info: INFO: Symbol MQTT_WSS_DEFAULT_PORT defined in multiple locations (see below). Please check if this is a correct behavior or a random name match:
+    /home/fidility/esp/esp-idf-v5.4/components/mqtt/esp-mqtt/Kconfig:89
+    /home/fidility/esp/esp-idf-v5.4/components/esp-mqtt/Kconfig:89
+info: INFO: Symbol MQTT_BUFFER_SIZE defined in multiple locations (see below). Please check if this is a correct behavior or a random name match:
+    /home/fidility/esp/esp-idf-v5.4/components/esp-mqtt/Kconfig:98
+    /home/fidility/esp/esp-idf-v5.4/components/mqtt/esp-mqtt/Kconfig:98
+info: INFO: Symbol MQTT_TASK_STACK_SIZE defined in multiple locations (see below). Please check if this is a correct behavior or a random name match:
+    /home/fidility/esp/esp-idf-v5.4/components/mqtt/esp-mqtt/Kconfig:105
+    /home/fidility/esp/esp-idf-v5.4/components/esp-mqtt/Kconfig:105
+info: INFO: Symbol MQTT_DISABLE_API_LOCKS defined in multiple locations (see below). Please check if this is a correct behavior or a random name match:
+    /home/fidility/esp/esp-idf-v5.4/components/esp-mqtt/Kconfig:112
+    /home/fidility/esp/esp-idf-v5.4/components/mqtt/esp-mqtt/Kconfig:112
+info: INFO: Symbol MQTT_TASK_PRIORITY defined in multiple locations (see below). Please check if this is a correct behavior or a random name match:
+    /home/fidility/esp/esp-idf-v5.4/components/esp-mqtt/Kconfig:120
+    /home/fidility/esp/esp-idf-v5.4/components/mqtt/esp-mqtt/Kconfig:120
+info: INFO: Symbol MQTT_POLL_READ_TIMEOUT_MS defined in multiple locations (see below). Please check if this is a correct behavior or a random name match:
+    /home/fidility/esp/esp-idf-v5.4/components/mqtt/esp-mqtt/Kconfig:127
+    /home/fidility/esp/esp-idf-v5.4/components/esp-mqtt/Kconfig:127
+info: INFO: Symbol MQTT_EVENT_QUEUE_SIZE defined in multiple locations (see below). Please check if this is a correct behavior or a random name match:
+    /home/fidility/esp/esp-idf-v5.4/components/mqtt/esp-mqtt/Kconfig:134
+    /home/fidility/esp/esp-idf-v5.4/components/esp-mqtt/Kconfig:134
+info: INFO: Symbol MQTT_TASK_CORE_SELECTION_ENABLED defined in multiple locations (see below). Please check if this is a correct behavior or a random name match:
+    /home/fidility/esp/esp-idf-v5.4/components/esp-mqtt/Kconfig:141
+    /home/fidility/esp/esp-idf-v5.4/components/mqtt/esp-mqtt/Kconfig:141
+info: INFO: Symbol MQTT_USE_CORE_0 defined in multiple locations (see below). Please check if this is a correct behavior or a random name match:
+    /home/fidility/esp/esp-idf-v5.4/components/mqtt/esp-mqtt/Kconfig:149
+    /home/fidility/esp/esp-idf-v5.4/components/esp-mqtt/Kconfig:149
+info: INFO: Symbol MQTT_USE_CORE_1 defined in multiple locations (see below). Please check if this is a correct behavior or a random name match:
+    /home/fidility/esp/esp-idf-v5.4/components/esp-mqtt/Kconfig:151
+    /home/fidility/esp/esp-idf-v5.4/components/mqtt/esp-mqtt/Kconfig:151
+info: INFO: Symbol MQTT_OUTBOX_DATA_ON_EXTERNAL_MEMORY defined in multiple locations (see below). Please check if this is a correct behavior or a random name match:
+    /home/fidility/esp/esp-idf-v5.4/components/esp-mqtt/Kconfig:155
+    /home/fidility/esp/esp-idf-v5.4/components/mqtt/esp-mqtt/Kconfig:155
+info: INFO: Symbol MQTT_CUSTOM_OUTBOX defined in multiple locations (see below). Please check if this is a correct behavior or a random name match:
+    /home/fidility/esp/esp-idf-v5.4/components/mqtt/esp-mqtt/Kconfig:162
+    /home/fidility/esp/esp-idf-v5.4/components/esp-mqtt/Kconfig:162
+info: INFO: Symbol MQTT_OUTBOX_EXPIRED_TIMEOUT_MS defined in multiple locations (see below). Please check if this is a correct behavior or a random name match:
+    /home/fidility/esp/esp-idf-v5.4/components/mqtt/esp-mqtt/Kconfig:173
+    /home/fidility/esp/esp-idf-v5.4/components/esp-mqtt/Kconfig:173
+info: INFO: Choice MQTT_TASK_CORE_SELECTION defined in multiple locations (see below). Please check if this is a correct behavior or a random name match:
+    /home/fidility/esp/esp-idf-v5.4/components/mqtt/esp-mqtt/Kconfig:146
+    /home/fidility/esp/esp-idf-v5.4/components/esp-mqtt/Kconfig:146
+[5/7] Linking CXX executable IOT.elf
+[6/7] Generating binary image from built executable
+esptool.py v4.8.1
+Creating esp32 image...
+Merged 2 ELF sections
+Successfully created esp32 image.
+Generated /home/fidility/new/IoT-Smart-AQI/IOT/build/IOT.bin
+[7/7] cd /home/fidility/new/IoT-Smart-AQI/IOT/build/esp-idf/esptool_py && /home/fidility/.espressif/python_env/idf5.4_py3.10_env/bin/python /home/fidility/esp/esp-idf-v5.4/components/partition_table/check_sizes.py --offset 0x8000 partition --type app /home/fidility/new/IoT-Smart-AQI/IOT/build/partition_table/partition-table.bin /home/fidility/new/IoT-Smart-AQI/IOT/build/IOT.bin
+IOT.bin binary size 0x4b020 bytes. Smallest app partition is 0x100000 bytes. 0xb4fe0 bytes (71%) free.
