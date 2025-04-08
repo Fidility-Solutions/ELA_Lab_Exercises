@@ -1,20 +1,16 @@
-#include<stdio.h>
 #include "main.h"
 #include "eeprom.h"
 #include "data_display.h"
 
 
 /* global sensor data */
-sensor_data_t global_sensor_data;
-sensor_data_t processed_data;
+STR_SENSOR_DATA global_sensor_data;
+STR_SENSOR_DATA processed_data;
 
-QueueHandle_t sensorDataQueue;
-//QueueHandle_t commandDataQueue;
 SemaphoreHandle_t dataSyncSemaphore = NULL;
 
 EventGroupHandle_t xEventGroup;
 
-//extern sensor_data_t global_sensor_data;
 
 /* Static functions */
 static void init_nvs(void);
@@ -30,11 +26,28 @@ static void eeprom_rw_test(void);
 
 static void wifi_establish(void);
 
+
+
+static void uninit_i2c() 
+{
+    esp_err_t ret = i2c_driver_delete(I2C_NUM_0);
+    if (ret == ESP_OK) 
+    {
+        printf("I2C uninitialized successfully!\n");
+    } 
+    else 
+    {
+        printf("Failed to uninitialize I2C: %s\n", esp_err_to_name(ret));
+    }
+}
+
 /* main function */
 void app_main(void)
 {
 	printf("ESP32 Air Quality Monitor Starting...\n");
-	int mode = 0;
+	uint8_t mode = 0x00;
+	uint8_t value = 0x01;
+	uint8_t factory_mode = 0;
 
 	/* Initialize NVS */
 	init_nvs();
@@ -42,14 +55,23 @@ void app_main(void)
 	/* Create Event Group for multiple tasks to communicate based on shared event flags */
 	xEventGroup = xEventGroupCreate();
 
-	if(mode == FACTORY_MODE)
+	/* Initialize I2C for EEPROM */
+	init_RTC();
+
+	driver_init();
+
+	
+	factory_mode = eeprom_read_byte(FACTORY_MODE_FLAG_ADDR);
+	if(factory_mode != SELECT_FACTORY_MODE)
 	{
-		printf("Factory mode running...\n");
+		if (eeprom_write(FACTORY_MODE_FLAG_ADDR, &mode, 1) == ESP_OK)
+		{
+			factory_mode = 0;
+		}
 		factor_mode();
 	}
 	else
 	{
-		printf("Operational mode running...\n");
 		operational_mode();
 	}
 }
@@ -63,7 +85,6 @@ static void init_nvs(void)
 		nvs_flash_erase();
 		nvs_flash_init();
 	}
-	printf("NVS initialization sucessfull...\n");
 }
 
 
@@ -72,8 +93,16 @@ static void factor_mode(void)
 	/* Initialize BLE */
 	ble_init();
 
+	/* Manual test */
+	/* char ssid[WIFI_SSID_MAX_LEN] = "FidilitySolutions", password[WIFI_PASS_MAX_LEN] = "fidility@123"; */
 	while(1)
 	{
+		/* Manual test */
+		/* wifi_init(ssid,password);
+		 * vTaskDelay(5000 / portTICK_PERIOD_MS);
+		 * mqtt_app_start();
+		 */
+
 		/* Wait for events (Wi-Fi setup or reconnection) */
 		EventBits_t bits = xEventGroupWaitBits(xEventGroup,
 				BLE_WIFI_CONNECT_BIT | WIFI_CONNECTED_BIT,
@@ -84,22 +113,23 @@ static void factor_mode(void)
 			/* Initialize wifi and establish connection */
 			wifi_establish();
 			xEventGroupClearBits(xEventGroup, BLE_WIFI_CONNECT_BIT);
+
 		}
 		if((bits & WIFI_CONNECTED_BIT))
 		{
 			/* Connect to MQTT cloud */
-			//mqtt_cloud_init();
+			mqtt_app_start();
 			xEventGroupClearBits(xEventGroup, WIFI_CONNECTED_BIT);
+			vTaskDelay(5000 / portTICK_PERIOD_MS);
+			break;
 
 		}
-		vTaskDelay(500 / portTICK_PERIOD_MS);
+		vTaskDelay(1000 / portTICK_PERIOD_MS);
 	}
 
 }
 static void driver_init(void)
 {
-	printf("Entered Driver initialization function\n");
-
 	/* Initialze I2C driver & bme680 sensor configurations */
 	BME680_task_start();
 
@@ -113,37 +143,39 @@ static void driver_init(void)
 	/* Initialize UART configuration for PM sensor */
 	sds011_init();
 
+
 	/* Initialize RTC for timestamp */
-	init_RTC();
 
 	/* ADC One-Shot Configuration */
 	initialize_mq135_adc();
 
 	lcd_init();
 
+	rgb_led_init();
+
 }
 static void operational_mode(void)
 {
+	/* Establish wifi connection */
+	wifi_establish();
+	
 	/* Initialize drivers */
-	driver_init();
+	init_ntp();
+	
+	/* Connect to cloud */
+	 mqtt_app_start();
 
-	/* Create the queue before starting tasks */
-	sensorDataQueue = xQueueCreate(1, sizeof(global_sensor_data));
 
 	/* Create Semaphore for Storage Sync */
 	dataSyncSemaphore = xSemaphoreCreateMutex();
 
-	if(sensorDataQueue == NULL)
-	{
-		ESP_LOGE("QUEUE","Failed to create  storage semaphore!\n");
-	}
 	if (dataSyncSemaphore == NULL)
 	{
 		ESP_LOGE("QUEUE", "Failed to create storage semaphore!");
 	}
 	else
 	{
-		xSemaphoreGive(dataSyncSemaphore);  // Ensure it starts available
+		xSemaphoreGive(dataSyncSemaphore);
 	}
 
 	/* Create FreeRTOS tasks for different operations */
@@ -177,7 +209,7 @@ static void eeprom_rw_test(void)
 	uint16_t addr = 0x0100; /* Address to store data */
 
 	ESP_LOGI("MAIN", "Writing to EEPROM at 0x%04X", addr);
-	if (eeprom_write(addr, config_data, sizeof(config_data)) == ESP_OK)
+	if(eeprom_write(addr, config_data, sizeof(config_data)) == ESP_OK)
 	{
 		ESP_LOGI("MAIN", "Write successful");
 	}
@@ -203,13 +235,15 @@ static void eeprom_rw_test(void)
 static void wifi_establish(void)
 {
 	char ssid[WIFI_SSID_MAX_LEN] = {0}, password[WIFI_PASS_MAX_LEN] = {0};
-	if(wifi_configured)
-	{
-		eeprom_read(EEPROM_WIFI_SSID_ADDR, (uint8_t *) ssid, WIFI_SSID_MAX_LEN);
-		vTaskDelay(500 / portTICK_PERIOD_MS);
-		eeprom_read(EEPROM_WIFI_PASS_ADDR, (uint8_t *)password,WIFI_PASS_MAX_LEN);
 
-		printf("Read data SSID: %s, PASS: %s \n", ssid, password);
+	strcpy(ssid, "Rogers");
+        strcpy(password, "rajapati");
+	//if(wifi_configured)
+	if(1)
+	{
+		//eeprom_read(EEPROM_WIFI_SSID_ADDR, (uint8_t *) ssid, WIFI_SSID_MAX_LEN);
+	//	vTaskDelay(500 / portTICK_PERIOD_MS);
+		//eeprom_read(EEPROM_WIFI_PASS_ADDR, (uint8_t *)password,WIFI_PASS_MAX_LEN);
 
 		wifi_configured = false;
 
@@ -217,6 +251,20 @@ static void wifi_establish(void)
 		if (strlen(ssid) > 0 && strlen(password) > 0)
 		{
 			wifi_init(ssid, password);
+			vTaskDelay(5000 / portTICK_PERIOD_MS);
+		/*	if (client != NULL)
+			{
+				ESP_LOGI("WiFi", "Stopping and destroying existing MQTT client.");
+				esp_mqtt_client_stop(client);
+				esp_mqtt_client_destroy(client);
+				client = NULL; // Reset the client handle
+			}*/
+
+		//	ESP_LOGI("WiFi", "Starting MQTT client...");
+		//	mqtt_app_start(); // Start MQTT client after Wi-Fi is reconnected
+
+	//		mqtt_app_start();
+			vTaskDelay(3000 / portTICK_PERIOD_MS);
 		}
 		else
 		{

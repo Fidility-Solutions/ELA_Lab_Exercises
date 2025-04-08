@@ -1,110 +1,135 @@
-#include "main.h"
 #include "data_display.h"
-#include "driver/gpio.h"
-#include "rtc.h"
-#include "time.h"
-#include <sys/time.h>
 
+static uint8_t flag = 1;
 
-/* Defining GPIO pins for the LCD */
-#define RS_PIN  GPIO_NUM_26  /* Register Select */
-#define EN_PIN  GPIO_NUM_27  /* Enable */
-#define D4_PIN  GPIO_NUM_14 /* Data pin 4 */
-#define D5_PIN  GPIO_NUM_32 /* Data pin 5 */
-#define D6_PIN  GPIO_NUM_33 /* Data pin 6 */
-#define D7_PIN  GPIO_NUM_25 /* Data pin 7 */
-
-
-static int flag = 1;
-
-
-void lcd_init();
-void lcd_send_command(uint8_t cmd);
-void lcd_send_nibble(uint8_t nibble);
-void lcd_send_byte(uint8_t byte, bool is_command);
-void lcd_pulse_enable();
-void lcd_print(const char *str);
+/*
+ * This task handles displaying sensor data on an LCD.
+ *
+ * 1. Display Welcome Message:
+ *    - The task first shows a welcome message on the LCD screen (e.g., "Welcome").
+ *
+ * 2. Display Sensor Data:
+ *    - After displaying the welcome message, the task updates the LCD with sensor data.
+ *    - The first line of the LCD displays the temperature and humidity values.
+ *    - The second line of the LCD displays the AQI (Air Quality Index) and CO2 levels.
+ *    - Data is updated periodically to reflect the most recent sensor readings.
+ *
+ * 3. Task Delay:
+ *    - Wait for a short period (e.g., 500ms or based on a defined update rate) before refreshing the display.
+ */
 
 
 void dataDisplayTask(void *pvParameters) 
 {
+	STR_SENSOR_DATA local_copy;  /* Local copy for safe access */
 
 	while (1)
 	{
 		if(flag == 1)
 		{
-			lcd_send_command(0x01); /* Clear display */
-			vTaskDelay(pdMS_TO_TICKS(20));
+			lcd_send_command(LCD_CLEAR_DISPLAY); /* Clear display */
+			vTaskDelay(LCD_CMD_DELAY_20);
 
 			/* Enable cursor and make it blink */
-			lcd_send_command(0x0F); /* Display ON, Cursor ON, Blink ON */
+			lcd_send_command(LCD_DISPLAY_ON); /* Display ON, Cursor ON, Blink ON */
 
 			lcd_print("Welcome to");
-			vTaskDelay(pdMS_TO_TICKS(10));
-			const char message[] = "Fidility Solutions  "; 
-			int message_length = strlen(message);         
-			int display_width = 16;                       
+			vTaskDelay(LCD_CMD_DELAY_10);
+			const char message[] = "Fidility Solutions  ";
+			int message_length = strlen(message);
 
-			for (int i = 0; i <= message_length; i++) 
+			for (int i = 0; i <= message_length; i++)
 			{
-				lcd_send_command(0xC0); /* Move cursor to the beginning of the second line */
+				/* Move cursor to the beginning of the second line */
+				lcd_send_command(LCD_SECOND_LINE);
 
-				for (int j = 0; j < display_width; j++)
+				for (int j = 0; j < DISPLAY_WIDTH; j++)
 				{
-					if (i + j < message_length) {
+					if (i + j < message_length)
+					{
 						vTaskDelay(pdMS_TO_TICKS(5));
 						lcd_send_byte(message[(i + j) % message_length], false);
-					} else {
+					}
+					else
+					{
 						lcd_send_byte(' ', false);
 					}
 				}
-				vTaskDelay(pdMS_TO_TICKS(300));
+				vTaskDelay(LCD_CMD_DELAY_300);
 			}
 		}
-	        if (xQueuePeek(sensorDataQueue, &global_sensor_data, portMAX_DELAY) == pdTRUE) 
+
+		// Use semaphore to access shared sensor data safely
+		if (xSemaphoreTake(dataSyncSemaphore, portMAX_DELAY))
 		{
 			flag = 0;
-			if (xSemaphoreTake(dataSyncSemaphore, portMAX_DELAY))
+
+			/*ESP_LOGI("DISPLAYING", "GOING TO STORE: Temp = %.2f°C, Hum = %.2f%%, Gas Resistance = %.2f ohms, "
+					"AQI = %d, Time = %s, PM2.5 = %.1f, PM10 = %.1f, Location = %s\033[0m",
+						(double)global_sensor_data.bme680.temperature,
+						(double)global_sensor_data.bme680.humidity,
+						(double)global_sensor_data.bme680.gas_resistance / 100.0,
+						global_sensor_data.air_quality_index,
+						global_sensor_data.time_str,
+						(double)global_sensor_data.sds011.pm25 / 10.0,
+						(double)global_sensor_data.sds011.pm10 / 10.0,
+						global_sensor_data.location);*/
+
+
+			// Copy shared data safely
+			memcpy(&local_copy, &global_sensor_data, sizeof(STR_SENSOR_DATA));
+
+			lcd_send_command(LCD_CLEAR_DISPLAY);
+			vTaskDelay(LCD_CMD_DELAY_20);
+			int cursor_line1 = 0; /* Cursor for the first line */
+			int cursor_line2 = 0; /* Cursor for the second line */
+
+			/* Print temperature & Humidity on the first line */
+			char buffer1[32];
+			sprintf(buffer1, "T:%.1f%cC,H:%.1f%%", local_copy.bme680.f32Temperature,
+					0xDF, local_copy.bme680.f32Humidity);
+
+			for (int i = 0; buffer1[i] != '\0'; i++)
 			{
-				lcd_send_command(0x01);
-				vTaskDelay(pdMS_TO_TICKS(20));
-				int cursor_line1 = 0; /* Cursor for the first line */
-				int cursor_line2 = 0; /* Cursor for the second line */
-
-				// Print temperature on the first line
-				char buffer1[32];
-				sprintf(buffer1, "T:%.1f%cC,H:%.1f%%", global_sensor_data.bme680.temperature,
-						0xDF, global_sensor_data.bme680.humidity);
-				for (int i = 0; buffer1[i] != '\0'; i++)
+				if (cursor_line1 < DISPLAY_WIDTH)
 				{
-					if (cursor_line1 < 16)
-					{
-						lcd_send_command(0x80 + cursor_line1); /* Move cursor on the first line */
-						lcd_send_byte(buffer1[i], false); /* Print character */
-						cursor_line1++;
-					}
-				}
-				char buffer2[32]; /* Large enough to handle a formatted string */
-				sprintf(buffer2, "A:%f,C2:%.1fPPM", global_sensor_data.sds011.pm25, 
-						global_sensor_data.bme680.gas_resistance);
-				for (int i = 0; buffer2[i] != '\0'; i++)
-				{
-					if (cursor_line2 < 16)
-					{
-						lcd_send_command(0xC0 + cursor_line2); /* Move cursor on the second line */
-						lcd_send_byte(buffer2[i], false);     /* Print character */
-						cursor_line2++;
-					}
-				}
+					/* Move cursor on the first line */
+					lcd_send_command(LCD_FIRST_LINE + cursor_line1);
 
- 			 xSemaphoreGive(dataSyncSemaphore);
-
+					/* Print character */
+					lcd_send_byte(buffer1[i], false);
+					cursor_line1++;
+				}
 			}
+
+			/* Large enough to handle a formatted string */
+			char buffer2[32];
+			sprintf(buffer2, "A:%.1f, C2:%.1fPPM",
+					(double)local_copy.sds011.u16PM25Val,
+					(double)local_copy.bme680.u16GasRes);
+
+			for (int i = 0; buffer2[i] != '\0'; i++)
+			{
+				if (cursor_line2 < DISPLAY_WIDTH)
+				{
+					/* Move cursor on the second line */
+					lcd_send_command(LCD_SECOND_LINE + cursor_line2);
+
+					/* Print character */
+					lcd_send_byte(buffer2[i], false);
+					cursor_line2++;
+				}
+			}
+
+			// **Semaphore Give moved to the end to ensure safe access**
+			xSemaphoreGive(dataSyncSemaphore);
 		}
-		vTaskDelay(500 / portTICK_PERIOD_MS);
+
+		vTaskDelay(600 / portTICK_PERIOD_MS);
 	}
 }
-				
+
+
 void lcd_init() 
 {
 	/* Configure GPIOs as outputs */
@@ -119,42 +144,45 @@ void lcd_init()
 	};
 	gpio_config(&io_conf);
 
-	vTaskDelay(pdMS_TO_TICKS(50)); /* Wait for LCD to power up */
+	vTaskDelay(LCD_CMD_DELAY_50); /* Wait for LCD to power up */
 
 	/* Function set commands */
-	lcd_send_nibble(0x03);
-	vTaskDelay(pdMS_TO_TICKS(5));
-	lcd_send_nibble(0x03);
-	vTaskDelay(pdMS_TO_TICKS(1));
-	lcd_send_nibble(0x03);
-	vTaskDelay(pdMS_TO_TICKS(1));
+	lcd_send_nibble(LCD_RESET);
+	vTaskDelay(LCD_CMD_DELAY_5);
+	lcd_send_nibble(LCD_RESET);
+	vTaskDelay(LCD_CMD_DELAY_1);
+	lcd_send_nibble(LCD_RESET);
+	vTaskDelay(LCD_CMD_DELAY_1);
 
 	/* Switch to 4-bit mode */
-	lcd_send_nibble(0x02);
+	lcd_send_nibble(LCD_SET_4BIT_MODE);
 
-	// Configure LCD for 4-bit mode
-	lcd_send_command(0x28); /* Function set: 4-bit, 2-line, 5x8 dots */
-	lcd_send_command(0x08); /* Display OFF */
-	lcd_send_command(0x01); /* Clear display*/
-	vTaskDelay(pdMS_TO_TICKS(2)); /* Wait for clearing */
-	lcd_send_command(0x06); /* Entry mode set: Increment cursor */
-	lcd_send_command(0x0C); /* Display ON, Cursor OFF */
+	/* Configure LCD for 4-bit mode */
+	lcd_send_command(LCD_CONFIG_4BIT_2LINE); 	/* Function set: 4-bit, 2-line, 5x8 dots */
+	lcd_send_command(LCD_DISPLAY_OFF); 		/* Display OFF */
+	lcd_send_command(LCD_CLEAR_DISPLAY); 		/* Clear display*/
+	vTaskDelay(LCD_CLEAR_DELAY_2); 			/* Wait for clearing */
+	lcd_send_command(LCD_CURSOR_MOVE); 		/* Entry mode set: Increment cursor */
+	lcd_send_command(LCD_DISPLAY_ON); 		/* Display ON, Cursor OFF */
 }
 
 
 
-void lcd_send_command(uint8_t cmd) {
+void lcd_send_command(uint8_t cmd) 
+{
 	lcd_send_byte(cmd, true);
 }
 
-void lcd_send_byte(uint8_t byte, bool is_command) {
-	gpio_set_level(RS_PIN, is_command ? 0 : 1); /* Command or data mode */
-	lcd_send_nibble(byte >> 4);                /* Send higher nibble */
-	lcd_send_nibble(byte & 0x0F);              /* Send lower nibble */
+void lcd_send_byte(uint8_t byte, bool is_command) 
+{
+	gpio_set_level(RS_PIN, is_command ? 0 : 1); 	/* Command or data mode */
+	lcd_send_nibble(byte >> 4);                	/* Send higher nibble */
+	lcd_send_nibble(byte & 0x0F);              	/* Send lower nibble */
 }
 
 
-void lcd_send_nibble(uint8_t nibble) {
+void lcd_send_nibble(uint8_t nibble) 
+{
 	gpio_set_level(D4_PIN, (nibble >> 0) & 0x01);
 	gpio_set_level(D5_PIN, (nibble >> 1) & 0x01);
 	gpio_set_level(D6_PIN, (nibble >> 2) & 0x01);
@@ -163,7 +191,8 @@ void lcd_send_nibble(uint8_t nibble) {
 }
 
 
-void lcd_pulse_enable() {
+void lcd_pulse_enable() 
+{
 	gpio_set_level(EN_PIN, 1); /* Enable high */
 	esp_rom_delay_us(1);       /* Wait >450ns */
 	gpio_set_level(EN_PIN, 0); /* Enable low */
@@ -171,13 +200,16 @@ void lcd_pulse_enable() {
 }
 
 
-void lcd_print(const char *str) {
-	while (*str) {
-		lcd_send_byte(*str, false); /* Send each character as data */
+void lcd_print(const char *str) 
+{
+	while (*str) 
+	{
+		lcd_send_byte(*str, false); 	/* Send each character as data */
 		str++;
 	}
 }
 
-void lcd_putch(char ch) {
-	lcd_send_byte(ch, false); /* Send single character as data */
+void lcd_putch(char ch) 
+{
+	lcd_send_byte(ch, false); 		/* Send single character as data */
 }
