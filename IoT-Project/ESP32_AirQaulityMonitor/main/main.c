@@ -1,6 +1,6 @@
 #include<stdio.h>
 #include "main.h"
-#include "mqtts.h"
+#include "eeprom.h"
 #include "data_display.h"
 
 
@@ -21,11 +21,12 @@ static void init_nvs(void);
 
 static void factor_mode(void);
 
-static void driver_init(void);
-
 static void operational_mode(void);
 
-static void eeprom_demo_test(void);
+
+static void driver_init(void);
+
+static void eeprom_rw_test(void);
 
 static void wifi_establish(void);
 
@@ -101,7 +102,8 @@ static void driver_init(void)
 
 	/* Initialze I2C driver & bme680 sensor configurations */
 	BME680_task_start();
-	if(!eeprom_check_presence())
+
+	if(!detect_eeprom())
 	{
 		ESP_LOGE("EEPROM", "EEPROM not detected. Please check connections");
 		vTaskDelay(1000 / portTICK_PERIOD_MS);
@@ -155,13 +157,17 @@ static void operational_mode(void)
 		ESP_LOGE("TASK", "Failed to create Data Storage Task");  
 	}
 
-	if (xTaskCreate(dataDisplayTask, "Data display Task", 2048, NULL, 3, NULL) != pdPASS) 
+	if (xTaskCreate(dataDisplayTask, "Data Display Task", 2048, NULL, 3, NULL) != pdPASS) 
 	{
 		ESP_LOGE("TASK", "Failed to create Data Collection Task"); 
 	}
+	if (xTaskCreate(dataSendCloudTask, "Data Send Cloud Task", 4096, NULL, 4, NULL) != pdPASS) 
+	{
+		ESP_LOGE("TASK", "Failed to create Data Send Task"); 
+	}
 
 }
-static void eeprom_demo_test(void)
+static void eeprom_rw_test(void)
 {
 	ESP_LOGI("MAIN", "==== EEPROM DEMO ====");
 
@@ -180,10 +186,8 @@ static void eeprom_demo_test(void)
 
 	/* Read data back */
 	uint8_t read_data[16] = {0};
-	ESP_LOGI("MAIN", "Reading from EEPROM at 0x%04X", addr);
 	if (eeprom_read(addr, read_data, sizeof(read_data)) == ESP_OK)
 	{
-		ESP_LOGI("MAIN", "Read successful: ");
 		for (int i = 0; i < sizeof(read_data); i++)
 		{
 			printf("0x%02X ", read_data[i]);

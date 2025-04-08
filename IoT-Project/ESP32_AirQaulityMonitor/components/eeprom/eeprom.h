@@ -1,9 +1,13 @@
 #ifndef EEPROM_H
 #define EEPROM_H
+
+#pragma once
 #include <stdio.h>
 #include <string.h>
+#include <stdbool.h>
 #include "esp_log.h"
-#include "driver/i2c.h"
+#include "esp_err.h"
+
 
 /* I2C Configuration */
 #define I2C_MASTER_NUM                  I2C_NUM_0
@@ -46,13 +50,10 @@
 
 extern bool wifi_configured;
 
-bool eeprom_check_presence(void);
-
-esp_err_t i2c_init(void);
-
-esp_err_t eeprom_write(uint16_t eeaddress, const uint8_t* data, size_t len);
-
-esp_err_t eeprom_read(uint16_t eeaddress, uint8_t* data, size_t len);
-
-esp_err_t eeprom_erase(uint16_t eeaddress);
+esp_err_t i2c_master_init(void);
+esp_err_t eeprom_write(uint16_t u16ChipAddr, const uint8_t *pu8Data, uint64_t u16DataLen);
+esp_err_t eeprom_read(uint16_t u16ChipAddr, uint8_t *pu8Data, uint64_t u16DataLen);
+bool detect_eeprom(void);
+esp_err_t eeprom_erase(uint16_t u16ChipAddr);
+uint8_t eeprom_read_byte(uint16_t u16Memaddr);
 #endif /* EEPROM_H */
