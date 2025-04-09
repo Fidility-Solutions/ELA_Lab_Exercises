@@ -17,7 +17,7 @@
 
 
 extern volatile uint8_t gu8wificonnectedflag;
-extern volatile uint8_t gu8mqttstartedflag
+extern volatile uint8_t gu8mqttstartedflag;
 extern volatile uint8_t gu8initialconnectionflag;
 
 /* Function prototypes */
