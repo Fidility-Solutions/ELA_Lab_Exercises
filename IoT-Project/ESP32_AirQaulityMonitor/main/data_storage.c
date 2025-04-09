@@ -24,7 +24,7 @@ spi_device_handle_t spi_handle;
 
 esp_err_t ret;
 
-extern esp_mqtt_client_handle_t client;
+extern esp_mqtt_client_handle_t mqtt_client_handle;
 
 /* Mutex for SPI synchronization */
 SemaphoreHandle_t spi_mutex;
@@ -92,7 +92,7 @@ static int cloud_counter = 16;
     while (1)
     {
         // Check if Wi-Fi is disconnected (store locally)
-        if ((gs8wificonnectedflag == 0) && (gs8initialconnectionflag == 1))
+        if ((gu8wificonnectedflag == 0) && (gu8initialconnectionflag == 1))
         {
             if (xSemaphoreTake(dataSyncSemaphore, portMAX_DELAY))
             {
@@ -330,7 +330,7 @@ void dataStorageTask(void *pvParameters)
     while (1)
     {
         // Check if Wi-Fi is disconnected (store locally)
-        if ((gs8wificonnectedflag == 0) && (gs8initialconnectionflag == 1))
+        if ((gu8wificonnectedflag == 0) && (gu8initialconnectionflag == 1))
         {
             if (xSemaphoreTake(dataSyncSemaphore, portMAX_DELAY))
             {
@@ -369,7 +369,7 @@ void dataStorageTask(void *pvParameters)
         else if (cloud_counter < counter) // Wi-Fi connected, upload stored data
         {
             read_data(cloud_counter / 256, (uint8_t *)&processed_data, sizeof(processed_data));
-            publish_sensor_data(&processed_data, client);
+            publish_sensor_data(&processed_data, mqtt_client_handle);
 
             cloud_counter += 256; // Increment
 

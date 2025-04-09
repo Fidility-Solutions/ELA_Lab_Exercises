@@ -77,7 +77,7 @@ const char* aws_root_ca_pem =
 		"-----END CERTIFICATE-----\n";
 
 
-esp_mqtt_client_handle_t client = NULL;
+esp_mqtt_client_handle_t mqtt_client_handle = NULL;
 
 static SemaphoreHandle_t spi_mutex;
 
@@ -87,26 +87,6 @@ char *json_str;
 
 volatile bool is_data_updated = false;  // Flag to indicate new data
 
-/*
- * This task checks if Wi-Fi is connected and if MQTT has started. If both conditions are true,
- * it attempts to send the latest sensor data to the cloud.
- *
- * 1. If Wi-Fi is connected and MQTT is started:
- *    - Lock shared data using a semaphore (xSemaphoreTake) to prevent concurrent access.
- *    - Copy the current global sensor data into a local variable (memcpy).
- *    - Compare the new data with the last sent data.
- *    - If the data has changed, convert the sensor data to JSON format (via publish_sensor_data).
- *    - Publish the data to the cloud (via MQTT).
- *    - Update the last sent data with the latest sensor data.
- *    - Release the semaphore (xSemaphoreGive) after publishing to allow other tasks access.
- *
- * 2. If Wi-Fi is not connected or MQTT is not started:
- *    - The task does nothing and will wait until Wi-Fi is available and MQTT is started.
- *
- * 3. Task Delay:
- *    - Wait for a brief period (500ms) before checking and processing again (vTaskDelay(500 / portTICK_PERIOD_MS)).
- */
-
 
 void dataSendCloudTask(void *pvParameters)
 {
@@ -115,7 +95,7 @@ void dataSendCloudTask(void *pvParameters)
 
     while (1)
     {
-        if ((gs8wificonnectedflag == 1) && (gs8mqttstartedflag == 1))
+        if ((gu8wificonnectedflag == 1) && (gu8mqttstartedflag == 1))
         {
             if (xSemaphoreTake(dataSyncSemaphore, portMAX_DELAY))  // Lock before reading shared data
             {
@@ -124,7 +104,7 @@ void dataSendCloudTask(void *pvParameters)
                 // Compare previous data and send only if updated
                 if (memcmp(&last_sent_data, &local_copy, sizeof(STR_SENSOR_DATA)) != 0)
                 {
-                    publish_sensor_data(&local_copy, client);  // Send latest data
+                    publish_sensor_data(&local_copy, mqtt_client_handle);  // Send latest data
                     memcpy(&last_sent_data, &local_copy, sizeof(STR_SENSOR_DATA));  // Update last sent data
                 }
 
@@ -168,7 +148,7 @@ void publish_sensor_data(STR_SENSOR_DATA *data, esp_mqtt_client_handle_t client)
 	{
 		printf("\nPublishing message: %s\n", json_str);
 
-		if ((gs8wificonnectedflag == 1) && (gs8mqttstartedflag == 1)){
+		if ((gu8wificonnectedflag == 1) && (gu8mqttstartedflag == 1)){
 
 		/* Publish JSON to MQTT topic */
 		esp_mqtt_client_publish(client, "sensor/data", json_str, strlen(json_str), 1, 0); }
@@ -310,24 +290,29 @@ void mqtt_app_start(void)
 {
 
 	/* Initialize the MQTT client configuration */
-	esp_mqtt_client_config_t mqtt_config = {
-		.broker = {
+	esp_mqtt_client_config_t mqtt_config = 
+	{
+		.broker = 
+		{
 			.address.uri = "mqtts://a2uhwtdvqf6gg0-ats.iot.ap-south-1.amazonaws.com",
 			.verification.certificate = aws_root_ca_pem,
 		},
-		.credentials = {
-			.authentication = {
+		.credentials = 
+		{
+			.authentication = 
+			{
 				.certificate = client_cert_pem,
 				.key = client_key_pem,
 			},
 		},
-		.network = {
+		.network = 
+		{
                         .timeout_ms = 2000, // Set timeout for network operations to 2 seconds
                 },
 	};
 
-	client = esp_mqtt_client_init(&mqtt_config);
-	esp_mqtt_client_register_event(client, ESP_EVENT_ANY_ID, mqtt_event_handler, NULL);
-	esp_mqtt_client_start(client);
+	mqtt_client_handle = esp_mqtt_client_init(&mqtt_config);
+	esp_mqtt_client_register_event(mqtt_client_handle, ESP_EVENT_ANY_ID, mqtt_event_handler, NULL);
+	esp_mqtt_client_start(mqtt_client_handle);
 	//mqtt_started_flag = 1;
 }
