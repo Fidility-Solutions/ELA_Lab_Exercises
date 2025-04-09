@@ -14,7 +14,6 @@
  *******************************************************************************/
 /* Include header file */
 #include "adc.h"
-#include <math.h>
 #include "esp_adc/adc_oneshot.h"
 #include "esp_adc/adc_continuous.h"
 #include "driver/adc.h"
