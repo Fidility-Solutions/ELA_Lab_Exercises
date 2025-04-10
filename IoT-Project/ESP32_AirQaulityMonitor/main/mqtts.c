@@ -1,9 +1,26 @@
+/******************************************************************************
+ * File         : mqtts.c
+ *
+ * Description  : This file implements MQTT client functionality for secure 
+ *                communication with an MQTT broker using the MQTT over TLS 
+ *                (MQTTS) protocol. The client interacts with an AWS IoT broker 
+ *                or any other MQTT broker supporting secure connections. It 
+ *                handles connecting, subscribing, publishing sensor data, and 
+ *                handling various MQTT events.
+ *
+ * Author       : Fidility Solutions
+ *
+ * Reference    : ESP-IDF MQTT Client Library Documentation, AWS IoT MQTT 
+ *                Documentation.
+ *******************************************************************************/
+
+
 /* Include Header files */
 #include "mqtts.h"
-#include "math.h"
-static const char *TAG = "MQTT_EXAMPLE";
-
-
+#include <time.h>
+#include "main.h"
+#include "cJSON.h"
+uint8_t u8CloudConnect = 1;
 const char* client_key_pem = 
 "-----BEGIN RSA PRIVATE KEY-----\n" \
 		"MIIEowIBAAKCAQEAv+1kRKXOflr9+71IHwEHvEGwwVXLKgJagtMpjCyVax/dbWYm\n" \
@@ -81,211 +98,211 @@ esp_mqtt_client_handle_t mqtt_client_handle = NULL;
 
 static SemaphoreHandle_t spi_mutex;
 
-volatile bool flash_operation_in_progress = false; // Flag for flash operations
-
-char *json_str;
-
-volatile bool is_data_updated = false;  // Flag to indicate new data
-
-
+/*
+ * Function     : dataSendCloudTask()
+ *
+ * Description  : This FreeRTOS task is responsible for sending sensor data to the cloud via MQTT. 
+ *                It checks if the Wi-Fi connection and MQTT connection are established, and if so, 
+ *                it locks the shared data, compares the newly read data with the last sent data to 
+ *                avoid sending duplicate data, and publishes the data to the cloud.
+ *
+ * Parameters   : pvParameters - A pointer to parameters passed during task creation, not used here.
+ *
+ * Returns      : None
+ *
+ * Notes        : The task runs in an infinite loop, periodically checking for data updates and sending
+ *                them to the cloud when necessary. It utilizes a semaphore to ensure safe access to 
+ *                shared sensor data and avoid race conditions.
+ */
 void dataSendCloudTask(void *pvParameters)
 {
-    STR_SENSOR_DATA local_copy;  // Local copy for safe access
-    static STR_SENSOR_DATA last_sent_data = {0};  // Store last sent data
+	char *ps8JsonStr;
+	STR_SENSOR_DATA str_sensor_local_copy;  		/* Local copy for safe access */
+	static STR_SENSOR_DATA last_sent_sensor_data = {0};  	/* Store last sent data */
 
-    while (1)
-    {
-        if ((gu8wificonnectedflag == 1) && (gu8mqttstartedflag == 1))
-        {
-            if (xSemaphoreTake(dataSyncSemaphore, portMAX_DELAY))  // Lock before reading shared data
-            {
-                memcpy(&local_copy, &global_sensor_data, sizeof(STR_SENSOR_DATA));  // Copy shared data safely
-                
-                // Compare previous data and send only if updated
-                if (memcmp(&last_sent_data, &local_copy, sizeof(STR_SENSOR_DATA)) != 0)
-                {
-                    publish_sensor_data(&local_copy, mqtt_client_handle);  // Send latest data
-                    memcpy(&last_sent_data, &local_copy, sizeof(STR_SENSOR_DATA));  // Update last sent data
-                }
+	while (1)
+	{
+		if ((gu8wificonnectedflag == 1) && (gu8mqttstartedflag == 1))
+		{
+			/* Lock before reading shared data */
+			if (xSemaphoreTake(dataSyncSemaphore, portMAX_DELAY))
+			{
+				/* Copy shared data safely */
+				memcpy(&str_sensor_local_copy, &str_global_sensor_data, sizeof(STR_SENSOR_DATA));
 
-                xSemaphoreGive(dataSyncSemaphore);  // Release lock AFTER publishing
-            }
-        }
+				/* Compare previous data and send only if updated */
+				if (memcmp(&last_sent_sensor_data, &str_sensor_local_copy, sizeof(STR_SENSOR_DATA)) != 0)
+				{
+					/* Send latest data */
+					publish_sensor_data(&str_sensor_local_copy, mqtt_client_handle);
 
-        vTaskDelay(500 / portTICK_PERIOD_MS);
-    }
+					/* Update last sent data */
+					memcpy(&last_sent_sensor_data, &str_sensor_local_copy, sizeof(STR_SENSOR_DATA));
+				}
+
+				/* Release lock AFTER publishing */
+				xSemaphoreGive(dataSyncSemaphore);
+			}
+		}
+
+		vTaskDelay(500 / portTICK_PERIOD_MS);
+	}
 }
 
-
-void publish_sensor_data(STR_SENSOR_DATA *data, esp_mqtt_client_handle_t client)
+/*
+ * Function     : publish_sensor_data()
+ *
+ * Description  : This function constructs a JSON object containing sensor data and publishes it to an MQTT broker.
+ *                The function uses the cJSON library to create the JSON object, adding sensor data such as 
+ *                temperature, humidity, air quality index (AQI), CO2 concentration, PM2.5, PM10, location, and timestamp.
+ *                The timestamp is converted from a string format to epoch time before being included in the JSON object.
+ *                If the Wi-Fi and MQTT connections are active, the JSON object is published to the "sensor/data" MQTT topic.
+ *                The function also manages memory by freeing allocated memory after the JSON string is used.
+ *
+ * Parameters   : pstrData - A pointer to the sensor data structure containing the sensor readings.
+ *                client - The MQTT client handle used for publishing the message.
+ *
+ * Returns      : None
+ *
+ * Notes        : The function utilizes the cJSON library to format the sensor data into a JSON object and send it
+ *                to the cloud via MQTT. It ensures proper memory management by freeing the allocated JSON string 
+ *                after publishing. The function also ensures that the Wi-Fi and MQTT connections are active 
+ *                before attempting to publish the data.
+ */
+void publish_sensor_data(STR_SENSOR_DATA *pstrData, esp_mqtt_client_handle_t client)
 {
 	/* Create JSON object */
 	cJSON *root = cJSON_CreateObject();
 
 	/* Add struct values to JSON */
-	cJSON_AddNumberToObject(root, "temperature", (double)((int)(data->bme680.f32Temperature * 100)) / 100.0);
-	cJSON_AddNumberToObject(root, "humidity", (double)((int)(data->bme680.f32Humidity * 100)) / 100.0);
-	cJSON_AddNumberToObject(root, "aqi", data->air_quality_index);
-	cJSON_AddNumberToObject(root, "co2", data->bme680.u16GasRes);
-	cJSON_AddNumberToObject(root, "pm25", data->sds011.u16PM25Val);
-	cJSON_AddNumberToObject(root, "pm10", data->sds011.u16PM10Val);
+	cJSON_AddNumberToObject(root, "temperature", (double)((int)(pstrData->bme680.f32Temperature * 100)) / 100.0);
+	cJSON_AddNumberToObject(root, "humidity", (double)((int)(pstrData->bme680.f32Humidity * 100)) / 100.0);
+	cJSON_AddNumberToObject(root, "aqi", pstrData->air_quality_index);
+	cJSON_AddNumberToObject(root, "co2", pstrData->bme680.u16GasRes);
+	cJSON_AddNumberToObject(root, "pm25", pstrData->sds011.u16PM25Val);
+	cJSON_AddNumberToObject(root, "pm10", pstrData->sds011.u16PM10Val);
 	cJSON_AddStringToObject(root, "location", "Electronic City");
 
 	/* Convert timestamp to epoch */
 	struct tm time_info;
 	time_t epoch_time = 0;
 
-	if (strptime(data->atime_str, "%Y-%m-%d %H:%M:%S", &time_info))
+	if (strptime(pstrData->atime_str, "%Y-%m-%d %H:%M:%S", &time_info))
 	{
 		epoch_time = mktime(&time_info);
 	}
 	cJSON_AddNumberToObject(root, "timestamp", epoch_time);
 
 	/* Convert cJSON object to string */
-	char *json_str = cJSON_Print(root);
+	char *ps8JsonStr = cJSON_Print(root);
 
-	if (json_str != NULL)
+	if (ps8JsonStr != NULL)
 	{
-		printf("\nPublishing message: %s\n", json_str);
+		printf("\nPublishing message: %s\n", ps8JsonStr);
 
 		if ((gu8wificonnectedflag == 1) && (gu8mqttstartedflag == 1)){
 
-		/* Publish JSON to MQTT topic */
-		esp_mqtt_client_publish(client, "sensor/data", json_str, strlen(json_str), 1, 0); }
+			/* Publish JSON to MQTT topic */
+			esp_mqtt_client_publish(client, "sensor/data", ps8JsonStr, strlen(ps8JsonStr), 1, 0); }
 
 		/* Free allocated memory for JSON string */
-		free(json_str);
+		free(ps8JsonStr);
 	}
 
 	/* Free the cJSON object */
 	cJSON_Delete(root);
 }
 
-/*static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data)
-{
-    esp_mqtt_client_handle_t event = event_data;
-
-    switch ((esp_mqtt_event_id_t) event_id)
-    {
-        case MQTT_EVENT_CONNECTED:
-            ESP_LOGI(TAG, "MQTT Connected!");
-            esp_mqtt_client_subscribe(client, "command/data", 1);
-            break;
-
-        case MQTT_EVENT_DISCONNECTED:
-            ESP_LOGW(TAG, "MQTT Disconnected.");
-            break;
-
-        case MQTT_EVENT_ERROR:
-            ESP_LOGE(TAG, "MQTT Connection Error!");
-            break;
-
-        case MQTT_EVENT_PUBLISHED:
-            ESP_LOGI(TAG, "MQTT Message Published! Msg ID: %d", event->msg_id);
-            // You can store msg_id and match it with publish calls for verification.
-            break;
-
-        case MQTT_EVENT_SUBSCRIBED:
-            ESP_LOGI(TAG, "MQTT Subscribed! Msg ID: %d", event->msg_id);
-            break;
-
-        case MQTT_EVENT_UNSUBSCRIBED:
-            ESP_LOGI(TAG, "MQTT Unsubscribed! Msg ID: %d", event->msg_id);
-            break;
-
-        case MQTT_EVENT_DATA:
-            ESP_LOGI(TAG, "MQTT Data Received: Topic=%.*s Data=%.*s",
-                     event->topic_len, event->topic, event->data_len, event->data);
-            break;
-
-        default:
-            ESP_LOGW(TAG, "Unhandled MQTT Event ID: %d", event->event_id);
-            break;
-    }
-    return ESP_OK;
-}*/
+/*
+ * Function     : mqtt_event_handler()
+ *
+ * Description  : This function handles various MQTT events such as connection status, message publishing,
+ *                subscription, and data reception. It processes the events received from the MQTT client and
+ *                takes appropriate actions based on the event type.
+ *
+ *                - On successful connection (`MQTT_EVENT_CONNECTED`), it subscribes to a specific topic (`command/data`).
+ *                - On disconnection (`MQTT_EVENT_DISCONNECTED`), it logs a warning.
+ *                - On error (`MQTT_EVENT_ERROR`), it logs an error message.
+ *                - On successful message publication (`MQTT_EVENT_PUBLISHED`), it logs the message ID.
+ *                - On successful subscription (`MQTT_EVENT_SUBSCRIBED`), it logs the message ID.
+ *                - On successful unsubscription (`MQTT_EVENT_UNSUBSCRIBED`), it logs the message ID.
+ *                - On receiving data (`MQTT_EVENT_DATA`), it logs the topic and data.
+ *
+ * Parameters   :
+ *      - handler_args : Arguments passed to the event handler (unused here).
+ *      - base         : Event base (unused here).
+ *      - event_id     : Event ID which determines the type of MQTT event.
+ *      - event_data   : Data associated with the event (contains the event details such as message, topic, etc.).
+ *
+ * Returns      : None
+ *
+ * Notes        : This event handler is called whenever an MQTT event occurs, and it helps manage the
+ *                interaction with the MQTT broker, handling connection, data exchange, and other events.
+ *                The function uses `ESP_LOGI` and `ESP_LOGW` to log information and warnings, helping to track
+ *                the MQTT client's activity.
+ */
 static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data)
 {
-    esp_mqtt_event_handle_t event = event_data;
-    esp_mqtt_client_handle_t client = event->client;
-
-    switch ((esp_mqtt_event_id_t) event_id)
-    {
-        case MQTT_EVENT_CONNECTED:
-            ESP_LOGI(TAG, "MQTT Connected!");
-            esp_mqtt_client_subscribe(client, "command/data", 1);
-            break;
-
-        case MQTT_EVENT_DISCONNECTED:
-            ESP_LOGW(TAG, "MQTT Disconnected.");
-            break;
-
-        case MQTT_EVENT_ERROR:
-            ESP_LOGE(TAG, "MQTT Connection Error!");
-            break;
-
-        case MQTT_EVENT_PUBLISHED:
-            ESP_LOGI(TAG, "MQTT Message Published! Msg ID: %d", event->msg_id);
-            break;
-
-        case MQTT_EVENT_SUBSCRIBED:
-            ESP_LOGI(TAG, "MQTT Subscribed to Topic! Msg ID: %d", event->msg_id);
-            break;
-
-        case MQTT_EVENT_UNSUBSCRIBED:
-            ESP_LOGI(TAG, "MQTT Unsubscribed from Topic! Msg ID: %d", event->msg_id);
-            break;
-
-        case MQTT_EVENT_DATA:
-            ESP_LOGI(TAG, "MQTT Data Received: Topic=%.*s Data=%.*s",
-                     event->topic_len, event->topic, event->data_len, event->data);
-            break;
-
-        default:
-            ESP_LOGW(TAG, "Unhandled MQTT Event ID: %d", event->event_id);
-            break;
-    }
-}
-
-
-/*static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data) 
-{
 	esp_mqtt_event_handle_t event = event_data;
+	esp_mqtt_client_handle_t client = event->client;
 
 	switch ((esp_mqtt_event_id_t) event_id)
 	{
 		case MQTT_EVENT_CONNECTED:
-			ESP_LOGI(TAG, "MQTT Connected!");
+			ESP_LOGI(MQTTS_TAG, "MQTT Connected!");
 			esp_mqtt_client_subscribe(client, "command/data", 1);
-
+			u8CloudConnect = 1;
 			break;
 
 		case MQTT_EVENT_DISCONNECTED:
-			ESP_LOGW(TAG, "MQTT Disconnected.");
+			ESP_LOGW(MQTTS_TAG, "MQTT Disconnected.");
 			break;
 
 		case MQTT_EVENT_ERROR:
-			ESP_LOGE(TAG, "MQTT Connection Error!");
-
+			ESP_LOGE(MQTTS_TAG, "MQTT Connection Error!");
 			break;
 
-
 		case MQTT_EVENT_PUBLISHED:
-			ESP_LOGI(TAG, "MQTT Message Published!");
+			ESP_LOGI(MQTTS_TAG, "MQTT Message Published! Msg ID: %d", event->msg_id);
+			break;
+
+		case MQTT_EVENT_SUBSCRIBED:
+			ESP_LOGI(MQTTS_TAG, "MQTT Subscribed to Topic! Msg ID: %d", event->msg_id);
+			break;
+
+		case MQTT_EVENT_UNSUBSCRIBED:
+			ESP_LOGI(MQTTS_TAG, "MQTT Unsubscribed from Topic! Msg ID: %d", event->msg_id);
 			break;
 
 		case MQTT_EVENT_DATA:
-			ESP_LOGI(TAG, "MQTT Data Received: Topic=%.*s Data=%.*s",
+			ESP_LOGI(MQTTS_TAG, "MQTT Data Received: Topic=%.*s Data=%.*s",
 					event->topic_len, event->topic, event->data_len, event->data);
-
 			break;
 
 		default:
-			ESP_LOGW(TAG, "Unhandled MQTT Event ID: %d", event->event_id);
+			ESP_LOGW(MQTTS_TAG, "Unhandled MQTT Event ID: %d", event->event_id);
 			break;
 	}
-}*/
+}
 
+/*
+ * Function     : mqtt_app_start()
+ *
+ * Description  : This function initializes and starts the MQTT client with a given configuration.
+ *                The function sets up the MQTT broker details, including the URI, root CA certificate for SSL/TLS
+ *                verification, client certificate, and key for client authentication.
+ *                It also configures network timeouts and registers an event handler for MQTT events.
+ *                After the configuration, the MQTT client is started to begin communication with the broker.
+ *
+ * Parameters   : None
+ *
+ * Returns      : None
+ *
+ * Notes        : The MQTT client is configured to communicate securely (MQTT over TLS) with the AWS IoT broker.
+ *                The client will authenticate using the provided certificate and key.
+ *                The function registers an event handler to handle incoming MQTT events (like message delivery, connection status, etc.).
+ *                The `mqtt_started_flag` has been commented out, but it could be used to track the state of the MQTT client.
+ */
 void mqtt_app_start(void)
 {
 
@@ -307,8 +324,8 @@ void mqtt_app_start(void)
 		},
 		.network = 
 		{
-                        .timeout_ms = 2000, // Set timeout for network operations to 2 seconds
-                },
+			.timeout_ms = 2000, /* Set timeout for network operations to 2 seconds */
+		},
 	};
 
 	mqtt_client_handle = esp_mqtt_client_init(&mqtt_config);
