@@ -26,7 +26,10 @@
 #include "wifi.h"
 #include "esp_task_wdt.h"
 #include "mqtts.h"
-
+#include "esp_wifi.h"
+#include "esp_event.h"
+#include "esp_log.h"
+#include "event_manager.h"
 
 /* Static functions */
 static esp_event_handler_instance_t instance_any_id;
