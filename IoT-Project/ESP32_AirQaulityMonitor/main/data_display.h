@@ -1,8 +1,9 @@
 #ifndef DATA_DISPLAY_H
 #define DATA_DISPLAY_H
 
+#pragma once
 /* Include Header files */
-#include "main.h"
+#include "driver/gpio.h"
 
 /* Defining GPIO pins for the LCD */
 #define RS_PIN  		GPIO_NUM_26  	  /*   Register Select 	*/
@@ -21,8 +22,9 @@
 #define LCD_DISPLAY_ON          0x0C  		  /*   Display ON, cursor OFF 		*/	
 #define LCD_SECOND_LINE  	0xC0		  /*   Force cursor to beginning of 2nd row */
 #define LCD_FIRST_LINE		0x80		  /*   Force cursor to beginning of 1st row */ 
-#define DISPLAY_ON              0x01              /* Display on, cursor off */
-#define DISPLAY_WIDTH		16
+#define DISPLAY_ON              0x01              /*   Display on, cursor off 	*/
+#define DISPLAY_WIDTH		16		  /*   LCD Screen width   	*/
+#define BUFF_SIZE		32		  /*   Buffer size 		*/
 
 #define LCD_CMD_DELAY_300	pdMS_TO_TICKS(300)
 #define LCD_CMD_DELAY_50	pdMS_TO_TICKS(50) /*   For GPIO config  */
@@ -39,15 +41,15 @@ void display_welcome(void);
 
 void lcd_init(void);
 
-void lcd_send_command(uint8_t cmd);
+void lcd_send_command(uint8_t u8Cmd);
 
-void lcd_send_nibble(uint8_t nibble);
+void lcd_send_nibble(uint8_t u8Nibble);
 
-void lcd_send_byte(uint8_t byte, bool is_command);
+void lcd_send_byte(uint8_t u8Byte, bool IsCmd);
 
 void lcd_pulse_enable(void);
 
-void lcd_print(const char *str);
-
+void lcd_print(const char *ps8Str);
+void dataDisplayTask(void *pvParameters);
 #endif	/* DATA_DISPLAY_H */
 

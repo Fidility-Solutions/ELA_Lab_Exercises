@@ -294,3 +294,29 @@ esp_err_t eeprom_erase(uint16_t u16ChipAddr)
 	uint8_t u8EraseByte = 0xFF;
 	return eeprom_write(u16ChipAddr, &u8EraseByte, 1);
 }
+
+
+/*
+ * Function     : uninit_i2c()
+ *
+ * Description  : This function deletes the I2C driver instance for I2C_NUM_0,
+ *                effectively releasing the I2C resources. It checks the return
+ *                status and prints a message indicating success or failure.
+ *
+ * Parameters   : None
+ *
+ * Returns      : None
+ *
+ */
+static void uninit_i2c()
+{
+    esp_err_t eErrStat = i2c_driver_delete(I2C_NUM_0);
+    if (eErrStat == ESP_OK)
+    {
+        printf("I2C uninitialized successfully!\n");
+    }
+    else
+    {
+        printf("Failed to uninitialize I2C: %s\n", esp_err_to_name(eErrStat));
+    }
+}

@@ -1,158 +1,39 @@
-#include "driver/spi_master.h"
+/* Header files */
+#include "data_storage.h"
 #include "main.h"
-#include "esp_system.h"
-#include "esp_log.h"
-#include "esp_err.h"
-#include <string.h>
+#include "driver/spi_master.h"
 #include "freertos/FreeRTOS.h"
-#include "freertos/semphr.h"
-#include <unistd.h>
-
-
-#define GPIO_MOSI           23
-#define GPIO_MISO           19
-#define GPIO_SCLK           18
-#define GPIO_CS             5
-
-#define ESP_HOST VSPI_HOST
-
-#define MAX_ADDRESS 0x7FFFFF
-
-esp_err_t ESP_ERR;
 
 spi_device_handle_t spi_handle;
 
-esp_err_t ret;
-
-extern esp_mqtt_client_handle_t client;
-
+extern esp_mqtt_client_handle_t mqtt_client_handle;
+STR_SENSOR_DATA str_processed_data;
 /* Mutex for SPI synchronization */
 SemaphoreHandle_t spi_mutex;
 
-void SPI_Receive(uint16_t cmd, size_t cmdLen, uint64_t Addr, size_t addrLen, uint8_t *buffertoStore, size_t dataLen);
-
-void sector_erase(int numsector);
-
-void spi_transmit(uint8_t *data, int bytes);
-
-void write_data (int pagenum, uint8_t *datatoWrite, size_t bytes);
-
-
-static int counter = 16;
-
-static int cloud_counter = 16;
-
-
+static uint32_t u32Counter = COUNTER_INITIAL_VALUE;  		/* Current storage position */
+static uint32_t u32CloudCounter = CLOUD_COUNTER_INITIAL_VALUE;  	/* Current cloud data upload position */
 /*
- * This task handles the process of storing sensor data to SPI flash when Wi-Fi is unavailable.
- * Once Wi-Fi is restored, it sends the stored data to the cloud.
+ * Function     : SPI_Init()
  *
- * Key Steps:
- * 1. If Wi-Fi is disconnected:
- *    - Lock the shared data using a semaphore to prevent concurrent access.
- *    - Copy the current sensor data.
- *    - Calculate the storage location in SPI flash.
- *    - Erase the corresponding sector of the SPI flash if needed.
- *    - Write the sensor data to the flash.
- *    - Increment the counter to prepare for the next write operation.
- *    - Release the semaphore after storing the data.
- * 2. If Wi-Fi is connected:
- *    - Check if there is stored data that needs to be sent to the cloud.
- *    - Read the stored data from SPI flash.
- *    - Publish the data to the cloud via MQTT.
- *    - Once all data is uploaded, reset the counters.
- * 3. Task Delay: Wait for a short period before the next cycle to prevent overloading the system.
+ * Description  : This function initializes the SPI bus and adds an SPI device to it. It sets up the configuration 
+ * 		for both the SPI bus and the SPI device. The bus configuration includes setting up the MOSI, MISO, 
+ * 		SCLK, and CS pins. The device configuration includes specifying the SPI mode, clock speed, duty cycle, 
+ * 		and the size of the command/address fields. It also initializes the SPI bus and adds the SPI device 
+ * 		to the bus, using a handle (`spi_handle`) for communication with the device.
+ *
+ * Parameters   : None
+ *
+ * Returns      : esp_err_t - Returns `ESP_OK` if initialization is successful, otherwise returns an error code.
+ *                If initialization fails, error details are logged using `ESP_LOGE`.
+ *
  */
-
-/*
- * This function should be responsible for reading sensor data, processing it, and handling its storage or transmission
- * based on the Wi-Fi connectivity status.
- */
-
-
-/*void dataStorageTask(void *pvParameters) 
+esp_err_t SPI_Init(void) 
 {
-    spi_mutex = xSemaphoreCreateMutex();
-    if (spi_mutex == NULL) 
-    {
-        ESP_LOGE("SPI", "Failed to create SPI mutex");
-        return;
-    }
-
-    ret = SPI_Init();
-    if (ret != ESP_OK) 
-    {
-        ESP_LOGE("SPI", "SPI Initialization failed");
-        return;
-    }
-
-    STR_SENSOR_DATA last_sent_data = {0}; // Track last sent data
-    STR_SENSOR_DATA local_copy;
-
-    while (1)
-    {
-        // Check if Wi-Fi is disconnected (store locally)
-        if ((gs8wificonnectedflag == 0) && (gs8initialconnectionflag == 1))
-        {
-            if (xSemaphoreTake(dataSyncSemaphore, portMAX_DELAY))
-            {
-                memcpy(&local_copy, &global_sensor_data, sizeof(STR_SENSOR_DATA));  // Copy safely
-
-                // **Check if data is new before storing**
-                if (memcmp(&last_sent_data, &local_copy, sizeof(STR_SENSOR_DATA)) != 0)
-                {
-                    memcpy(&last_sent_data, &local_copy, sizeof(STR_SENSOR_DATA)); // Update last sent data
-                    
-                    // Compute storage location
-                    uint32_t sector_num = counter / (16 * 256);
-                    uint32_t page_offset = (counter % (16 * 256)) / 256;
-
-                    // Erase sector if needed
-                    if (page_offset == 0)
-                    {
-                        sector_erase(sector_num);
-                        vTaskDelay(pdMS_TO_TICKS(200)); // Allow sector erase to complete
-                    }
-
-                    // Write to storage
-                    write_data(counter / 256, (uint8_t *)&local_copy, sizeof(local_copy));
-
-                    // Increment counter and handle wrap-around
-                    counter += 256; // Increment by one page
-                    if (counter > MAX_ADDRESS)
-                    {
-                        counter = 16; // Wrap around
-                    }
-                }
-                
-                xSemaphoreGive(dataSyncSemaphore); // Release semaphore
-            }
-        }
-        else if (cloud_counter < counter) // Wi-Fi connected, upload stored data
-        {
-            read_data(cloud_counter / 256, (uint8_t *)&processed_data, sizeof(processed_data));
-            publish_sensor_data(&processed_data, client);
-
-            cloud_counter += 256; // Increment
-
-            if (cloud_counter >= counter)
-            {
-                ESP_LOGI("RESET", "All data uploaded. Resetting counters.");
-                cloud_counter = 16;
-                counter = 16;
-            }
-        }
-
-        vTaskDelay(pdMS_TO_TICKS(500));  // General delay
-    }
-}*/
-
-
-
-/* SPI initialization */
-esp_err_t SPI_Init(void) {
+	esp_err_t eErrStat;
 	/* Configuration for the SPI bus */
-	spi_bus_config_t buscfg = {
+	spi_bus_config_t buscfg = 
+	{
 		.mosi_io_num = GPIO_MOSI,
 		.miso_io_num = GPIO_MISO,
 		.sclk_io_num = GPIO_SCLK,
@@ -173,32 +54,49 @@ esp_err_t SPI_Init(void) {
 		.queue_size = 3
 	};
 
-	ret = spi_bus_initialize(VSPI_HOST, &buscfg, SPI_DMA_CH_AUTO);
+	eErrStat = spi_bus_initialize(VSPI_HOST, &buscfg, SPI_DMA_CH_AUTO);
 
-	if (ret != ESP_OK) 
+	if (eErrStat != ESP_OK) 
 	{
-		ESP_LOGE("SPI", "Failed to initialize bus: %s", esp_err_to_name(ret));
-		return ret;
+		ESP_LOGE("SPI", "Failed to initialize bus: %s", esp_err_to_name(eErrStat));
+		return eErrStat;
 	}
 
-	ret = spi_bus_add_device(VSPI_HOST, &devcfg, &spi_handle);
+	eErrStat = spi_bus_add_device(VSPI_HOST, &devcfg, &spi_handle);
 
-	if (ret != ESP_OK) 
+	if (eErrStat != ESP_OK) 
 	{
-		ESP_LOGE("SPI", "Failed to add device: %s", esp_err_to_name(ret));
-		return ret;
+		ESP_LOGE("SPI", "Failed to add device: %s", esp_err_to_name(eErrStat));
+		return eErrStat;
 	}
 
 	return ESP_OK;
 }
 
-void spi_transmit(uint8_t *data, int bytes) 
+/*
+ * Function     : spi_transmit()
+ *
+ * Description  : This function performs an SPI data transmission by sending a specified number of bytes over the 
+ * 		SPI interface. It configures the SPI transaction using the provided data buffer (`pu8Data`) and 
+ * 		the number of bytes to be transmitted (`u32Bytes`).
+ *              A mutex (`spi_mutex`) is used to ensure that only one task can transmit data over SPI at a time, 
+ *              preventing race conditions. The function blocks the calling task until the SPI transaction is 
+ *              completed. If the transmission fails, an error message is printed.
+ *
+ * Parameters   :
+ *      pu8Data  - A pointer to the data buffer containing the bytes to be transmitted.
+ *      u32Bytes - The number of bytes to be transmitted (in bytes).
+ *
+ * Returns      : None
+ *
+ */
+void spi_transmit(uint8_t *pu8Data, uint32_t u32Bytes) 
 {
 	spi_transaction_t trans;
 	memset(&trans, 0, sizeof(spi_transaction_t));
 
-	trans.tx_buffer = data;
-	trans.length = bytes * 8;
+	trans.tx_buffer = pu8Data;
+	trans.length = u32Bytes * 8;
 
 	if (xSemaphoreTake(spi_mutex, portMAX_DELAY)) 
 	{ 
@@ -211,26 +109,52 @@ void spi_transmit(uint8_t *data, int bytes)
 	}
 }
 
+/*
+ * Function     : write_enable()
+ *
+ * Description  : Sends the Write Enable command (0x06) to the SPI flash memory.
+ *                This sets the Write Enable Latch (WEL) bit in the status register,
+ *                which is required before performing any write, erase, or program operations.
+ *
+ * Parameters   : None
+ *
+ * Returns      : None
+ */
 void write_enable(void) 
 {
-	uint8_t cmd = 0x06;
-	spi_transmit(&cmd, 1);
-	usleep(5000); /* Wait 5ms */
+	uint8_t u8Cmd = WRITE_ENABLE_CMD;
+	spi_transmit(&u8Cmd, 1); /* Use a compound literal to pass the value */
+	vTaskDelay(pdMS_TO_TICKS(5));
 }
 
-void wait_for_write_completion() 
+
+/*
+ * Function     : wait_for_write_completion()
+ *
+ * Description  : Waits until the SPI Flash completes an ongoing write, erase,
+ *                or program operation. It continuously polls the status register's
+ *                WIP (Write-In-Progress) bit and waits until it is cleared.
+ *                Uses a semaphore to ensure thread-safe SPI access.
+ *
+ * Parameters   : None
+ *
+ * Returns      : None
+ *
+ */
+void wait_for_write_completion(void) 
 {
-	uint8_t cmd = 0x05; /* Read Status Register */
-	uint8_t status;
+	uint8_t u8Stat;
+	uint8_t u8Cmd = READ_STATUS_REG_CMD;
+
 
 	do 
 	{
-		spi_transmit(&cmd, 1);
+		spi_transmit(&u8Cmd, 1);
 
 		spi_transaction_t trans;
 		memset(&trans, 0, sizeof(trans));
-		trans.rx_buffer = &status;
-		trans.length = 8; // 1 byte
+		trans.rx_buffer = &u8Stat;
+		trans.length = 8; /* 1 byte */
 
 		if (xSemaphoreTake(spi_mutex, portMAX_DELAY)) 
 		{ 
@@ -238,28 +162,58 @@ void wait_for_write_completion()
 			spi_device_transmit(spi_handle, &trans);
 			xSemaphoreGive(spi_mutex); /* Release SPI mutex */
 		}
-	} while (status & 0x01); /* WIP bit */
+	} while (u8Stat & WIP_BIT_MASK); /* WIP bit */
 }
 
-void sector_erase(int numsector) 
+/*
+ * Function     : sector_erase()
+ *
+ * Description  : This function erases a specific sector in the SPI flash memory.
+ *                Each sector is assumed to be 4KB in size (16 pages x 256 bytes).
+ *                It sends the sector erase command (0x20) along with the calculated
+ *                24-bit memory address corresponding to the sector number.
+ *                It ensures write enable is set before issuing the erase command and
+ *                waits for the erase operation to complete.
+ *
+ * Parameters   : u8NumSector - Sector number to be erased. The memory address is derived
+ *                               based on this number.
+ *
+ * Returns      : None
+ */
+void sector_erase(uint8_t u8NumSector) 
 {
-	uint8_t cmd = 0x20;
-	uint32_t memAddress = numsector * 16 * 256; /* Sector num x 16 pages x 256 bytes */
-	uint8_t tData[4] = { cmd, (memAddress >> 16) & 0xFF, (memAddress >> 8) & 0xFF, memAddress & 0xFF };
+	uint32_t u32MemAddr = u8NumSector * 16 * 256; /* Sector num x 16 pages x 256 bytes */
+	uint8_t u8TxData[4] = { CMD_SECTOR_ERASE, (u32MemAddr >> 16) & 0xFF, 
+		(u32MemAddr >> 8) & 0xFF, u32MemAddr & 0xFF };
 
 	write_enable();
-	spi_transmit(tData, 4);
+	spi_transmit(u8TxData, 4);
 	wait_for_write_completion();
 }
 
-void read_data(int pagenum, uint8_t *buffertoStore, size_t bytes) 
+/*
+ * Function     : read_data()
+ *
+ * Description  : Reads a specified number of bytes from a page in the SPI Flash memory.
+ *                Calculates the memory address based on the given page number and reads
+ *                data starting from that address into the provided buffer.
+ *
+ * Parameters   : u8PageNum  - Page number to read from (each page is 256 bytes)
+ *                pu8Buffer  - Pointer to the buffer where the read data will be stored
+ *                u32Bytes   - Number of bytes to read from the flash memory
+ *
+ * Returns      : None
+ *
+ */
+void read_data(uint8_t u8PageNum, uint8_t *pu8Buffer, uint32_t u32Bytes) 
 {
-	uint8_t cmd = 0x03;
-	uint32_t memAddress = pagenum * 256;
-	SPI_Receive(cmd, 1, memAddress, 3, buffertoStore, bytes);
+	uint32_t u32MemAddr = u8PageNum * 256;
+
+	SPI_Receive(CMD_READ_DATA, 1, u32MemAddr, 3, pu8Buffer, u32Bytes);
 }
 
-void SPI_Receive(uint16_t cmd, size_t cmdLen, uint64_t Addr, size_t addrLen, uint8_t *buffertoStore, size_t dataLen) 
+void SPI_Receive(uint16_t u16Cmd, size_t u16CmdLen, uint64_t u64Addr, uint32_t u32AddrLen, 
+		uint8_t *pu8Buffer, uint32_t u32BufLen)
 {
 	spi_transaction_t trans;
 	memset(&trans, 0, sizeof(trans));
@@ -268,13 +222,13 @@ void SPI_Receive(uint16_t cmd, size_t cmdLen, uint64_t Addr, size_t addrLen, uin
 	memset(&trans_ext, 0, sizeof(trans_ext));
 
 	trans.flags = SPI_TRANS_VARIABLE_ADDR | SPI_TRANS_VARIABLE_CMD;
-	trans.cmd = cmd;
-	trans.addr = Addr;
-	trans.rx_buffer = buffertoStore;
-	trans.length = dataLen * 8;
+	trans.cmd = u16Cmd;
+	trans.addr = u64Addr;
+	trans.rx_buffer = pu8Buffer;
+	trans.length = u32BufLen * 8;
 
-	trans_ext.address_bits = addrLen * 8;
-	trans_ext.command_bits = cmdLen * 8;
+	trans_ext.address_bits = u32AddrLen * 8;
+	trans_ext.command_bits = u16CmdLen * 8;
 	trans_ext.base = trans;
 
 	if (xSemaphoreTake(spi_mutex, portMAX_DELAY)) 
@@ -288,100 +242,134 @@ void SPI_Receive(uint16_t cmd, size_t cmdLen, uint64_t Addr, size_t addrLen, uin
 	}
 }
 
-void write_data(int pagenum, uint8_t *datatoWrite, size_t bytes) 
+/*
+ * Function     : write_data()
+ *
+ * Description  : Writes a specified number of bytes to a page in the SPI Flash memory.
+ *                Constructs a transmit buffer containing the write command, memory address,
+ *                and the actual data to be written. It then transmits this buffer over SPI
+ *                after enabling write operations.
+ *
+ * Parameters   : u8PageNum       - Page number to write to (each page is 256 bytes)
+ *                pu8DataToWrite  - Pointer to the data to be written to the flash memory
+ *                u32Bytes        - Number of bytes to write
+ *
+ * Returns      : None
+ *
+ */
+void write_data(uint8_t u8PageNum, uint8_t *pu8DataToWrite, uint32_t u32Bytes) 
 {
-	uint8_t cmd = 0x02;
-	uint32_t memAddress = pagenum * 256;
-	uint8_t tData[bytes + 4]; /* 4 additional bytes -> 1 cmd, 3 addr */
-	tData[0] = cmd;
-	tData[1] = (memAddress >> 16) & 0xFF;
-	tData[2] = (memAddress >> 8) & 0xFF;
-	tData[3] = memAddress & 0xFF;
+	uint32_t u32MemAddr = u8PageNum * 256;
+	uint8_t u8TxData[u32Bytes + 4]; /* 4 additional bytes -> 1 cmd, 3 addr */
+	u8TxData[0] = WRITE_CMD;
+	u8TxData[1] = (u32MemAddr >> 16) & 0xFF;
+	u8TxData[2] = (u32MemAddr >> 8) & 0xFF;
+	u8TxData[3] = u32MemAddr & 0xFF;
 
-	for (int i = 0; i < bytes; i++) 
+	for (int i = 0; i < u32Bytes; i++) 
 	{
-		tData[i + 4] = datatoWrite[i];
+		u8TxData[i + 4] = pu8DataToWrite[i];
 	}
 
 	write_enable();
-	spi_transmit(tData, bytes + 4);
-	usleep(200000);
+	spi_transmit(u8TxData, u32Bytes + 4);
+	vTaskDelay(pdMS_TO_TICKS(5));
 }
 
+/*
+ * Function     : dataStorageTask()
+ *
+ * Description  : This FreeRTOS task is responsible for handling sensor data storage and upload operations. It performs the following tasks:
+ *                1. Initializes the SPI interface and creates a mutex to protect SPI operations.
+ *                2. Monitors the Wi-Fi connection status to determine whether to store data locally or upload it to the cloud.
+ *                3. If Wi-Fi is disconnected, the task stores sensor data locally in non-volatile memory (e.g., SPI flash), ensuring that only new data is stored.
+ *                   It also handles sector erasure and data storage in 256-byte pages.
+ *                4. If Wi-Fi is connected and there is stored data, the task uploads the data to the cloud by reading it from storage and publishing it via MQTT.
+ *                5. It also handles wrap-around logic for the storage COUNTER_INITIAL_VALUEs to ensure that stored data does not overflow the available memory space.
+ *                6. A semaphore is used to ensure synchronization when accessing shared sensor data, preventing race conditions.
+ *
+ * Parameters   : pvParameters - A pointer to parameters passed during task creation, not used here.
+ *
+ * Returns      : None
+ *
+ */
 void dataStorageTask(void *pvParameters)
-{
-    spi_mutex = xSemaphoreCreateMutex();
-    if (spi_mutex == NULL)
-    {
-        ESP_LOGE("SPI", "Failed to create SPI mutex");
-        return;
-    }
+{ 
+	esp_err_t eErrStat;
+	spi_mutex = xSemaphoreCreateMutex();
+	if (spi_mutex == NULL)
+	{
+		ESP_LOGE(SPI_TAG, "Failed to create SPI mutex");
+		return;
+	}
 
-    ret = SPI_Init();
-    if (ret != ESP_OK)
-    {
-        ESP_LOGE("SPI", "SPI Initialization failed");
-        return;
-    }
+	eErrStat = SPI_Init();
+	if (eErrStat != ESP_OK)
+	{
+		ESP_LOGE(SPI_TAG, "SPI Initialization failed");
+		return;
+	}
 
-    STR_SENSOR_DATA last_sent_data = {0}; // Track last sent data
-    STR_SENSOR_DATA local_copy;
+	STR_SENSOR_DATA last_sent_sensor_data = {0}; /* Track last sent data */
+	STR_SENSOR_DATA str_local_sensor_copy;
 
-    while (1)
-    {
-        // Check if Wi-Fi is disconnected (store locally)
-        if ((gs8wificonnectedflag == 0) && (gs8initialconnectionflag == 1))
-        {
-            if (xSemaphoreTake(dataSyncSemaphore, portMAX_DELAY))
-            {
-                memcpy(&local_copy, &global_sensor_data, sizeof(STR_SENSOR_DATA));  // Copy safely
+	while (1)
+	{
+		/* Check if Wi-Fi is disconnected (store locally) */
+		if ((gu8wificonnectedflag == 0) && (gu8initialconnectionflag == 1))
+		{
+			if (xSemaphoreTake(dataSyncSemaphore, portMAX_DELAY))
+			{
+				memcpy(&str_local_sensor_copy, &str_global_sensor_data, sizeof(STR_SENSOR_DATA));
 
-                // **Check if data is new before storing**
-                if (memcmp(&last_sent_data, &local_copy, sizeof(STR_SENSOR_DATA)) != 0)
-                {
-                    memcpy(&last_sent_data, &local_copy, sizeof(STR_SENSOR_DATA)); // Update last sent data
+				/* Check if data is new before storing */
+				if (memcmp(&last_sent_sensor_data, &str_local_sensor_copy, sizeof(STR_SENSOR_DATA)) != 0)
+				{
+					memcpy(&last_sent_sensor_data, &str_local_sensor_copy, sizeof(STR_SENSOR_DATA));
 
-                    // Compute storage location
-                    uint32_t sector_num = counter / (16 * 256);
-                    uint32_t page_offset = (counter % (16 * 256)) / 256;
+					/* Compute storage location */
+					uint32_t u32SecNum = u32Counter / (16 * 256);
+					uint32_t u32PageOffset = (u32Counter % (16 * 256)) / 256;
 
-                    // Erase sector if needed
-                    if (page_offset == 0)
-                    {
-                        sector_erase(sector_num);
-                        vTaskDelay(pdMS_TO_TICKS(200)); // Allow sector erase to complete
-                    }
+					/* Erase sector if needed */
+					if (u32PageOffset == 0)
+					{
+						sector_erase(u32SecNum);
+						vTaskDelay(pdMS_TO_TICKS(200));
+					}
 
-                    // Write to storage
-                    write_data(counter / 256, (uint8_t *)&local_copy, sizeof(local_copy));
+					/* Write to storage */
+					write_data(u32Counter / 256, (uint8_t *)&str_local_sensor_copy, sizeof(str_local_sensor_copy));
 
-                    // Increment counter and handle wrap-around
-                    counter += 256; // Increment by one page
-                    if (counter > MAX_ADDRESS)
-                    {
-                        counter = 16; // Wrap around
-                    }
-                }
+					/* Increment COUNTER_INITIAL_VALUE and handle wrap-around */
+					u32Counter += 256; /* Increment by one page */
+					if (u32Counter > MAX_ADDRESS)
+					{
+						/* Wrap around */
+						u32Counter = 16;
+					}
+				}
 
-                xSemaphoreGive(dataSyncSemaphore); // Release semaphore
-            }
-        }
-        else if (cloud_counter < counter) // Wi-Fi connected, upload stored data
-        {
-            read_data(cloud_counter / 256, (uint8_t *)&processed_data, sizeof(processed_data));
-            publish_sensor_data(&processed_data, client);
+				/* Release semaphore */
+				xSemaphoreGive(dataSyncSemaphore);
+			}
+		}
+		else if (u32CloudCounter < u32Counter) /* Wi-Fi connected, upload stored data */
+		{
+			read_data(u32CloudCounter / 256, (uint8_t *)&str_processed_data, sizeof(str_processed_data));
+			publish_sensor_data(&str_processed_data, mqtt_client_handle);
 
-            cloud_counter += 256; // Increment
+			u32CloudCounter += 256; /* Increment */
 
-            if (cloud_counter >= counter)
-            {
-                ESP_LOGI("RESET", "All data uploaded. Resetting counters.");
-                cloud_counter = 16;
-                counter = 16;
-            }
-        }
+			if (u32CloudCounter >= u32Counter)
+			{
+				ESP_LOGI(SPI_TAG, "All data uploaded. Resetting COUNTER_INITIAL_VALUEs.");
+				u32CloudCounter = 16;
+				u32Counter = 16;
+			}
+		}
 
-        vTaskDelay(pdMS_TO_TICKS(500));  // General delay
-    }
+		vTaskDelay(pdMS_TO_TICKS(500));  /* General delay */
+	}
 }
 

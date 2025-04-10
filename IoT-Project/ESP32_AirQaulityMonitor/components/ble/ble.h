@@ -2,22 +2,7 @@
 #define BLE_H
 
 /* Header files */
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "freertos/event_groups.h"
-#include "esp_system.h"
-#include "esp_log.h"
-#include "esp_bt.h"
-#include "esp_gap_ble_api.h"
-#include "esp_gatts_api.h"
-#include "esp_bt_main.h"
-#include "esp_gatt_common_api.h"
-#include "sdkconfig.h"
-#include "wifi.h"
-#include "eeprom.h"
+#pragma once
 #include "event_manager.h"
 
 /* Define Macros */
@@ -40,4 +25,5 @@ extern bool wifi_configured;
 
 /* Function prototypes */
 void ble_init(void);
+
 #endif /* BLE_H */
