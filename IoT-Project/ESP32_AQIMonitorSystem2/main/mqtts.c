@@ -17,6 +17,7 @@
 
 /* Include Header files */
 #include "mqtts.h"
+#include "eeprom.h"
 #include <time.h>
 #include "main.h"
 #include "cJSON.h"
@@ -243,6 +244,13 @@ void publish_sensor_data(STR_SENSOR_DATA *pstrData, esp_mqtt_client_handle_t cli
  */
 static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data)
 {
+	char u8Location[32];
+	eeprom_read(EEPROM_LOCATION_ADDR, (uint8_t *) &u8Location, sizeof(u8Location));
+
+	/* Dynamically create the topic string */
+	char s8Topic[64];
+	sprintf(s8Topic, "esp32/%s/control", u8Location);
+
 	esp_mqtt_event_handle_t event = event_data;
 	esp_mqtt_client_handle_t client = event->client;
 
@@ -250,7 +258,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 	{
 		case MQTT_EVENT_CONNECTED:
 			ESP_LOGI(MQTTS_TAG, "MQTT Connected!");
-			esp_mqtt_client_subscribe(client, "command/data", 1);
+			esp_mqtt_client_subscribe(client, s8Topic, 1);
 			u8CloudConnect = 1;
 			break;
 
