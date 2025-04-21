@@ -23,6 +23,7 @@ idf_component_register(
 	esp_adc
 	adc
 	ble
+	spi
 	sds011
 	spi_flash
 	i2cdev

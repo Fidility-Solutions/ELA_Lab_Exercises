@@ -44,6 +44,10 @@
 #include "ble.h"
 #include "bme680_sensor.h"
 #include "rtc.h"
+#include "spi.h"
+#include "esp_heap_caps.h"
+#include <inttypes.h>
+
 
 /* global sensor data */
 SemaphoreHandle_t dataSyncSemaphore = NULL;
@@ -120,9 +124,9 @@ void app_main(void)
 		}
 
 		factor_mode();
-		esp_restart();
+		//esp_restart();
 	}
-	else
+	if(1)
 	{
 		operational_mode();
 	}
@@ -200,10 +204,11 @@ static void factor_mode(void)
 		{
 			/* Connect to MQTT cloud */
 			mqtt_app_start();
-			if(u8CloudConnect)
-                	{
-                        	esp_restart();
-                	}
+			vTaskDelay(5000 / portTICK_PERIOD_MS);
+			//if(u8CloudConnect)
+                	//{
+                        //	esp_restart();
+                	//}
 
 			xEventGroupClearBits(xEventGroup, WIFI_CONNECTED_BIT);
 			vTaskDelay(5000 / portTICK_PERIOD_MS);
@@ -259,6 +264,8 @@ static void factor_mode(void)
  ******************************************************************************/
 static void driver_init(void)
 {
+	esp_err_t eErrStat;
+	ESP_LOGI("DEBUG", "Free heap before driver init: %" PRIu32, esp_get_free_heap_size());
 	/* Initialze I2C driver & bme680 sensor configurations */
 	BME680_task_start();
 
@@ -278,10 +285,20 @@ static void driver_init(void)
 	/* ADC One-Shot Configuration */
 	initialize_mq135_adc();
 
+	/* Initilaize SPI driver */
+	eErrStat = SPI_Init();
+        if (eErrStat != ESP_OK)
+        {
+                ESP_LOGE(SPI_TAG, "SPI Initialization failed");
+                return;
+        }
+	
+
 	lcd_init();
 
 	rgb_led_init();
 	printf("Compltetd dirver init\n");
+	ESP_LOGI("DEBUG", "Free heap after driver init: %" PRIu32, esp_get_free_heap_size());
 
 }
 
