@@ -3,8 +3,8 @@
 
 /* Header files */
 #pragma once
-#include "event_manager.h"
-
+//#include "event_manager.h"
+#include <stdbool.h>
 /* Define Macros */
 #define CONFIG_SERVICE_UUID    	0x00FF
 #define WIFI_CHAR_UUID         	0xFF01

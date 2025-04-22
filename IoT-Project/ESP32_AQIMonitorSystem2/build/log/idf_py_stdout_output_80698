@@ -1,0 +1,104 @@
+[1/10] Performing build step for 'bootloader'
+[1/1] cd /home/fidility/new/ELA_Lab_Exercises/IoT-Project/ESP32_AQIMonitorSystem2/build/bootloader/esp-idf/esptool_py && /home/fidility/.espressif/python_env/idf5.4_py3.10_env/bin/python /home/fidility/esp/esp-idf-v5.4/components/partition_table/check_sizes.py --offset 0x11000 bootloader 0x1000 /home/fidility/new/ELA_Lab_Exercises/IoT-Project/ESP32_AQIMonitorSystem2/build/bootloader/bootloader.bin
+Bootloader binary size 0x4860 bytes. 0xb7a0 bytes (72%) free.
+[2/8] Building C object esp-idf/ble/CMakeFiles/__idf_ble.dir/ble.c.obj
+/home/fidility/new/ELA_Lab_Exercises/IoT-Project/ESP32_AQIMonitorSystem2/components/ble/ble.c:41:16: warning: 'au8AdvServiceUuid' defined but not used [-Wunused-variable]
+   41 | static uint8_t au8AdvServiceUuid[16] = {
+      |                ^~~~~~~~~~~~~~~~~
+[3/8] Linking C static library esp-idf/ble/libble.a
+[4/8] Generating ld/sections.ld
+[5/8] Linking CXX executable ESP32_AirQualityMonitor.elf
+[6/8] Generating binary image from built executable
+esptool.py v4.8.1
+Creating esp32 image...
+Merged 2 ELF sections
+Successfully created esp32 image.
+Generated /home/fidility/new/ELA_Lab_Exercises/IoT-Project/ESP32_AQIMonitorSystem2/build/ESP32_AirQualityMonitor.bin
+[7/8] cd /home/fidility/new/ELA_Lab_Exercises/IoT-Project/ESP32_AQIMonitorSystem2/build/esp-idf/esptool_py && /home/fidility/.espressif/python_env/idf5.4_py3.10_env/bin/python /home/fidility/esp/esp-idf-v5.4/components/partition_table/check_sizes.py --offset 0x11000 partition --type app /home/fidility/new/ELA_Lab_Exercises/IoT-Project/ESP32_AQIMonitorSystem2/build/partition_table/partition-table.bin /home/fidility/new/ELA_Lab_Exercises/IoT-Project/ESP32_AQIMonitorSystem2/build/ESP32_AirQualityMonitor.bin
+ESP32_AirQualityMonitor.bin binary size 0x140950 bytes. Smallest app partition is 0x380000 bytes. 0x23f6b0 bytes (64%) free.
+[7/8] cd /home/fidility/esp/esp-idf-v5.4/components/esptool_py && /usr/bin/cmake -D IDF_PATH=/home/fidility/esp/esp-idf-v5.4 -D "SERIAL_TOOL=/home/fidility/.espressif/python_env/idf5.4_py3.10_env/bin/python;;/home/fidility/esp/esp-idf-v5.4/components/esptool_py/esptool/esptool.py;--chip;esp32" -D "SERIAL_TOOL_ARGS=--before=default_reset;--after=hard_reset;write_flash;@flash_args" -D WORKING_DIRECTORY=/home/fidility/new/ELA_Lab_Exercises/IoT-Project/ESP32_AQIMonitorSystem2/build -P /home/fidility/esp/esp-idf-v5.4/components/esptool_py/run_serial_tool.cmake
+esptool.py --chip esp32 -p /dev/ttyUSB0 -b 460800 --before=default_reset --after=hard_reset write_flash --flash_mode dio --flash_freq 80m --flash_size 4MB 0x1000 bootloader/bootloader.bin 0x20000 ESP32_AirQualityMonitor.bin 0x11000 partition_table/partition-table.bin
+esptool.py v4.8.1
+Serial port /dev/ttyUSB0
+Connecting....
+Chip is ESP32-D0WD-V3 (revision v3.0)
+Features: WiFi, BT, Dual Core, 240MHz, VRef calibration in efuse, Coding Scheme None
+Crystal is 40MHz
+MAC: 3c:e9:0e:ad:b3:b8
+Uploading stub...
+Running stub...
+Stub running...
+Changing baud rate to 460800
+Changed.
+Configuring flash size...
+Flash will be erased from 0x00001000 to 0x00005fff...
+Flash will be erased from 0x00020000 to 0x00160fff...
+Flash will be erased from 0x00011000 to 0x00011fff...
+SHA digest in image updated
+Compressed 18528 bytes to 11863...
+Writing at 0x00001000... (100 %)
+Wrote 18528 bytes (11863 compressed) at 0x00001000 in 0.9 seconds (effective 173.1 kbit/s)...
+Hash of data verified.
+Compressed 1313104 bytes to 865885...
+Writing at 0x00020000... (1 %)
+Writing at 0x0002bc95... (3 %)
+Writing at 0x00039e8c... (5 %)
+Writing at 0x00042350... (7 %)
+Writing at 0x0004edf5... (9 %)
+Writing at 0x00054dd1... (11 %)
+Writing at 0x0005a422... (13 %)
+Writing at 0x0005fe33... (15 %)
+Writing at 0x00065262... (16 %)
+Writing at 0x0006a613... (18 %)
+Writing at 0x0006f8c1... (20 %)
+Writing at 0x00074cba... (22 %)
+Writing at 0x0007ae6b... (24 %)
+Writing at 0x0008076c... (26 %)
+Writing at 0x000864b7... (28 %)
+Writing at 0x0008c0bb... (30 %)
+Writing at 0x00091909... (32 %)
+Writing at 0x0009756e... (33 %)
+Writing at 0x0009d200... (35 %)
+Writing at 0x000a2a84... (37 %)
+Writing at 0x000a7e00... (39 %)
+Writing at 0x000ad153... (41 %)
+Writing at 0x000b24b2... (43 %)
+Writing at 0x000b77c6... (45 %)
+Writing at 0x000bceed... (47 %)
+Writing at 0x000c22c7... (49 %)
+Writing at 0x000c7722... (50 %)
+Writing at 0x000cd046... (52 %)
+Writing at 0x000d237e... (54 %)
+Writing at 0x000d79a3... (56 %)
+Writing at 0x000dcc73... (58 %)
+Writing at 0x000e1e6b... (60 %)
+Writing at 0x000e71f7... (62 %)
+Writing at 0x000ec8e4... (64 %)
+Writing at 0x000f214e... (66 %)
+Writing at 0x000f73f1... (67 %)
+Writing at 0x000fcb82... (69 %)
+Writing at 0x001027dd... (71 %)
+Writing at 0x00107a2e... (73 %)
+Writing at 0x0010cb45... (75 %)
+Writing at 0x00111f26... (77 %)
+Writing at 0x00117a77... (79 %)
+Writing at 0x0011db99... (81 %)
+Writing at 0x00123e31... (83 %)
+Writing at 0x00129566... (84 %)
+Writing at 0x001304ea... (86 %)
+Writing at 0x0013a2ba... (88 %)
+Writing at 0x0013fd33... (90 %)
+Writing at 0x001458be... (92 %)
+Writing at 0x0014b069... (94 %)
+Writing at 0x0015060b... (96 %)
+Writing at 0x00156847... (98 %)
+Writing at 0x0015bdde... (100 %)
+Wrote 1313104 bytes (865885 compressed) at 0x00020000 in 19.7 seconds (effective 533.6 kbit/s)...
+Hash of data verified.
+Compressed 3072 bytes to 105...
+Writing at 0x00011000... (100 %)
+Wrote 3072 bytes (105 compressed) at 0x00011000 in 0.1 seconds (effective 238.1 kbit/s)...
+Hash of data verified.
+
+Leaving...
+Hard resetting via RTS pin...

@@ -1,0 +1,24 @@
+[1/9] Performing build step for 'bootloader'
+[1/1] cd /home/fidility/new/ELA_Lab_Exercises/IoT-Project/ESP32_AQIMonitorSystem2/build/bootloader/esp-idf/esptool_py && /home/fidility/.espressif/python_env/idf5.4_py3.10_env/bin/python /home/fidility/esp/esp-idf-v5.4/components/partition_table/check_sizes.py --offset 0x11000 bootloader 0x1000 /home/fidility/new/ELA_Lab_Exercises/IoT-Project/ESP32_AQIMonitorSystem2/build/bootloader/bootloader.bin
+Bootloader binary size 0x4860 bytes. 0xb7a0 bytes (72%) free.
+[2/7] Building C object esp-idf/ble/CMakeFiles/__idf_ble.dir/ble.c.obj
+/home/fidility/new/ELA_Lab_Exercises/IoT-Project/ESP32_AQIMonitorSystem2/components/ble/ble.c:505:13: warning: 'apply_software_version' defined but not used [-Wunused-function]
+  505 | static void apply_software_version(const char *sw_version)
+      |             ^~~~~~~~~~~~~~~~~~~~~~
+/home/fidility/new/ELA_Lab_Exercises/IoT-Project/ESP32_AQIMonitorSystem2/components/ble/ble.c:485:13: warning: 'apply_hardware_version' defined but not used [-Wunused-function]
+  485 | static void apply_hardware_version(const char *hw_version)
+      |             ^~~~~~~~~~~~~~~~~~~~~~
+/home/fidility/new/ELA_Lab_Exercises/IoT-Project/ESP32_AQIMonitorSystem2/components/ble/ble.c:42:16: warning: 'au8AdvServiceUuid' defined but not used [-Wunused-variable]
+   42 | static uint8_t au8AdvServiceUuid[16] = {
+      |                ^~~~~~~~~~~~~~~~~
+[3/7] Linking C static library esp-idf/ble/libble.a
+[4/7] Generating ld/sections.ld
+[5/7] Linking CXX executable ESP32_AirQualityMonitor.elf
+[6/7] Generating binary image from built executable
+esptool.py v4.8.1
+Creating esp32 image...
+Merged 2 ELF sections
+Successfully created esp32 image.
+Generated /home/fidility/new/ELA_Lab_Exercises/IoT-Project/ESP32_AQIMonitorSystem2/build/ESP32_AirQualityMonitor.bin
+[7/7] cd /home/fidility/new/ELA_Lab_Exercises/IoT-Project/ESP32_AQIMonitorSystem2/build/esp-idf/esptool_py && /home/fidility/.espressif/python_env/idf5.4_py3.10_env/bin/python /home/fidility/esp/esp-idf-v5.4/components/partition_table/check_sizes.py --offset 0x11000 partition --type app /home/fidility/new/ELA_Lab_Exercises/IoT-Project/ESP32_AQIMonitorSystem2/build/partition_table/partition-table.bin /home/fidility/new/ELA_Lab_Exercises/IoT-Project/ESP32_AQIMonitorSystem2/build/ESP32_AirQualityMonitor.bin
+ESP32_AirQualityMonitor.bin binary size 0x140bc0 bytes. Smallest app partition is 0x380000 bytes. 0x23f440 bytes (64%) free.

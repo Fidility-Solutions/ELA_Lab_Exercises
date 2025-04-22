@@ -31,7 +31,8 @@
 #include "esp_bt_main.h"
 #include "esp_gatt_common_api.h"
 #include "eeprom.h"
-
+#include <stdio.h> // For printing
+#include "event_manager.h"
 
 static uint8_t au8ServiceUuid[16] = {
 	/* LSB <--------------------------------------------------------------------------------> MSB */
@@ -206,54 +207,121 @@ static struct gatts_profile_inst gl_profile_tab[1];
 #define CERT_END_MARKER "-----END CERTIFICATE-----"
 #define EEPROM_SIZE 4096  
 
+//static void parse_aws_certificate(const char* ps8Data, uint64_t u64Len, STR_AWS_CERTIFICATE* pstrcert){}
+//static void parse_aws_certificate(const char* ps8Data, uint64_t u64Len, STR_AWS_CERTIFICATE* pstrcert)
+//{
+//	static uint32_t u32CurrentAddr = EEPROM_AWS_CERT_ADDR; /* Start at initial address */
+//
+//	/* Check if certificate length exceeds buffer size */
+//	if (u64Len >= sizeof(pstrcert->certificate)) 
+//	{
+//		ESP_LOGE("BLE", "Certificate too large");
+//		return;
+//	}
+//
+//	/* Copy the received data into the certificate buffer */
+//	memcpy(pstrcert->certificate, ps8Data, u64Len);
+//	pstrcert->certificate[u64Len] = '\0'; /* Null-terminate the string */
+//
+//	ESP_LOGI("BLE", "Parsed AWS certificate (length: %llu)", u64Len);
+//
+//	/* Check if the certificate contains the end marker */
+//	if (strstr(pstrcert->certificate, CERT_END_MARKER)) 
+//	{
+//		ESP_LOGI("BLE", "End of certificate detected");
+//
+//		/* Erase and write the certificate to EEPROM */
+//		eeprom_erase(EEPROM_AWS_CERT_ADDR);
+//		eeprom_write(EEPROM_AWS_CERT_ADDR, (uint8_t *)pstrcert->certificate, u64Len + 1);
+//
+//		ESP_LOGI("BLE", "AWS certificate stored at address 0x%08X", EEPROM_AWS_CERT_ADDR);
+//
+//		/* Reset the current address for the next certificate */
+//		u32CurrentAddr = EEPROM_AWS_CERT_ADDR;
+//
+//		ESP_LOGI("BLE", "AWS certificate implementation complete");
+//	} 
+//	else 
+//	{
+//		/* If the certificate is not complete, continue writing incrementally */
+//		eeprom_write(u32CurrentAddr, (uint8_t *)pstrcert->certificate, u64Len + 1);
+//		u32CurrentAddr += u64Len + 1; /* Increment the address for the next part */
+//
+//		/* Ensure we do not exceed EEPROM size */
+//		if (u32CurrentAddr >= EEPROM_SIZE) 
+//		{
+//			ESP_LOGE("BLE", "EEPROM overflow detected");
+//			u32CurrentAddr = EEPROM_AWS_CERT_ADDR; /* Reset address to avoid corruption */
+//		}
+//	}
+//}
+//
+
+
 static void parse_aws_certificate(const char* ps8Data, uint64_t u64Len, STR_AWS_CERTIFICATE* pstrcert)
 {
-	static uint32_t u32CurrentAddr = EEPROM_AWS_CERT_ADDR; /* Start at initial address */
+    // Validate inputs
+    if (ps8Data == NULL || pstrcert == NULL || u64Len == 0) {
+        ESP_LOGE(BLE_TAG, "Invalid certificate input parameters");
+        return;
+    }
 
-	/* Check if certificate length exceeds buffer size */
-	if (u64Len >= sizeof(pstrcert->certificate)) 
-	{
-		ESP_LOGE("BLE", "Certificate too large");
-		return;
-	}
+    // Static buffer for assembling chunks
+    static char cert_buffer[4096];  // Increased buffer size for larger certs
+    static uint64_t offset = 0;
+    static bool complete = false;
 
-	/* Copy the received data into the certificate buffer */
-	memcpy(pstrcert->certificate, ps8Data, u64Len);
-	pstrcert->certificate[u64Len] = '\0'; /* Null-terminate the string */
+    // If we already have a complete certificate, ignore new data
+    if (complete) {
+        ESP_LOGW(BLE_TAG, "Certificate already complete, ignoring new data");
+        return;
+    }
 
-	ESP_LOGI("BLE", "Parsed AWS certificate (length: %llu)", u64Len);
+    // Check for buffer overflow
+    if ((offset + u64Len) >= sizeof(cert_buffer)) {
+        ESP_LOGE(BLE_TAG, "Certificate buffer overflow (offset: %llu, new data: %llu, max: %zu)",
+                offset, u64Len, sizeof(cert_buffer));
+        offset = 0;  // Reset buffer
+        return;
+    }
 
-	/* Check if the certificate contains the end marker */
-	if (strstr(pstrcert->certificate, CERT_END_MARKER)) 
-	{
-		ESP_LOGI("BLE", "End of certificate detected");
+    // Append new data to buffer
+    memcpy(&cert_buffer[offset], ps8Data, u64Len);
+    offset += u64Len;
+    cert_buffer[offset] = '\0';  // Null-terminate
 
-		/* Erase and write the certificate to EEPROM */
-		eeprom_erase(EEPROM_AWS_CERT_ADDR);
-		eeprom_write(EEPROM_AWS_CERT_ADDR, (uint8_t *)pstrcert->certificate, u64Len + 1);
+    ESP_LOGI(BLE_TAG, "Received %llu bytes (total: %llu)", u64Len, offset);
 
-		ESP_LOGI("BLE", "AWS certificate stored at address 0x%08X", EEPROM_AWS_CERT_ADDR);
+    // Check for complete certificate
+    const char* end_marker = strstr(cert_buffer, "-----END CERTIFICATE-----");
+    if (end_marker != NULL) {
+        // Calculate total length including the end marker
+        size_t cert_len = (end_marker - cert_buffer) + strlen("-----END CERTIFICATE-----");
+        
+        // Validate the complete certificate will fit in destination
+        if (cert_len >= sizeof(pstrcert->certificate)) {
+            ESP_LOGE(BLE_TAG, "Certificate too large for destination buffer");
+            offset = 0;
+            return;
+        }
 
-		/* Reset the current address for the next certificate */
-		u32CurrentAddr = EEPROM_AWS_CERT_ADDR;
+        // Copy complete certificate
+        strncpy(pstrcert->certificate, cert_buffer, cert_len);
+        pstrcert->certificate[cert_len] = '\0';
+        
+        ESP_LOGI(BLE_TAG, "Complete certificate received (%zu bytes)", cert_len);
+        ESP_LOGD(BLE_TAG, "Certificate:\n%.100s...\n...%s", 
+                pstrcert->certificate,  // First 100 chars
+                pstrcert->certificate + cert_len - 100);  // Last 100 chars
 
-		ESP_LOGI("BLE", "AWS certificate implementation complete");
-	} 
-	else 
-	{
-		/* If the certificate is not complete, continue writing incrementally */
-		eeprom_write(u32CurrentAddr, (uint8_t *)pstrcert->certificate, u64Len + 1);
-		u32CurrentAddr += u64Len + 1; /* Increment the address for the next part */
+        // Store to EEPROM
+        eeprom_erase(EEPROM_AWS_CERT_ADDR);
+        eeprom_write(EEPROM_AWS_CERT_ADDR, (uint8_t*)pstrcert->certificate, cert_len + 1);
 
-		/* Ensure we do not exceed EEPROM size */
-		if (u32CurrentAddr >= EEPROM_SIZE) 
-		{
-			ESP_LOGE("BLE", "EEPROM overflow detected");
-			u32CurrentAddr = EEPROM_AWS_CERT_ADDR; /* Reset address to avoid corruption */
-		}
-	}
+        complete = true;
+        offset = 0;  // Reset for next certificate
+    }
 }
-
 
 /*******************************************************************************
  * Function      : parse_aws_private_key
@@ -684,7 +752,7 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_
 					ESP_LOGI(BLE_TAG, "Received HW version: %s", strVersionInfo.hw_version);
 
 					/* Call the hardware version application function */
-					apply_hardware_version(strVersionInfo.hw_version);
+					//apply_hardware_version(strVersionInfo.hw_version);
 				}
 			}
 			else if (param->write.handle == profile->u16SwVersionCharHandle)
@@ -697,7 +765,7 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_
 							strVersionInfo.sw_version);
 
 					/* Call the software version application function */
-					apply_software_version(strVersionInfo.sw_version);
+					//apply_software_version(strVersionInfo.sw_version);
 				}
 			}
 			else if(param->write.handle == profile->u16AwsCertCharHandle) 
