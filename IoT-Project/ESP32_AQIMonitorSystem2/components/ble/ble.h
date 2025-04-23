@@ -3,7 +3,6 @@
 
 /* Header files */
 #pragma once
-//#include "event_manager.h"
 #include <stdbool.h>
 /* Define Macros */
 #define CONFIG_SERVICE_UUID    	0x00FF

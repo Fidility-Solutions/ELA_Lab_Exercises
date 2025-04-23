@@ -11,9 +11,7 @@
  *              eeprom_write(), eeprom_read(), and detect_eeprom() as needed. Make sure to configure 
  *              I2C pins and EEPROM address in eeprom.h.
  *
- * Author:      Rajanikanth
- *
- * Date:        08/04/2025
+ * Author:      FidilitySolutions
  *
  * Reference:   ESP-IDF I2C documentation, EEPROM datasheets (e.g., Microchip 24LC256)
  */
@@ -24,7 +22,6 @@
 #include "eeprom.h"
 
 #include <driver/i2c.h>
-
 /*
  * Function     : i2c_master_init()
  *
@@ -320,3 +317,40 @@ static void uninit_i2c()
         printf("Failed to uninitialize I2C: %s\n", esp_err_to_name(eErrStat));
     }
 }
+
+/*
+ * Function     : erase_eeprom_chip()
+ *
+ * Description  : This function erases the entire EEPROM chip by writing 0xFF 
+ *                to all memory locations. It writes in fixed-size chunks defined 
+ *                by EEPROM_PAGE_SIZE, starting from EEPROM_START_ADDR up to 
+ *                EEPROM_TOTAL_SIZE. This is useful for resetting or clearing 
+ *                EEPROM data.
+ *
+ * Parameters   : None
+ *
+ * Returns      : None
+ *
+ */
+void erase_eeprom_chip(void)
+{
+    uint8_t au8FillData[EEPROM_PAGE_SIZE];
+    uint16_t u16Addr = EEPROM_START_ADDR;
+    
+   /* Fill the buffer with 0xFF (or 0x00 depending on your erase policy) */
+   memset(au8FillData, 0xFF, EEPROM_PAGE_SIZE);
+   
+   ESP_LOGI(EEPROM_TAG, "Starting EEPROM chip erase...");
+    while (u16Addr < EEPROM_TOTAL_SIZE) {
+        eeprom_write(u16Addr, au8FillData, EEPROM_PAGE_SIZE);
+        ESP_LOGI(EEPROM_TAG, "Erased page at address 0x%04X", u16Addr);
+        u16Addr += EEPROM_PAGE_SIZE;
+    }
+    ESP_LOGI(EEPROM_TAG, "EEPROM chip erase completed successfully.");
+}
+
+
+
+
+
+

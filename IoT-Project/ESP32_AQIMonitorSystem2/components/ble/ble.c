@@ -24,6 +24,7 @@
 
 /* Header files */
 #include "ble.h"
+#include <inttypes.h>
 #include "esp_log.h"
 #include "esp_bt.h"
 #include "esp_gap_ble_api.h"
@@ -31,8 +32,9 @@
 #include "esp_bt_main.h"
 #include "esp_gatt_common_api.h"
 #include "eeprom.h"
-#include <stdio.h> // For printing
 #include "event_manager.h"
+//#define BLE_CONNECTION_TIMEOUT_MS 30000 // 30 seconds timeout
+
 
 static uint8_t au8ServiceUuid[16] = {
 	/* LSB <--------------------------------------------------------------------------------> MSB */
@@ -81,9 +83,7 @@ static uint8_t au8AWSEndpointCharUuid[16] = {
 	0x12, 0x34, 0x56, 0x78, 0x90, 0xAB, 0xCD, 0xEF, 0x12, 0x34, 0x56, 0x78, 0x08, 0x00, 0x00, 0x00,
 };
 
-
-
-static esp_ble_adv_data_t adv_data = {
+esp_ble_adv_data_t adv_data = {
 	.set_scan_rsp = false,
 	.include_name = true,
 	.include_txpower = false,
@@ -94,13 +94,15 @@ static esp_ble_adv_data_t adv_data = {
 	.p_manufacturer_data = NULL,
 	.service_data_len = 0,
 	.p_service_data = NULL,
-	.service_uuid_len = sizeof(au8ServiceUuid),
+	.service_uuid_len = 16,
 	.p_service_uuid = au8ServiceUuid,
-	.flag = (ESP_BLE_ADV_FLAG_GEN_DISC | ESP_BLE_ADV_FLAG_BREDR_NOT_SPT),
+	.flag = ESP_BLE_ADV_FLAG_GEN_DISC | ESP_BLE_ADV_FLAG_BREDR_NOT_SPT,
 };
 
+
 static esp_ble_adv_params_t adv_params = {
-	.adv_int_min = 0x40,
+
+	.adv_int_min = 0x20,
 	.adv_int_max = 0x40,
 	.adv_type = ADV_TYPE_IND,
 	.own_addr_type = BLE_ADDR_TYPE_PUBLIC,
@@ -167,28 +169,20 @@ typedef struct
 /* Add AWS certificate structs */
 typedef struct 
 {
-	char certificate[2048];  
+	char certificate[1700];  
 } STR_AWS_CERTIFICATE;
 
-typedef struct 
-{
-	char private_key[2048];  
-} STR_AWS_PRIVATE_KEY;
-
-typedef struct 
-{
-	char endpoint[128];  /* AWS IoT endpoint */
-} STR_AWS_ENDPOINT;
 
 static STR_WIFI_CREDENTIALS strWifiCredentials;
 static STR_LOCATION strLocation;
 static STR_VERSION_INFO strVersionInfo;
 STR_AWS_CERTIFICATE strAwsCertificate;
-STR_AWS_PRIVATE_KEY strAwsPrivateKey;
-STR_AWS_ENDPOINT strAwsEndpoint;
 
 bool wifi_configured = false;
 static struct gatts_profile_inst gl_profile_tab[1];
+
+void read_and_print_eeprom_section(const char* label, uint32_t address, size_t length);
+
 
 /*******************************************************************************
  * Function      : parse_aws_certificate
@@ -204,194 +198,84 @@ static struct gatts_profile_inst gl_profile_tab[1];
  * Returns       : void
  *
  *******************************************************************************/
-#define CERT_END_MARKER "-----END CERTIFICATE-----"
-#define EEPROM_SIZE 4096  
-
-//static void parse_aws_certificate(const char* ps8Data, uint64_t u64Len, STR_AWS_CERTIFICATE* pstrcert){}
-//static void parse_aws_certificate(const char* ps8Data, uint64_t u64Len, STR_AWS_CERTIFICATE* pstrcert)
-//{
-//	static uint32_t u32CurrentAddr = EEPROM_AWS_CERT_ADDR; /* Start at initial address */
-//
-//	/* Check if certificate length exceeds buffer size */
-//	if (u64Len >= sizeof(pstrcert->certificate)) 
-//	{
-//		ESP_LOGE("BLE", "Certificate too large");
-//		return;
-//	}
-//
-//	/* Copy the received data into the certificate buffer */
-//	memcpy(pstrcert->certificate, ps8Data, u64Len);
-//	pstrcert->certificate[u64Len] = '\0'; /* Null-terminate the string */
-//
-//	ESP_LOGI("BLE", "Parsed AWS certificate (length: %llu)", u64Len);
-//
-//	/* Check if the certificate contains the end marker */
-//	if (strstr(pstrcert->certificate, CERT_END_MARKER)) 
-//	{
-//		ESP_LOGI("BLE", "End of certificate detected");
-//
-//		/* Erase and write the certificate to EEPROM */
-//		eeprom_erase(EEPROM_AWS_CERT_ADDR);
-//		eeprom_write(EEPROM_AWS_CERT_ADDR, (uint8_t *)pstrcert->certificate, u64Len + 1);
-//
-//		ESP_LOGI("BLE", "AWS certificate stored at address 0x%08X", EEPROM_AWS_CERT_ADDR);
-//
-//		/* Reset the current address for the next certificate */
-//		u32CurrentAddr = EEPROM_AWS_CERT_ADDR;
-//
-//		ESP_LOGI("BLE", "AWS certificate implementation complete");
-//	} 
-//	else 
-//	{
-//		/* If the certificate is not complete, continue writing incrementally */
-//		eeprom_write(u32CurrentAddr, (uint8_t *)pstrcert->certificate, u64Len + 1);
-//		u32CurrentAddr += u64Len + 1; /* Increment the address for the next part */
-//
-//		/* Ensure we do not exceed EEPROM size */
-//		if (u32CurrentAddr >= EEPROM_SIZE) 
-//		{
-//			ESP_LOGE("BLE", "EEPROM overflow detected");
-//			u32CurrentAddr = EEPROM_AWS_CERT_ADDR; /* Reset address to avoid corruption */
-//		}
-//	}
-//}
-//
 
 
-static void parse_aws_certificate(const char* ps8Data, uint64_t u64Len, STR_AWS_CERTIFICATE* pstrcert)
-{
-    // Validate inputs
-    if (ps8Data == NULL || pstrcert == NULL || u64Len == 0) {
-        ESP_LOGE(BLE_TAG, "Invalid certificate input parameters");
+static void parse_aws_certificate(const char* ps8Data, uint64_t u64Len, STR_AWS_CERTIFICATE* pstrcert, uint32_t eepromAddress, bool isPrivateKey);
+
+//static void parse_aws_certificate(const char* ps8Data, uint64_t u64Len, STR_AWS_CERTIFICATE* pstrcert, uint32_t eepromAddress);
+#define EEPROM_SIZE 2048  // Define the total EEPROM size
+// Add a new variable to track which data type we are processing (certificate, private key, or endpoint)
+#define EEPROM_SIZE 2048  // Define the total EEPROM size
+// Add a new variable to track which data type we are processing (certificate, private key, or endpoint)
+static void parse_aws_certificate(const char* ps8Data, uint64_t u64Len, STR_AWS_CERTIFICATE* pstrcert, uint32_t eepromAddress, bool isPrivateKey) {
+    ESP_LOGI(BLE_TAG, "Processing certificate data chunk");
+
+    // Skip status byte
+    const char* data = ps8Data + 1;
+    u64Len -= 1;
+
+    // Static variables for tracking progress
+    static size_t chunkCounter = 0;
+    static size_t totalWritten = 0;
+
+    // Reset buffers for new transmission
+    if (chunkCounter == 0) {
+        memset(pstrcert->certificate, 0, sizeof(pstrcert->certificate));
+        totalWritten = 0;
+    }
+
+    // Verify no overflow (account for newline addition)
+    if (totalWritten + u64Len + 1 > sizeof(pstrcert->certificate)) {
+        ESP_LOGE(BLE_TAG, "Buffer overflow detected! Certificate exceeds allocated size.");
         return;
     }
 
-    // Static buffer for assembling chunks
-    static char cert_buffer[4096];  // Increased buffer size for larger certs
-    static uint64_t offset = 0;
-    static bool complete = false;
+    // Copy valid data to certificate buffer
+    memcpy(pstrcert->certificate + totalWritten, data, u64Len);
+    totalWritten += u64Len;
 
-    // If we already have a complete certificate, ignore new data
-    if (complete) {
-        ESP_LOGW(BLE_TAG, "Certificate already complete, ignoring new data");
-        return;
+    // Add a newline character after the chunk
+    pstrcert->certificate[totalWritten++] = '\n';
+
+    chunkCounter++;
+
+    ESP_LOGI(BLE_TAG, "Chunk %zu processed. Total written: %zu bytes", chunkCounter, totalWritten);
+
+    // Write to EEPROM in chunks or after final chunk
+    if (chunkCounter == (isPrivateKey ? 4 : 3)) {
+        pstrcert->certificate[totalWritten] = '\0';  // Null-terminate
+        ESP_LOGI(BLE_TAG, "Final AWS Certificate Content:\n%s", pstrcert->certificate);
+
+        eeprom_write(eepromAddress, (uint8_t *)pstrcert->certificate, totalWritten);
+
+        ESP_LOGI(BLE_TAG, "AWS certificate stored in EEPROM successfully at address 0x%x", (unsigned int)eepromAddress);
+
+        // Reset static variables
+        chunkCounter = 0;
+        totalWritten = 0;
     }
+}
 
-    // Check for buffer overflow
-    if ((offset + u64Len) >= sizeof(cert_buffer)) {
-        ESP_LOGE(BLE_TAG, "Certificate buffer overflow (offset: %llu, new data: %llu, max: %zu)",
-                offset, u64Len, sizeof(cert_buffer));
-        offset = 0;  // Reset buffer
-        return;
-    }
+void read_and_print_eeprom_section(const char* label, uint32_t address, size_t length) {
+    uint8_t buffer[length];  // Buffer to hold the read data
 
-    // Append new data to buffer
-    memcpy(&cert_buffer[offset], ps8Data, u64Len);
-    offset += u64Len;
-    cert_buffer[offset] = '\0';  // Null-terminate
+    // Read data from EEPROM
+    if (eeprom_read(address, buffer, length) == 0) {  // Assuming eeprom_read returns 0 on success
+        ESP_LOGI(BLE_TAG, "%s Data at Address 0x%x:", label, (unsigned int)address);
 
-    ESP_LOGI(BLE_TAG, "Received %llu bytes (total: %llu)", u64Len, offset);
-
-    // Check for complete certificate
-    const char* end_marker = strstr(cert_buffer, "-----END CERTIFICATE-----");
-    if (end_marker != NULL) {
-        // Calculate total length including the end marker
-        size_t cert_len = (end_marker - cert_buffer) + strlen("-----END CERTIFICATE-----");
-        
-        // Validate the complete certificate will fit in destination
-        if (cert_len >= sizeof(pstrcert->certificate)) {
-            ESP_LOGE(BLE_TAG, "Certificate too large for destination buffer");
-            offset = 0;
-            return;
+        // For binary data, log in hexadecimal format
+        ESP_LOGI(BLE_TAG, "Content (Hex):");
+        for (size_t i = 0; i < length; i++) {
+            printf("%02x ", buffer[i]);
         }
+        printf("\n");
 
-        // Copy complete certificate
-        strncpy(pstrcert->certificate, cert_buffer, cert_len);
-        pstrcert->certificate[cert_len] = '\0';
-        
-        ESP_LOGI(BLE_TAG, "Complete certificate received (%zu bytes)", cert_len);
-        ESP_LOGD(BLE_TAG, "Certificate:\n%.100s...\n...%s", 
-                pstrcert->certificate,  // First 100 chars
-                pstrcert->certificate + cert_len - 100);  // Last 100 chars
-
-        // Store to EEPROM
-        eeprom_erase(EEPROM_AWS_CERT_ADDR);
-        eeprom_write(EEPROM_AWS_CERT_ADDR, (uint8_t*)pstrcert->certificate, cert_len + 1);
-
-        complete = true;
-        offset = 0;  // Reset for next certificate
+        // If data is a string, log it safely
+        buffer[length - 1] = '\0';  // Null-terminate for safety
+        ESP_LOGI(BLE_TAG, "Content (String): %s", buffer);
+    } else {
+        ESP_LOGE(BLE_TAG, "Failed to read EEPROM at Address 0x%x", (unsigned int)address);
     }
-}
-
-/*******************************************************************************
- * Function      : parse_aws_private_key
- *
- * Description   : Parses the received AWS private key, stores it into the
- *                 application data structure, and writes it to EEPROM/Flash.
- *
- * Parameters    :
- *      - ps8data : Pointer to the received private key buffer.
- *      - u64Len  : Length of the private key string.
- *      - pstrkey    : Pointer to the structure holding the private key.
- *
- * Returns       : void
- *
- *******************************************************************************/
-static void parse_aws_private_key(const char* ps8Data, uint64_t u64Len, STR_AWS_PRIVATE_KEY* pstrkey) 
-{
-	if(u64Len >= sizeof(pstrkey->private_key)) 
-	{
-		ESP_LOGE(BLE_TAG, "Private key too large");
-		return;
-	}
-
-	/* Copy the private key data into the structure and null-terminate it */
-	memcpy(pstrkey->private_key, ps8Data, u64Len);
-	pstrkey->private_key[u64Len] = '\0';
-
-	ESP_LOGI(BLE_TAG, "Parsed AWS private key (length: %llu)", u64Len);
-
-	/* Store the private key to EEPROM or flash */
-	eeprom_erase(EEPROM_AWS_KEY_ADDR);
-	eeprom_write(EEPROM_AWS_KEY_ADDR, (uint8_t *)pstrkey->private_key, u64Len + 1);
-
-	ESP_LOGI(BLE_TAG, "AWS private key stored successfully");
-}
-
-/*******************************************************************************
- * Function      : parse_aws_endpoint
- *
- * Description   : Parses the AWS endpoint string received (likely via BLE),
- *                 stores it in a structure, logs the value, and writes it to
- *                 non-volatile memory (EEPROM or flash).
- *
- * Parameters    :
- *      - ps8Data   : Pointer to the received endpoint data buffer.
- *      - u64Len    : Length of the endpoint string.
- *      - pstrendpoint : Pointer to the structure that holds the AWS endpoint.
- *
- * Returns       : void
- *
- *******************************************************************************/
-static void parse_aws_endpoint(const char* ps8Data, uint64_t u64Len, STR_AWS_ENDPOINT* pstrendpoint) 
-{
-	if(u64Len >= sizeof(pstrendpoint->endpoint)) 
-	{
-		ESP_LOGE(BLE_TAG, "Endpoint too large");
-		return;
-	}
-
-	/* Copy the received data into the endpoint structure */
-	memcpy(pstrendpoint->endpoint, ps8Data, u64Len);
-	pstrendpoint->endpoint[u64Len] = '\0';
-
-	ESP_LOGI(BLE_TAG, "Parsed AWS endpoint: %s", pstrendpoint->endpoint);
-
-	/* Save to EEPROM or flash */
-	eeprom_erase(EEPROM_AWS_ENDPOINT_ADDR);
-	eeprom_write(EEPROM_AWS_ENDPOINT_ADDR, (uint8_t *)pstrendpoint->endpoint, u64Len + 1);
-
-	ESP_LOGI(BLE_TAG, "AWS endpoint stored");
 }
 
 /*******************************************************************************
@@ -508,7 +392,6 @@ static void parse_location(const char* ps8Data, uint64_t u64Len, STR_LOCATION* p
 
 }
 
-
 static void apply_hardware_version(const char *hw_version)
 {
 	ESP_LOGI(BLE_TAG, "Applying Hardware Version information:");
@@ -518,14 +401,15 @@ static void apply_hardware_version(const char *hw_version)
 
 	eeprom_write(HW_VERSION_ADDR, (uint8_t *)hw_version, strlen(hw_version) + 1);
 
-	char hwn_version[32];
-	memset(hwn_version, 0, sizeof(hwn_version));
+	/*char hwn_version[32]; // Adjust the size to match your expected hardware version length
+	  memset(hwn_version, 0, sizeof(hwn_version)); // Initialize the buffer to avoid garbage data
 
+	  ESP_LOGI(BLE_TAG, "Reading Hardware Version information:");
 
-	/* Read the hardware version from EEPROM */
+	// Read the hardware version from EEPROM
 	eeprom_read(HW_VERSION_ADDR, (uint8_t *)hwn_version, sizeof(hwn_version) - 1);
 
-	ESP_LOGI(BLE_TAG, "Hardware Version: %s", hwn_version);
+	ESP_LOGI(BLE_TAG, "Hardware Version: %s", hwn_version);*/
 
 }
 
@@ -626,6 +510,7 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_
 					ESP_GATT_CHAR_PROP_BIT_WRITE,
 					NULL, NULL);
 
+
 			/* Create HW version characteristic */
 			esp_bt_uuid_t hw_version_uuid;
 			hw_version_uuid.len = ESP_UUID_LEN_128;
@@ -676,7 +561,6 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_
 					ESP_GATT_CHAR_PROP_BIT_WRITE,
 					NULL, NULL);	
 
-			/* Create WiFi credentials characteristic */
 			esp_bt_uuid_t wifi_uuid;
 			wifi_uuid.len = ESP_UUID_LEN_128;
 			memcpy(wifi_uuid.uuid.uuid128, au8WifiCharUuid, ESP_UUID_LEN_128);
@@ -749,10 +633,9 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_
 				{
 					memcpy(strVersionInfo.hw_version, param->write.value, param->write.len);
 					strVersionInfo.hw_version[param->write.len] = '\0';
-					ESP_LOGI(BLE_TAG, "Received HW version: %s", strVersionInfo.hw_version);
 
 					/* Call the hardware version application function */
-					//apply_hardware_version(strVersionInfo.hw_version);
+					apply_hardware_version(strVersionInfo.hw_version);
 				}
 			}
 			else if (param->write.handle == profile->u16SwVersionCharHandle)
@@ -761,30 +644,28 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_
 				{
 					memcpy(strVersionInfo.sw_version, param->write.value, param->write.len);
 					strVersionInfo.sw_version[param->write.len] = '\0';
-					ESP_LOGI(BLE_TAG, "Received SW version: %s", 
-							strVersionInfo.sw_version);
 
 					/* Call the software version application function */
-					//apply_software_version(strVersionInfo.sw_version);
+					apply_software_version(strVersionInfo.sw_version);
 				}
 			}
 			else if(param->write.handle == profile->u16AwsCertCharHandle) 
 			{
 				ESP_LOGI(BLE_TAG, "Received AWS certificate data");
-				parse_aws_certificate((char*)param->write.value, 
-						param->write.len, &strAwsCertificate);
+				parse_aws_certificate((char*)param->write.value, param->write.len, &strAwsCertificate,EEPROM_AWS_CERT_ADDR, false);
+				read_and_print_eeprom_section("AWS Certificate", EEPROM_AWS_CERT_ADDR, 1700);
 			} 
 			else if(param->write.handle == profile->u16AwsPrivateKeyCharHandle) 
 			{
 				ESP_LOGI(BLE_TAG, "Received AWS private key data");
-				parse_aws_private_key((char*)param->write.value, 
-						param->write.len, &strAwsPrivateKey);
+				parse_aws_certificate((char*)param->write.value, param->write.len, &strAwsCertificate,EEPROM_AWS_KEY_ADDR, true);
+				  //  read_and_print_eeprom_section("AWS Private Key", EEPROM_AWS_KEY_ADDR, 170);
 			} 
 			else if(param->write.handle == profile->u16AwsEndpointCharHandle) 
 			{
 				ESP_LOGI(BLE_TAG, "Received AWS endpoint data");
-				parse_aws_endpoint((char*)param->write.value, 
-						param->write.len, &strAwsEndpoint);
+				parse_aws_certificate((char*)param->write.value, param->write.len, &strAwsCertificate,EEPROM_AWS_ENDPOINT_ADDR, false);
+				   // read_and_print_eeprom_section("AWS Endpoint", EEPROM_AWS_ENDPOINT_ADDR, 170);
 			}
 			else if(param->write.handle == profile->u16WifiCharHandle)
 			{
@@ -797,18 +678,21 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_
 				}
 			}
 
-
 			esp_gatt_rsp_t rsp = {0};
 			rsp.attr_value.handle = param->write.handle;
-			rsp.attr_value.len = param->write.len;
-			esp_ble_gatts_send_response(gatts_if, param->write.conn_id, 
-					param->write.trans_id, ESP_GATT_OK, &rsp);
+			rsp.attr_value.len = 1;
+			rsp.attr_value.value[0] = 0x01;  // Simple ACK
+
+			// Send response with minimal delay
+			esp_ble_gatts_send_response(gatts_if, param->write.conn_id, param->write.trans_id, ESP_GATT_OK, &rsp);
+			ESP_LOGI(BLE_TAG, "Sent write response");
 
 			break;
 
 		case ESP_GATTS_CONNECT_EVT:
 			ESP_LOGI(BLE_TAG, "Connection established, u16ConnId %d", param->connect.conn_id);
 			profile->u16ConnId = param->connect.conn_id;
+
 			break;
 		case ESP_GATTS_DISCONNECT_EVT:
 			ESP_LOGI(BLE_TAG, "Disconnected, start advertising again");
@@ -821,6 +705,7 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_
 			break;
 	}
 }
+
 
 /*******************************************************************************
  * Function      : gatts_event_handler
@@ -888,7 +773,7 @@ void ble_init(void)
 {
 
 	ESP_LOGI(BLE_TAG, "Initializing BLE...");
-	esp_bt_controller_mem_release(ESP_BT_MODE_CLASSIC_BT);  /* Optional if using BLE only */
+	ESP_ERROR_CHECK(esp_bt_controller_mem_release(ESP_BT_MODE_CLASSIC_BT));
 
 	/* Check if BT controller is already enabled */
 	if (esp_bt_controller_get_status() == ESP_BT_CONTROLLER_STATUS_ENABLED) 
@@ -897,7 +782,7 @@ void ble_init(void)
 	} 
 	else 
 	{
-		/* ESP_ERROR_CHECK(esp_bt_controller_mem_release(ESP_BT_MODE_CLASSIC_BT)); */
+		//ESP_ERROR_CHECK(esp_bt_controller_mem_release(ESP_BT_MODE_CLASSIC_BT));
 	}
 
 	/* Default Bluetooth controller configuration */
@@ -980,8 +865,6 @@ void ble_init(void)
 	memset(&strLocation, 0, sizeof(STR_LOCATION));
 	memset(&strVersionInfo, 0, sizeof(STR_VERSION_INFO));
 	memset(&strAwsCertificate, 0, sizeof(STR_AWS_CERTIFICATE));
-	memset(&strAwsPrivateKey, 0, sizeof(STR_AWS_PRIVATE_KEY));
-	memset(&strAwsEndpoint, 0, sizeof(STR_AWS_ENDPOINT));
 
 	/* Assign profile-specific callback handlers */
 	gl_profile_tab[CONFIG_APP_ID].gatts_cb = gatts_profile_event_handler;
@@ -989,8 +872,4 @@ void ble_init(void)
 
 	ESP_LOGI(BLE_TAG, "BLE Configuration service initialized");
 }
-
-
-
-
 

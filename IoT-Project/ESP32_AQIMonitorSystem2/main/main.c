@@ -109,8 +109,10 @@ void app_main(void)
 
 	/* Initialize the Drivers */
 	driver_init();
-
-	//eeprom_erase(0x00);
+	
+	//erase_eeprom_chip();
+	
+	eeprom_erase(0x00);
 	factory_mode = eeprom_read_byte(FACTORY_MODE_FLAG_ADDR);
 	printf("factor mode = %x\n", factory_mode);
 	
@@ -204,10 +206,10 @@ static void factor_mode(void)
 			vTaskDelay(5000 / portTICK_PERIOD_MS);
 
 			xEventGroupClearBits(xEventGroup, WIFI_CONNECTED_BIT);
-			if(u8CloudConnect)
-                        {
-                                esp_restart();
-                        }
+			//if(u8CloudConnect)
+                        //{
+                        //        esp_restart();
+                        //}
 			break;
 
 		}
@@ -274,7 +276,6 @@ static void driver_init(void)
 
 	/* Initialize UART configuration for PM sensor */
 	sds011_init();
-
 
 	/* Initialize RTC for timestamp */
 
@@ -376,23 +377,6 @@ static void operational_mode(void)
 
 }
 
-/******************************************************************************
- * Function     : eeprom_rw_test
- *
- * Description  : This function demonstrates reading from and writing to an EEPROM.
- *                It performs the following operations:
- *                1. Defines a 16-byte array `config_data` with sample data.
- *                2. Writes the `config_data` to EEPROM at address 0x0100.
- *                3. Waits for a short delay to ensure that the EEPROM write is complete.
- *                4. Reads the 16 bytes of data back from EEPROM at the same address.
- *                5. Prints the read data in hexadecimal format for verification.
- *                6. Logs whether the write and read operations were successful or not.
- *                7. If read operation fails, an error message is logged.
- *
- * Parameters   : None
- *
- * Return       : None
- ******************************************************************************/
 static void wifi_establish(void)
 {
 	char ssid[WIFI_SSID_MAX_LEN] = {0}, password[WIFI_PASS_MAX_LEN] = {0};
