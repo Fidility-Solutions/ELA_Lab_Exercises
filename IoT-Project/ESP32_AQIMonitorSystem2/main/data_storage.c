@@ -5,13 +5,9 @@
 #include "driver/spi_master.h"
 #include "freertos/FreeRTOS.h"
 
-//spi_device_handle_t spi_handle;
 
 extern esp_mqtt_client_handle_t mqtt_client_handle;
 STR_SENSOR_DATA str_processed_data;
-
-/* Mutex for SPI synchronization */
-//SemaphoreHandle_t spi_mutex;
 
 static uint32_t u32Counter = COUNTER_INITIAL_VALUE;  		/* Current storage position */
 static uint32_t u32CloudCounter = CLOUD_COUNTER_INITIAL_VALUE;  	/* Current cloud data upload position */
