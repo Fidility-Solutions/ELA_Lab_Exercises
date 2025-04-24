@@ -22,6 +22,7 @@
 #include "eeprom.h"
 
 #include <driver/i2c.h>
+
 /*
  * Function     : i2c_master_init()
  *
@@ -131,7 +132,7 @@ esp_err_t eeprom_write(uint16_t u16ChipAddr, const uint8_t *pu8Data, uint64_t u1
 		}
 
 		/* Wait for write cycle to complete */
-		vTaskDelay(10 / portTICK_PERIOD_MS);
+		vTaskDelay(50 / portTICK_PERIOD_MS);
 
 		/* Update our position */
 		u64ByteAddr += u16ByteToWrite;

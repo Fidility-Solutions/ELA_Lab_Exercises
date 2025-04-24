@@ -24,7 +24,13 @@
 #include "esp_timer.h"
 
 uint8_t u8CloudConnect = 1;
-const char* client_key_pem = 
+
+#ifndef CONFIG_BLE
+char* aws_cert = NULL;
+char* aws_key = NULL;
+char* aws_endpoint = NULL;
+#else
+const char* aws_cert = 
 "-----BEGIN RSA PRIVATE KEY-----\n" \
 		"MIIEowIBAAKCAQEAv+1kRKXOflr9+71IHwEHvEGwwVXLKgJagtMpjCyVax/dbWYm\n" \
 		"LLJqB97DNXqeXHzPZojR/KplarARSsAmQVD8pqcIHb1MDPn2DxRMKXxqKKIk/aiL\n" \
@@ -52,7 +58,7 @@ const char* client_key_pem =
 		"Rjw3mmwv6JFByBJdVmdBwyszeJX1ufC4T8FUqKXGyZveIMamolvIqxXll+s1xbm1\n" \
 		"IISXUUGz8r8L1kQz0lY9mrzFesNfQYicjKD1vzdm4FS2Rxt7j8EY\n" \
 		"-----END RSA PRIVATE KEY-----\n";
-const char* client_cert_pem = 
+const char* aws_key = 
 "-----BEGIN CERTIFICATE-----\n" \
 		"MIIDWjCCAkKgAwIBAgIVAM0jQsgNtHQlcK1jDWlGFvIyF4lFMA0GCSqGSIb3DQEB\n" \
 		"CwUAME0xSzBJBgNVBAsMQkFtYXpvbiBXZWIgU2VydmljZXMgTz1BbWF6b24uY29t\n" \
@@ -74,7 +80,7 @@ const char* client_cert_pem =
 		"lDK90f+3djUJho0rhp8oYgJKvCPK3CiqPkzWwKz/cJOym4835psmWeFcMTY0qA==\n" \
 		"-----END CERTIFICATE-----\n";
 
-const char* aws_root_ca_pem =
+const char* aws_endpoint =
 "-----BEGIN CERTIFICATE-----\n" \
 		"MIIDQTCCAimgAwIBAgITBmyfz5m/jAo54vB4ikPmljZbyjANBgkqhkiG9w0BAQsF\n" \
 		"ADA5MQswCQYDVQQGEwJVUzEPMA0GA1UEChMGQW1hem9uMRkwFwYDVQQDExBBbWF6\n" \
@@ -95,14 +101,22 @@ const char* aws_root_ca_pem =
 		"5MsI+yMRQ+hDKXJioaldXgjUkK642M4UwtBV8ob2xJNDd2ZhwLnoQdeXeGADbkpy\n" \
 		"rqXRfboQnoZsG4q5WTP468SQvvG5\n" \
 		"-----END CERTIFICATE-----\n";
+#endif
 
 static void control_command(const char *ps8Data, uint32_t u32DataLen);
 esp_mqtt_client_handle_t mqtt_client_handle = NULL;
 
 static SemaphoreHandle_t spi_mutex;
 
-volatile uint32_t u32LastPublishedTime = 0;  		/* Tracks the last publish time */
-volatile uint32_t u32SetPublishInterval = 30000;  	/* 10 seconds (in milliseconds) */
+void configure_mqtt_dynamic();
+
+bool read_from_eeprom_dynamic(uint32_t sizeAddress, uint32_t dataAddress, char** outBuffer);
+
+
+uint32_t u32LastPublishedTime = 0;  		/* Tracks the last publish time */
+
+uint32_t u32SetPublishInterval = 10000;  	/* 10 seconds (in milliseconds) */
+
 
 unsigned long millis() 
 {
@@ -126,91 +140,164 @@ unsigned long millis()
  */
 
 
+void configure_mqtt_dynamic()
+{
+	if (!read_from_eeprom_dynamic(EEPROM_AWS_CERT_SIZE_ADDR, EEPROM_AWS_CERT_ADDR, &aws_cert)) 
+	{
+		ESP_LOGE("BLE_TAG", "Failed to read AWS certificate");
+		return;
+	}
+
+	/* Read AWS private key */
+	if (!read_from_eeprom_dynamic(EEPROM_AWS_KEY_SIZE_ADDR, EEPROM_AWS_KEY_ADDR, &aws_key)) 
+	{
+		ESP_LOGE("BLE_TAG", "Failed to read AWS private key");
+		free(aws_cert); 
+		return;
+	}
+
+	/* Read AWS endpoint */
+	if (!read_from_eeprom_dynamic(EEPROM_AWS_ENDPOINT_SIZE_ADDR, EEPROM_AWS_ENDPOINT_ADDR, &aws_endpoint)) 
+	{
+		ESP_LOGE("BLE_TAG", "Failed to read AWS endpoint");
+		free(aws_cert);
+		free(aws_key);
+		return;
+	}
+
+	ESP_LOGI("BLE_TAG", "AWS Certificate:\n%s", aws_cert);
+	ESP_LOGI("BLE_TAG", "AWS Private Key:\n%s", aws_key);
+	ESP_LOGI("BLE_TAG", "AWS Endpoint:\n%s", aws_endpoint);
+
+}
+
+bool read_from_eeprom_dynamic(uint32_t sizeAddress, uint32_t dataAddress, char** outBuffer) 
+{
+	uint32_t u32ChunkData = 0;
+
+	/* Read the size of the data from EEPROM */
+	if (eeprom_read(sizeAddress, (uint8_t*)&u32ChunkData, sizeof(u32ChunkData)) != 0) 
+	{
+		ESP_LOGE("BLE_TAG", "Failed to read data size from EEPROM address 0x%lx", (unsigned long)sizeAddress);
+		return false;
+	}
+
+
+	/* Allocate memory for the data */
+	*outBuffer = (char*)malloc(u32ChunkData + 1);  /* +1 for null-termination */
+	if (*outBuffer == NULL) 
+	{
+		ESP_LOGE("BLE_TAG", "Failed to allocate memory for data");
+		return false;
+	}
+
+	/* Read the actual data from EEPROM */
+	if (eeprom_read(dataAddress, (uint8_t*)*outBuffer, u32ChunkData) != 0) 
+	{
+		ESP_LOGE("BLE_TAG", "Failed to read data from EEPROM address 0x%lx", (unsigned long)dataAddress);
+		free(*outBuffer);
+		*outBuffer = NULL;
+		return false;
+	}
+
+	/* Null-terminate the data for safety */
+	(*outBuffer)[u32ChunkData] = '\0';
+	ESP_LOGI("BLE_TAG", "Successfully read %lu bytes of data frCom EEPROM address 0x%lx", 
+			(unsigned long)u32ChunkData, (unsigned long)dataAddress);
+
+	return true;
+}
+
+
 static void control_command(const char *ps8Data, uint32_t u32DataLen)
 {
-        char ps8JsonData[u32DataLen];
-        if (!ps8JsonData)
-        {
-                ESP_LOGE(MQTTS_TAG, "Failed to allocate memory for JSON parsing");
-                return;
-        }
+	printf("\nControl Command\n");
 
-        memcpy(ps8JsonData, ps8Data, u32DataLen);       /* Copy data into the allocated memory */
-        ps8JsonData[u32DataLen] = '\0';                 /* Ensure null-termination */
+	/* Allocate memory dynamically for JSON data */
+	char *ps8JsonData = (char *)malloc(u32DataLen + 1); /* +1 for null-termination */
+	if (!ps8JsonData)
+	{
+		ESP_LOGE(MQTTS_TAG, "Failed to allocate memory for JSON parsing");
+		return;
+	}
 
-        cJSON *root = cJSON_Parse(ps8JsonData);
-        if (!root)
-        {
-                ESP_LOGE(MQTTS_TAG, "Failed to parse JSON");
-                free(ps8JsonData);
-                return;
-        }
+	/* Copy data into the allocated memory and null-terminate */
+	memcpy(ps8JsonData, ps8Data, u32DataLen);
+	ps8JsonData[u32DataLen] = '\0'; /* Ensure null-termination */
 
-        /* Parse and handle the 'action' field */
-        cJSON *action = cJSON_GetObjectItem(root, "action");
-        if (cJSON_IsString(action))
-        {
-                if (strcmp(action->valuestring, "setInterval") == 0)
-                {
-                        cJSON *interval = cJSON_GetObjectItem(root, "interval");
-                        if (cJSON_IsNumber(interval))
-                        {
+	/* Parse JSON */
+	cJSON *root = cJSON_Parse(ps8JsonData);
+	if (!root)
+	{
+		ESP_LOGE(MQTTS_TAG, "Failed to parse JSON");
+		free(ps8JsonData); /* Free allocated memory before returning */
+		return;
+	}
+	/* Parse and handle the 'action' field */
+	cJSON *action = cJSON_GetObjectItem(root, "action");
+	if (cJSON_IsString(action))
+	{
+		if (strcmp(action->valuestring, "setInterval") == 0)
+		{
+			cJSON *interval = cJSON_GetObjectItem(root, "interval");
+			if (cJSON_IsNumber(interval))
+			{
 
-                                /* Map intervals to seconds */
-                                switch ((int)interval->valuedouble)
-                                {
-                                        case 1:
-                                                u32SetPublishInterval = 1;
-                                                ESP_LOGI(MQTTS_TAG, "Interval set to 1 second");
-                                                break;
-                                        case 2:
-                                                u32SetPublishInterval = 2;
-                                                ESP_LOGI(MQTTS_TAG, "Interval set to 2 seconds");
-                                                break;
-                                        case 5:
-                                                u32SetPublishInterval = 5;
-                                                ESP_LOGI(MQTTS_TAG, "Interval set to 5 seconds");
-                                                break;
-                                        case 60:
-                                                u32SetPublishInterval = 60;
-                                                ESP_LOGI(MQTTS_TAG, "Interval set to 1 minute");
-                                                break;
-                                        case 120:
-                                                u32SetPublishInterval = 120;
-                                                ESP_LOGI(MQTTS_TAG, "Interval set to 2 minutes");
-                                                break;
-                                        case 300:
-                                                u32SetPublishInterval = 300;
-                                                ESP_LOGI(MQTTS_TAG, "Interval set to 5 minutes");
-                                                break;
-                                        default:
-                                                ESP_LOGW(MQTTS_TAG, "Unsupported interval: %d", (int)interval->valuedouble);
-                                                break;
-                                }
+				/* Map intervals to seconds */
+				switch ((int)interval->valuedouble)
+				{
+					case 1:
+						u32SetPublishInterval = 1 * 1000;
+						ESP_LOGI(MQTTS_TAG, "Interval set to 1 second");
+						break;
+					case 2:
+						u32SetPublishInterval = 2 * 1000;
+						ESP_LOGI(MQTTS_TAG, "Interval set to 2 seconds");
+						break;
+					case 5:
+						u32SetPublishInterval = 5 * 1000;
+						ESP_LOGI(MQTTS_TAG, "Interval set to 5 seconds");
+						break;
+					case 60:
+						u32SetPublishInterval = 60 * 1000;
+						ESP_LOGI(MQTTS_TAG, "Interval set to 1 minute");
+						break;
+					case 120:
+						u32SetPublishInterval = 120 * 1000;
+						ESP_LOGI(MQTTS_TAG, "Interval set to 2 minutes");
+						break;
+					case 300:
+						u32SetPublishInterval = 300 * 1000;
+						ESP_LOGI(MQTTS_TAG, "Interval set to 5 minutes");
+						break;
+					default:
+						ESP_LOGW(MQTTS_TAG, "Unsupported interval: %d", (int)interval->valuedouble);
+						break;
+				}
 
-                        }
-                        else
-                        {
-                                ESP_LOGW(MQTTS_TAG, "Invalid or missing 'interval' field");
-                        }
-                }
-                else if (strcmp(action->valuestring, "eraseEEPROM") == 0)
-                {
-                        ESP_LOGI(MQTTS_TAG, "EEPROM erase command received");
-                        erase_eeprom_chip();
-                }
-                else
-                {
-                        ESP_LOGW(MQTTS_TAG, "Unsupported action: %s", action->valuestring);
-                }
-        }
-        else
-        {
-                ESP_LOGW(MQTTS_TAG, "Missing or invalid 'action' field");
-        }
+			}
+			else
+			{
+				ESP_LOGW(MQTTS_TAG, "Invalid or missing 'interval' field");
+			}
+		}
+		else if (strcmp(action->valuestring, "eraseEEPROM") == 0)
+		{
+			ESP_LOGI(MQTTS_TAG, "EEPROM erase command received");
+			erase_eeprom_chip();
+		}
+		else
+		{
+			ESP_LOGW(MQTTS_TAG, "Unsupported action: %s", action->valuestring);
+		}
+	}
+	else
+	{
+		ESP_LOGW(MQTTS_TAG, "Missing or invalid 'action' field");
+	}
 
-        cJSON_Delete(root);  /* Free cJSON object */
-        free(ps8JsonData);     /* Free allocated memory */
+	cJSON_Delete(root);  /* Free cJSON object */
+	free(ps8JsonData);     /* Free allocated memory */
 }
 
 
@@ -226,9 +313,10 @@ void dataSendCloudTask(void *pvParameters)
 	{
 		/* Get the current time (in milliseconds) */
 		unsigned long u32CurrentTime = millis();  /* Or use another method to get the current time in ms */
+		ESP_LOGI("BLE_TAG", "Timer global variable:%d\n",(unsigned int)u32SetPublishInterval);
 		/* If the desired interval has passed, send the data */
-		//if (u32CurrentTime - u32LastPublishedTime >= u32SetPublishInterval)
-		//{
+		if (u32CurrentTime - u32LastPublishedTime >= u32SetPublishInterval)
+		{
 			if ((gu8wificonnectedflag == 1) && (gu8mqttstartedflag == 1))
 			{
 				/* Lock before reading shared data */
@@ -252,8 +340,8 @@ void dataSendCloudTask(void *pvParameters)
 				}
 			}
 			/* Update the last publish time */
-			//u32LastPublishedTime = u32CurrentTime;
-		//}
+			u32LastPublishedTime = u32CurrentTime;
+		}
 		vTaskDelay(100 / portTICK_PERIOD_MS);
 	}
 }
@@ -372,6 +460,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 
 		case MQTT_EVENT_DISCONNECTED:
 			ESP_LOGW(MQTTS_TAG, "MQTT Disconnected.");
+			esp_mqtt_client_reconnect(client);
 			break;
 
 		case MQTT_EVENT_ERROR:
@@ -422,26 +511,29 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
  */
 void mqtt_app_start(void)
 {
+#ifndef CONFIG_BLE
+	configure_mqtt_dynamic();
+#endif
 
 	/* Initialize the MQTT client configuration */
 	esp_mqtt_client_config_t mqtt_config = 
 	{
 		.broker = 
 		{
-			.address.uri = "mqtts://a2uhwtdvqf6gg0-ats.iot.ap-south-1.amazonaws.com",
-			.verification.certificate = aws_root_ca_pem,
+			.address.uri ="mqtts://a2uhwtdvqf6gg0-ats.iot.ap-south-1.amazonaws.com",
+			.verification.certificate = aws_endpoint,
 		},
 		.credentials = 
 		{
 			.authentication = 
 			{
-				.certificate = client_cert_pem,
-				.key = client_key_pem,
+				.certificate = aws_cert,
+				.key = aws_key,
 			},
 		},
 		.network = 
 		{
-			.timeout_ms = 2000, /* Set timeout for network operations to 2 seconds */
+			.timeout_ms = 2000, 
 		},
 	};
 

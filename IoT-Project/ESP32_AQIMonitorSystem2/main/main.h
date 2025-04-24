@@ -61,6 +61,8 @@ extern EventGroupHandle_t wifi_event_group;
 
 /* Function prototypes */
 
+void configure_mqtt_dynamic();
+
 void data_processing_task(void *pvParameters);
 
 void command_receive_task(void *pvParameters);

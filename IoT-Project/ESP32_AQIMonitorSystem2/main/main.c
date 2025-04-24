@@ -95,6 +95,7 @@ static void read_and_print_device_info(void);
 void app_main(void)
 {
 	esp_log_level_set("gpio", ESP_LOG_ERROR);
+	esp_log_level_set("EEPROM_DRIVER",ESP_LOG_ERROR);
 	uint8_t u8Mode = 0x01;
 	uint8_t factory_mode = 0;
 
@@ -109,13 +110,11 @@ void app_main(void)
 
 	/* Initialize the Drivers */
 	driver_init();
-	
-	//erase_eeprom_chip();
-	
+
 	eeprom_erase(0x00);
 	factory_mode = eeprom_read_byte(FACTORY_MODE_FLAG_ADDR);
 	printf("factor mode = %x\n", factory_mode);
-	
+
 	if(factory_mode != SELECT_OPERATIONAL_MODE)
 	{
 		if (eeprom_write(FACTORY_MODE_FLAG_ADDR, &u8Mode, 1) != ESP_OK)
@@ -125,7 +124,7 @@ void app_main(void)
 
 		factor_mode();
 	}
-	if(1)
+	else
 	{
 		operational_mode();
 	}
@@ -203,13 +202,13 @@ static void factor_mode(void)
 		{
 			/* Connect to MQTT cloud */
 			mqtt_app_start();
-			vTaskDelay(5000 / portTICK_PERIOD_MS);
+			vTaskDelay(7000 / portTICK_PERIOD_MS);
 
 			xEventGroupClearBits(xEventGroup, WIFI_CONNECTED_BIT);
-			//if(u8CloudConnect)
-                        //{
-                        //        esp_restart();
-                        //}
+			if(u8CloudConnect)
+			{
+				esp_restart();
+			}
 			break;
 
 		}
@@ -230,7 +229,7 @@ static void factor_mode(void)
 		vTaskDelay(5000 / portTICK_PERIOD_MS);
 
 		mqtt_app_start();
-		vTaskDelay(1000 / portTICK_PERIOD_MS);
+		vTaskDelay(7000 / portTICK_PERIOD_MS);
 
 	}
 
@@ -264,6 +263,7 @@ static void driver_init(void)
 {
 	esp_err_t eErrStat;
 	ESP_LOGI("DEBUG", "Free heap before driver init: %" PRIu32, esp_get_free_heap_size());
+	
 	/* Initialze I2C driver & bme680 sensor configurations */
 	BME680_task_start();
 
@@ -277,6 +277,7 @@ static void driver_init(void)
 	/* Initialize UART configuration for PM sensor */
 	sds011_init();
 
+
 	/* Initialize RTC for timestamp */
 
 	/* ADC One-Shot Configuration */
@@ -286,7 +287,7 @@ static void driver_init(void)
 	eErrStat = SPI_Init();
 	if (eErrStat != ESP_OK)
 	{
-		ESP_LOGE(SPI_TAG, "SPI Initialization failed");
+		ESP_LOGE(SPI_TAG, "SPI initialization failed");
 		return;
 	}
 
@@ -294,8 +295,8 @@ static void driver_init(void)
 	lcd_init();
 
 	rgb_led_init();
-	
-	printf("Compltetd dirver init\n");
+
+	printf("Driver initialize completed\n");
 	ESP_LOGI("DEBUG", "Free heap after driver init: %" PRIu32, esp_get_free_heap_size());
 
 }
@@ -333,6 +334,9 @@ static void operational_mode(void)
 	/* Establish wifi connection */
 	wifi_establish();
 
+	/* Wait for sometime to connect wifi */
+	vTaskDelay(5000 / portTICK_PERIOD_MS);
+
 	/* Initialize drivers */
 	init_ntp();
 
@@ -340,7 +344,7 @@ static void operational_mode(void)
 	mqtt_app_start();
 
 	/* Wait for sometime to connect with the cloud */
-	vTaskDelay(1000 / portTICK_PERIOD_MS);
+	vTaskDelay(7000 / portTICK_PERIOD_MS);
 
 
 	/* Create Semaphore for Storage Sync */
@@ -408,17 +412,12 @@ void read_and_print_device_info(void)
 	printf("Welcome Fidility Solutions ESP32 IoT Smart AQI Hub System\n");
 
 	/* Read from EEPROM into global structure */
-	eeprom_read(EEPROM_DEVICE_NAME_ADDR, (uint8_t *)str_global_sensor_data.as8DeviceId,
-			 (uint64_t)strlen(str_global_sensor_data.as8DeviceId));
+	eeprom_read(EEPROM_LOCATION_ADDR, (uint8_t *)str_global_sensor_data.alocation, sizeof(str_global_sensor_data.alocation));
+	eeprom_read(HW_VERSION_ADDR, (uint8_t *)str_global_sensor_data.ps8HVersion, sizeof(str_global_sensor_data.ps8HVersion));
+	eeprom_read(SW_VERSION_ADDR, (uint8_t *)str_global_sensor_data.ps8SVersion, sizeof(str_global_sensor_data.ps8SVersion));
+	eeprom_read(EEPROM_DEVICE_NAME_ADDR, (uint8_t *)str_global_sensor_data.as8DeviceId, sizeof(str_global_sensor_data.as8DeviceId));
 
-	eeprom_read(EEPROM_LOCATION_ADDR, (uint8_t *)str_global_sensor_data.alocation,
-			(uint64_t)strlen(str_global_sensor_data.alocation));
 
-	eeprom_read(HW_VERSION_ADDR, (uint8_t *)str_global_sensor_data.ps8HVersion,
-			(uint64_t)strlen(str_global_sensor_data.ps8HVersion));
-
-	eeprom_read(SW_VERSION_ADDR, (uint8_t *)str_global_sensor_data.ps8SVersion,
-			(uint64_t)strlen(str_global_sensor_data.ps8SVersion));
 
 	/* Print the information */
 	printf("Hardware version: %s\n", str_global_sensor_data.ps8HVersion);

@@ -99,7 +99,6 @@ void dataCollectionTask(void *pvParameters)
             /* Update Air Quality Index (AQI) */
             str_global_sensor_data.air_quality_index = get_aqi(u16ScaledPM25 / 10.0, u16ScaledPM10 / 10.0);
 
-            strcpy(str_global_sensor_data.alocation, "Electronic City");
 
             // control_rgb_led(str_global_sensor_data.air_quality_index);
 
