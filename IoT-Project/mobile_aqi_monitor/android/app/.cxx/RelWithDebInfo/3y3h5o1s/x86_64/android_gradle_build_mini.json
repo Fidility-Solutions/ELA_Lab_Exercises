@@ -1,0 +1,20 @@
+{
+  "buildFiles": [
+    "/home/rajanikanth/Flutter/flutter/packages/flutter_tools/gradle/src/main/groovy/CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "/usr/bin/ninja",
+      "-C",
+      "/home/rajanikanth/Flutter/mobile_aqi_monitor/android/app/.cxx/RelWithDebInfo/3y3h5o1s/x86_64",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "/usr/bin/ninja",
+    "-C",
+    "/home/rajanikanth/Flutter/mobile_aqi_monitor/android/app/.cxx/RelWithDebInfo/3y3h5o1s/x86_64",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {}
+}

@@ -17,9 +17,12 @@
 
 /* Include Header files */
 #include "mqtts.h"
+#include "eeprom.h"
 #include <time.h>
 #include "main.h"
 #include "cJSON.h"
+#include "esp_timer.h"
+
 uint8_t u8CloudConnect = 1;
 const char* client_key_pem = 
 "-----BEGIN RSA PRIVATE KEY-----\n" \
@@ -93,11 +96,18 @@ const char* aws_root_ca_pem =
 		"rqXRfboQnoZsG4q5WTP468SQvvG5\n" \
 		"-----END CERTIFICATE-----\n";
 
-
+static void control_command(const char *ps8Data, uint32_t u32DataLen);
 esp_mqtt_client_handle_t mqtt_client_handle = NULL;
 
 static SemaphoreHandle_t spi_mutex;
 
+volatile uint32_t u32LastPublishedTime = 0;  		/* Tracks the last publish time */
+volatile uint32_t u32SetPublishInterval = 30000;  	/* 10 seconds (in milliseconds) */
+
+unsigned long millis() 
+{
+	return esp_timer_get_time() / 1000;  		/* Convert microseconds to milliseconds */
+}
 /*
  * Function     : dataSendCloudTask()
  *
@@ -114,38 +124,137 @@ static SemaphoreHandle_t spi_mutex;
  *                them to the cloud when necessary. It utilizes a semaphore to ensure safe access to 
  *                shared sensor data and avoid race conditions.
  */
+
+
+static void control_command(const char *ps8Data, uint32_t u32DataLen)
+{
+        char ps8JsonData[u32DataLen];
+        if (!ps8JsonData)
+        {
+                ESP_LOGE(MQTTS_TAG, "Failed to allocate memory for JSON parsing");
+                return;
+        }
+
+        memcpy(ps8JsonData, ps8Data, u32DataLen);       /* Copy data into the allocated memory */
+        ps8JsonData[u32DataLen] = '\0';                 /* Ensure null-termination */
+
+        cJSON *root = cJSON_Parse(ps8JsonData);
+        if (!root)
+        {
+                ESP_LOGE(MQTTS_TAG, "Failed to parse JSON");
+                free(ps8JsonData);
+                return;
+        }
+
+        /* Parse and handle the 'action' field */
+        cJSON *action = cJSON_GetObjectItem(root, "action");
+        if (cJSON_IsString(action))
+        {
+                if (strcmp(action->valuestring, "setInterval") == 0)
+                {
+                        cJSON *interval = cJSON_GetObjectItem(root, "interval");
+                        if (cJSON_IsNumber(interval))
+                        {
+
+                                /* Map intervals to seconds */
+                                switch ((int)interval->valuedouble)
+                                {
+                                        case 1:
+                                                u32SetPublishInterval = 1;
+                                                ESP_LOGI(MQTTS_TAG, "Interval set to 1 second");
+                                                break;
+                                        case 2:
+                                                u32SetPublishInterval = 2;
+                                                ESP_LOGI(MQTTS_TAG, "Interval set to 2 seconds");
+                                                break;
+                                        case 5:
+                                                u32SetPublishInterval = 5;
+                                                ESP_LOGI(MQTTS_TAG, "Interval set to 5 seconds");
+                                                break;
+                                        case 60:
+                                                u32SetPublishInterval = 60;
+                                                ESP_LOGI(MQTTS_TAG, "Interval set to 1 minute");
+                                                break;
+                                        case 120:
+                                                u32SetPublishInterval = 120;
+                                                ESP_LOGI(MQTTS_TAG, "Interval set to 2 minutes");
+                                                break;
+                                        case 300:
+                                                u32SetPublishInterval = 300;
+                                                ESP_LOGI(MQTTS_TAG, "Interval set to 5 minutes");
+                                                break;
+                                        default:
+                                                ESP_LOGW(MQTTS_TAG, "Unsupported interval: %d", (int)interval->valuedouble);
+                                                break;
+                                }
+
+                        }
+                        else
+                        {
+                                ESP_LOGW(MQTTS_TAG, "Invalid or missing 'interval' field");
+                        }
+                }
+                else if (strcmp(action->valuestring, "eraseEEPROM") == 0)
+                {
+                        ESP_LOGI(MQTTS_TAG, "EEPROM erase command received");
+                        erase_eeprom_chip();
+                }
+                else
+                {
+                        ESP_LOGW(MQTTS_TAG, "Unsupported action: %s", action->valuestring);
+                }
+        }
+        else
+        {
+                ESP_LOGW(MQTTS_TAG, "Missing or invalid 'action' field");
+        }
+
+        cJSON_Delete(root);  /* Free cJSON object */
+        free(ps8JsonData);     /* Free allocated memory */
+}
+
+
 void dataSendCloudTask(void *pvParameters)
 {
 	char *ps8JsonStr;
 	STR_SENSOR_DATA str_sensor_local_copy;  		/* Local copy for safe access */
 	static STR_SENSOR_DATA last_sent_sensor_data = {0};  	/* Store last sent data */
+	uint32_t u32CurrentTime = millis();
+
 
 	while (1)
 	{
-		if ((gu8wificonnectedflag == 1) && (gu8mqttstartedflag == 1))
-		{
-			/* Lock before reading shared data */
-			if (xSemaphoreTake(dataSyncSemaphore, portMAX_DELAY))
+		/* Get the current time (in milliseconds) */
+		unsigned long u32CurrentTime = millis();  /* Or use another method to get the current time in ms */
+		/* If the desired interval has passed, send the data */
+		//if (u32CurrentTime - u32LastPublishedTime >= u32SetPublishInterval)
+		//{
+			if ((gu8wificonnectedflag == 1) && (gu8mqttstartedflag == 1))
 			{
-				/* Copy shared data safely */
-				memcpy(&str_sensor_local_copy, &str_global_sensor_data, sizeof(STR_SENSOR_DATA));
-
-				/* Compare previous data and send only if updated */
-				if (memcmp(&last_sent_sensor_data, &str_sensor_local_copy, sizeof(STR_SENSOR_DATA)) != 0)
+				/* Lock before reading shared data */
+				if (xSemaphoreTake(dataSyncSemaphore, portMAX_DELAY))
 				{
-					/* Send latest data */
-					publish_sensor_data(&str_sensor_local_copy, mqtt_client_handle);
+					/* Copy shared data safely */
+					memcpy(&str_sensor_local_copy, &str_global_sensor_data, sizeof(STR_SENSOR_DATA));
 
-					/* Update last sent data */
-					memcpy(&last_sent_sensor_data, &str_sensor_local_copy, sizeof(STR_SENSOR_DATA));
+					/* Compare previous data and send only if updated */
+					if (memcmp(&last_sent_sensor_data, &str_sensor_local_copy, sizeof(STR_SENSOR_DATA)) != 0)
+					{
+						/* Send latest data */
+						publish_sensor_data(&str_sensor_local_copy, mqtt_client_handle);
+
+						/* Update last sent data */
+						memcpy(&last_sent_sensor_data, &str_sensor_local_copy, sizeof(STR_SENSOR_DATA));
+					}
+
+					/* Release lock AFTER publishing */
+					xSemaphoreGive(dataSyncSemaphore);
 				}
-
-				/* Release lock AFTER publishing */
-				xSemaphoreGive(dataSyncSemaphore);
 			}
-		}
-
-		vTaskDelay(500 / portTICK_PERIOD_MS);
+			/* Update the last publish time */
+			//u32LastPublishedTime = u32CurrentTime;
+		//}
+		vTaskDelay(100 / portTICK_PERIOD_MS);
 	}
 }
 
@@ -243,6 +352,13 @@ void publish_sensor_data(STR_SENSOR_DATA *pstrData, esp_mqtt_client_handle_t cli
  */
 static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data)
 {
+	char u8Location[32];
+	eeprom_read(EEPROM_LOCATION_ADDR, (uint8_t *) &u8Location, sizeof(u8Location));
+
+	/* Dynamically create the topic string */
+	char s8Topic[64];
+	sprintf(s8Topic, "esp32/%s/control", u8Location);
+
 	esp_mqtt_event_handle_t event = event_data;
 	esp_mqtt_client_handle_t client = event->client;
 
@@ -250,7 +366,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 	{
 		case MQTT_EVENT_CONNECTED:
 			ESP_LOGI(MQTTS_TAG, "MQTT Connected!");
-			esp_mqtt_client_subscribe(client, "command/data", 1);
+			esp_mqtt_client_subscribe(client, s8Topic, 1);
 			u8CloudConnect = 1;
 			break;
 
@@ -277,6 +393,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 		case MQTT_EVENT_DATA:
 			ESP_LOGI(MQTTS_TAG, "MQTT Data Received: Topic=%.*s Data=%.*s",
 					event->topic_len, event->topic, event->data_len, event->data);
+			control_command(event->data, event->data_len);
 			break;
 
 		default:
@@ -333,3 +450,4 @@ void mqtt_app_start(void)
 	esp_mqtt_client_start(mqtt_client_handle);
 	//mqtt_started_flag = 1;
 }
+

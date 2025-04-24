@@ -30,15 +30,17 @@ typedef struct
 }STR_BME680_SENSOR_DATA;
 
 /* Common structure created for all sensors */
-
 typedef struct
 {
-    STR_BME680_SENSOR_DATA bme680;          	/* 10 bytes */
-    STR_SDS011_SENSOR_DATA sds011;          	/* 4 bytes */
-    uint16_t air_quality_index;    	/* 2 bytes, supports AQI up to 500 */
-    char atime_str[20];             	/* Compact ISO format "HH:MM:SS" */
-    char alocation[16];           	/* MAC-like binary ID */
-}STR_SENSOR_DATA;
+    STR_BME680_SENSOR_DATA bme680;       /*   	10 bytes 	*/
+    STR_SDS011_SENSOR_DATA sds011;       /* 	4 bytes 	*/
+    uint16_t air_quality_index;          /* 	2 bytes		*/
+    char atime_str[20];                  /* 	Compact ISO format "HH:MM:SS" */
+    char alocation[32];                  /* 	Location string 	*/
+    char as8DeviceId[32];                /* 	Device ID 		*/
+    char ps8HVersion[16];                /* 	Hardware version 	*/
+    char ps8SVersion[16];                /* 	Software version 	*/
+} STR_SENSOR_DATA;
 
 
 void rgb_led_init(void);

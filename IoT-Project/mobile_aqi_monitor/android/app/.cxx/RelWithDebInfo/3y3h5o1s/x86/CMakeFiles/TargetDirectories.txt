@@ -1,0 +1,2 @@
+/home/rajanikanth/Flutter/mobile_aqi_monitor/android/app/.cxx/RelWithDebInfo/3y3h5o1s/x86/CMakeFiles/edit_cache.dir
+/home/rajanikanth/Flutter/mobile_aqi_monitor/android/app/.cxx/RelWithDebInfo/3y3h5o1s/x86/CMakeFiles/rebuild_cache.dir
