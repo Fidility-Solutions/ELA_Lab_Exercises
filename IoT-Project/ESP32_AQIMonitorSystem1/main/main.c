@@ -44,6 +44,10 @@
 #include "ble.h"
 #include "bme680_sensor.h"
 #include "rtc.h"
+#include "spi.h"
+#include "esp_heap_caps.h"
+#include <inttypes.h>
+#include "event_manager.h"
 
 /* global sensor data */
 SemaphoreHandle_t dataSyncSemaphore = NULL;
@@ -62,10 +66,9 @@ static void operational_mode(void);
 
 static void driver_init(void);
 
-static void eeprom_rw_test(void);
-
 static void wifi_establish(void);
 
+static void read_and_print_device_info(void);
 
 /******************************************************************************
  * Function     : app_main
@@ -91,10 +94,13 @@ static void wifi_establish(void);
  ******************************************************************************/
 void app_main(void)
 {
-	printf("Welcome Fidility SOlutions ESP32 Air Quality Monitor System\n");
-
+	esp_log_level_set("gpio", ESP_LOG_ERROR);
+	esp_log_level_set("EEPROM_DRIVER",ESP_LOG_ERROR);
+	esp_log_level_set("wifi",ESP_LOG_ERROR);
+	esp_log_level_set("wifi_init",ESP_LOG_ERROR);
+	esp_log_level_set("mqtt_client",ESP_LOG_ERROR);
+	
 	uint8_t u8Mode = 0x01;
-	uint8_t value = 0x01;
 	uint8_t factory_mode = 0;
 
 	/* Initialize NVS */
@@ -109,9 +115,9 @@ void app_main(void)
 	/* Initialize the Drivers */
 	driver_init();
 
-	eeprom_erase(0x00);
 	factory_mode = eeprom_read_byte(FACTORY_MODE_FLAG_ADDR);
 	printf("factor mode = %x\n", factory_mode);
+
 	if(factory_mode != SELECT_OPERATIONAL_MODE)
 	{
 		if (eeprom_write(FACTORY_MODE_FLAG_ADDR, &u8Mode, 1) != ESP_OK)
@@ -120,7 +126,6 @@ void app_main(void)
 		}
 
 		factor_mode();
-		esp_restart();
 	}
 	else
 	{
@@ -200,13 +205,13 @@ static void factor_mode(void)
 		{
 			/* Connect to MQTT cloud */
 			mqtt_app_start();
-			if(u8CloudConnect)
-                	{
-                        	esp_restart();
-                	}
+			vTaskDelay(7000 / portTICK_PERIOD_MS);
 
 			xEventGroupClearBits(xEventGroup, WIFI_CONNECTED_BIT);
-			vTaskDelay(5000 / portTICK_PERIOD_MS);
+			if(u8CloudConnect)
+			{
+				esp_restart();
+			}
 			break;
 
 		}
@@ -227,7 +232,7 @@ static void factor_mode(void)
 		vTaskDelay(5000 / portTICK_PERIOD_MS);
 
 		mqtt_app_start();
-		vTaskDelay(1000 / portTICK_PERIOD_MS);
+		vTaskDelay(7000 / portTICK_PERIOD_MS);
 
 	}
 
@@ -259,6 +264,9 @@ static void factor_mode(void)
  ******************************************************************************/
 static void driver_init(void)
 {
+	esp_err_t eErrStat;
+	ESP_LOGI("DEBUG", "Free heap before driver init: %" PRIu32, esp_get_free_heap_size());
+
 	/* Initialze I2C driver & bme680 sensor configurations */
 	BME680_task_start();
 
@@ -278,10 +286,21 @@ static void driver_init(void)
 	/* ADC One-Shot Configuration */
 	initialize_mq135_adc();
 
+	/* Initilaize SPI driver */
+	eErrStat = SPI_Init();
+	if (eErrStat != ESP_OK)
+	{
+		ESP_LOGE(SPI_TAG, "SPI initialization failed");
+		return;
+	}
+
+
 	lcd_init();
 
 	rgb_led_init();
-	printf("Compltetd dirver init\n");
+
+	printf("Driver initialize completed\n");
+	ESP_LOGI("DEBUG", "Free heap after driver init: %" PRIu32, esp_get_free_heap_size());
 
 }
 
@@ -313,9 +332,13 @@ static void driver_init(void)
  ******************************************************************************/
 static void operational_mode(void)
 {
-	printf("operation mode this is\n");
+	read_and_print_device_info();
+
 	/* Establish wifi connection */
 	wifi_establish();
+
+	/* Wait for sometime to connect wifi */
+	vTaskDelay(5000 / portTICK_PERIOD_MS);
 
 	/* Initialize drivers */
 	init_ntp();
@@ -324,7 +347,7 @@ static void operational_mode(void)
 	mqtt_app_start();
 
 	/* Wait for sometime to connect with the cloud */
-	vTaskDelay(1000 / portTICK_PERIOD_MS);
+	vTaskDelay(7000 / portTICK_PERIOD_MS);
 
 
 	/* Create Semaphore for Storage Sync */
@@ -361,96 +384,46 @@ static void operational_mode(void)
 
 }
 
-/******************************************************************************
- * Function     : eeprom_rw_test
- *
- * Description  : This function demonstrates reading from and writing to an EEPROM.
- *                It performs the following operations:
- *                1. Writes a 16-byte array (`config_data`) to EEPROM at a specified address.
- *                2. Waits briefly to ensure that the write operation has completed.
- *                3. Reads the same 16-byte data back from the EEPROM.
- *                4. Prints the read data in hexadecimal format to the console for verification.
- *                5. Logs appropriate messages for successful write/read operations and errors.
- *
- *                The EEPROM operations use the `eeprom_write` and `eeprom_read` functions.
- *
- * Parameters   : None
- *
- * Return       : None
- ******************************************************************************/
-static void eeprom_rw_test(void)
-{
-	ESP_LOGI("MAIN", "==== EEPROM DEMO ====");
-
-	uint8_t config_data[16] = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
-		0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F, 0x10};
-
-	uint16_t addr = 0x0100; /* Address to store data */
-
-	ESP_LOGI("MAIN", "Writing to EEPROM at 0x%04X", addr);
-	if(eeprom_write(addr, config_data, sizeof(config_data)) == ESP_OK)
-	{
-		ESP_LOGI("MAIN", "Write successful");
-	}
-
-	vTaskDelay(pdMS_TO_TICKS(10)); /* Ensure EEPROM has finished writing */
-
-	/* Read data back */
-	uint8_t read_data[16] = {0};
-	if (eeprom_read(addr, read_data, sizeof(read_data)) == ESP_OK)
-	{
-		for (int i = 0; i < sizeof(read_data); i++)
-		{
-			printf("0x%02X ", read_data[i]);
-			if ((i + 1) % 8 == 0) printf("\n");
-		}
-		printf("\n");
-	}
-	else
-	{
-		ESP_LOGE("MAIN", "Read failed!");
-	}
-}
-
-/******************************************************************************
- * Function     : eeprom_rw_test
- *
- * Description  : This function demonstrates reading from and writing to an EEPROM.
- *                It performs the following operations:
- *                1. Defines a 16-byte array `config_data` with sample data.
- *                2. Writes the `config_data` to EEPROM at address 0x0100.
- *                3. Waits for a short delay to ensure that the EEPROM write is complete.
- *                4. Reads the 16 bytes of data back from EEPROM at the same address.
- *                5. Prints the read data in hexadecimal format for verification.
- *                6. Logs whether the write and read operations were successful or not.
- *                7. If read operation fails, an error message is logged.
- *
- * Parameters   : None
- *
- * Return       : None
- ******************************************************************************/
 static void wifi_establish(void)
 {
 	char ssid[WIFI_SSID_MAX_LEN] = {0}, password[WIFI_PASS_MAX_LEN] = {0};
 
-	if(wifi_configured)
+	eeprom_read(EEPROM_WIFI_SSID_ADDR, (uint8_t *) ssid, WIFI_SSID_MAX_LEN);
+	vTaskDelay(500 / portTICK_PERIOD_MS);
+	eeprom_read(EEPROM_WIFI_PASS_ADDR, (uint8_t *)password,WIFI_PASS_MAX_LEN);
+
+	wifi_configured = false;
+
+	/* Initialize Wi-Fi with stored credentials */
+	if (strlen(ssid) > 0 && strlen(password) > 0)
 	{
-		eeprom_read(EEPROM_WIFI_SSID_ADDR, (uint8_t *) ssid, WIFI_SSID_MAX_LEN);
-		vTaskDelay(500 / portTICK_PERIOD_MS);
-		eeprom_read(EEPROM_WIFI_PASS_ADDR, (uint8_t *)password,WIFI_PASS_MAX_LEN);
-
-		wifi_configured = false;
-
-		/* Initialize Wi-Fi with stored credentials */
-		if (strlen(ssid) > 0 && strlen(password) > 0)
-		{
-			wifi_init(ssid, password);
-			vTaskDelay(5000 / portTICK_PERIOD_MS);
-		}
-		else
-		{
-			ESP_LOGW("WiFi", "Unable to Find Wi-Fi credentials found!");
-		}
+		wifi_init(ssid, password);
+		vTaskDelay(5000 / portTICK_PERIOD_MS);
 	}
+	else
+	{
+		ESP_LOGW("WiFi", "Unable to Find Wi-Fi credentials found!");
+	}
+}
+void read_and_print_device_info(void)
+{
+
+	printf("================================================================\n");
+	printf("Welcome Fidility Solutions ESP32 IoT Smart AQI Hub System\n");
+
+	/* Read from EEPROM into global structure */
+	eeprom_read(EEPROM_LOCATION_ADDR, (uint8_t *)str_global_sensor_data.alocation, sizeof(str_global_sensor_data.alocation));
+	eeprom_read(HW_VERSION_ADDR, (uint8_t *)str_global_sensor_data.ps8HVersion, sizeof(str_global_sensor_data.ps8HVersion));
+	eeprom_read(SW_VERSION_ADDR, (uint8_t *)str_global_sensor_data.ps8SVersion, sizeof(str_global_sensor_data.ps8SVersion));
+	eeprom_read(EEPROM_DEVICE_NAME_ADDR, (uint8_t *)str_global_sensor_data.as8DeviceId, sizeof(str_global_sensor_data.as8DeviceId));
+
+
+
+	/* Print the information */
+	printf("Hardware version: %s\n", str_global_sensor_data.ps8HVersion);
+	printf("Software version: %s\n", str_global_sensor_data.ps8SVersion);
+	printf("Device ID	: %s\n", str_global_sensor_data.as8DeviceId);
+	printf("Location	: %s\n", str_global_sensor_data.alocation);
+	printf("================================================================\n");
 }
 
