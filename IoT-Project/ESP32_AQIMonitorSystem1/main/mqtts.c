@@ -17,11 +17,21 @@
 
 /* Include Header files */
 #include "mqtts.h"
+#include "eeprom.h"
 #include <time.h>
 #include "main.h"
 #include "cJSON.h"
+#include "esp_timer.h"
+#include <nvs_flash.h>
 uint8_t u8CloudConnect = 1;
-const char* client_key_pem = 
+
+#define CONFIG_BLE 
+#ifndef CONFIG_BLE
+char* aws_cert = NULL;
+char* aws_key = NULL;
+char* aws_endpoint = NULL;
+#else
+char* aws_key = 
 "-----BEGIN RSA PRIVATE KEY-----\n" \
 		"MIIEowIBAAKCAQEAv+1kRKXOflr9+71IHwEHvEGwwVXLKgJagtMpjCyVax/dbWYm\n" \
 		"LLJqB97DNXqeXHzPZojR/KplarARSsAmQVD8pqcIHb1MDPn2DxRMKXxqKKIk/aiL\n" \
@@ -49,7 +59,7 @@ const char* client_key_pem =
 		"Rjw3mmwv6JFByBJdVmdBwyszeJX1ufC4T8FUqKXGyZveIMamolvIqxXll+s1xbm1\n" \
 		"IISXUUGz8r8L1kQz0lY9mrzFesNfQYicjKD1vzdm4FS2Rxt7j8EY\n" \
 		"-----END RSA PRIVATE KEY-----\n";
-const char* client_cert_pem = 
+char* aws_cert = 
 "-----BEGIN CERTIFICATE-----\n" \
 		"MIIDWjCCAkKgAwIBAgIVAM0jQsgNtHQlcK1jDWlGFvIyF4lFMA0GCSqGSIb3DQEB\n" \
 		"CwUAME0xSzBJBgNVBAsMQkFtYXpvbiBXZWIgU2VydmljZXMgTz1BbWF6b24uY29t\n" \
@@ -71,7 +81,7 @@ const char* client_cert_pem =
 		"lDK90f+3djUJho0rhp8oYgJKvCPK3CiqPkzWwKz/cJOym4835psmWeFcMTY0qA==\n" \
 		"-----END CERTIFICATE-----\n";
 
-const char* aws_root_ca_pem =
+char* aws_endpoint =
 "-----BEGIN CERTIFICATE-----\n" \
 		"MIIDQTCCAimgAwIBAgITBmyfz5m/jAo54vB4ikPmljZbyjANBgkqhkiG9w0BAQsF\n" \
 		"ADA5MQswCQYDVQQGEwJVUzEPMA0GA1UEChMGQW1hem9uMRkwFwYDVQQDExBBbWF6\n" \
@@ -92,12 +102,27 @@ const char* aws_root_ca_pem =
 		"5MsI+yMRQ+hDKXJioaldXgjUkK642M4UwtBV8ob2xJNDd2ZhwLnoQdeXeGADbkpy\n" \
 		"rqXRfboQnoZsG4q5WTP468SQvvG5\n" \
 		"-----END CERTIFICATE-----\n";
+#endif
 
-
+static void control_command(const char *ps8Data, uint32_t u32DataLen);
 esp_mqtt_client_handle_t mqtt_client_handle = NULL;
 
 static SemaphoreHandle_t spi_mutex;
 
+void configure_mqtt_dynamic();
+
+bool read_from_eeprom_dynamic(uint32_t sizeAddress, uint32_t dataAddress, char** outBuffer);
+
+
+uint32_t u32LastPublishedTime = 0;  		/* Tracks the last publish time */
+
+uint32_t u32SetPublishInterval = 60000;  	/* 1 min (in milliseconds) */
+
+
+unsigned long millis() 
+{
+	return esp_timer_get_time() / 1000;  		/* Convert microseconds to milliseconds */
+}
 /*
  * Function     : dataSendCloudTask()
  *
@@ -114,38 +139,211 @@ static SemaphoreHandle_t spi_mutex;
  *                them to the cloud when necessary. It utilizes a semaphore to ensure safe access to 
  *                shared sensor data and avoid race conditions.
  */
+
+
+void configure_mqtt_dynamic()
+{
+	if (!read_from_eeprom_dynamic(EEPROM_AWS_CERT_SIZE_ADDR, EEPROM_AWS_CERT_ADDR, &aws_cert)) 
+	{
+		ESP_LOGE("BLE_TAG", "Failed to read AWS certificate");
+		return;
+	}
+
+	/* Read AWS private key */
+	if (!read_from_eeprom_dynamic(EEPROM_AWS_KEY_SIZE_ADDR, EEPROM_AWS_KEY_ADDR, &aws_key)) 
+	{
+		ESP_LOGE("BLE_TAG", "Failed to read AWS private key");
+		free(aws_cert); 
+		return;
+	}
+
+	/* Read AWS endpoint */
+	if (!read_from_eeprom_dynamic(EEPROM_AWS_ENDPOINT_SIZE_ADDR, EEPROM_AWS_ENDPOINT_ADDR, &aws_endpoint)) 
+	{
+		ESP_LOGE("BLE_TAG", "Failed to read AWS endpoint");
+		free(aws_cert);
+		free(aws_key);
+		return;
+	}
+
+	ESP_LOGI("BLE_TAG", "AWS Certificate:\n%s", aws_cert);
+	ESP_LOGI("BLE_TAG", "AWS Private Key:\n%s", aws_key);
+	ESP_LOGI("BLE_TAG", "AWS Endpoint:\n%s", aws_endpoint);
+
+}
+
+bool read_from_eeprom_dynamic(uint32_t sizeAddress, uint32_t dataAddress, char** outBuffer) 
+{
+	uint32_t u32ChunkData = 0;
+
+	/* Read the size of the data from EEPROM */
+	if (eeprom_read(sizeAddress, (uint8_t*)&u32ChunkData, sizeof(u32ChunkData)) != 0) 
+	{
+		ESP_LOGE("BLE_TAG", "Failed to read data size from EEPROM address 0x%lx", (unsigned long)sizeAddress);
+		return false;
+	}
+
+
+	/* Allocate memory for the data */
+	*outBuffer = (char*)malloc(u32ChunkData + 1);  /* +1 for null-termination */
+	if (*outBuffer == NULL) 
+	{
+		ESP_LOGE("BLE_TAG", "Failed to allocate memory for data");
+		return false;
+	}
+
+	/* Read the actual data from EEPROM */
+	if (eeprom_read(dataAddress, (uint8_t*)*outBuffer, u32ChunkData) != 0) 
+	{
+		ESP_LOGE("BLE_TAG", "Failed to read data from EEPROM address 0x%lx", (unsigned long)dataAddress);
+		free(*outBuffer);
+		*outBuffer = NULL;
+		return false;
+	}
+
+	/* Null-terminate the data for safety */
+	(*outBuffer)[u32ChunkData] = '\0';
+	ESP_LOGI("BLE_TAG", "Successfully read %lu bytes of data frCom EEPROM address 0x%lx", 
+			(unsigned long)u32ChunkData, (unsigned long)dataAddress);
+
+	return true;
+}
+
+
+static void control_command(const char *ps8Data, uint32_t u32DataLen)
+{
+
+	/* Allocate memory dynamically for JSON data */
+	char *ps8JsonData = (char *)malloc(u32DataLen + 1); /* +1 for null-termination */
+	if (!ps8JsonData)
+	{
+		ESP_LOGE(MQTTS_TAG, "Failed to allocate memory for JSON parsing");
+		return;
+	}
+
+	/* Copy data into the allocated memory and null-terminate */
+	memcpy(ps8JsonData, ps8Data, u32DataLen);
+	ps8JsonData[u32DataLen] = '\0'; /* Ensure null-termination */
+
+	/* Parse JSON */
+	cJSON *root = cJSON_Parse(ps8JsonData);
+	if (!root)
+	{
+		ESP_LOGE(MQTTS_TAG, "Failed to parse JSON");
+		free(ps8JsonData); /* Free allocated memory before returning */
+		return;
+	}
+	/* Parse and handle the 'action' field */
+	cJSON *action = cJSON_GetObjectItem(root, "action");
+	if (cJSON_IsString(action))
+	{
+		if (strcmp(action->valuestring, "setInterval") == 0)
+		{
+			cJSON *interval = cJSON_GetObjectItem(root, "interval");
+			if (cJSON_IsNumber(interval))
+			{
+
+				/* Map intervals to seconds */
+				switch ((int)interval->valuedouble)
+				{
+					case 1:
+						u32SetPublishInterval = 1 * 1000;
+						ESP_LOGI(MQTTS_TAG, "Interval set to 1 second");
+						break;
+					case 2:
+						u32SetPublishInterval = 2 * 1000;
+						ESP_LOGI(MQTTS_TAG, "Interval set to 2 seconds");
+						break;
+					case 5:
+						u32SetPublishInterval = 5 * 1000;
+						ESP_LOGI(MQTTS_TAG, "Interval set to 5 seconds");
+						break;
+					case 60:
+						u32SetPublishInterval = 60 * 1000;
+						ESP_LOGI(MQTTS_TAG, "Interval set to 1 minute");
+						break;
+					case 120:
+						u32SetPublishInterval = 120 * 1000;
+						ESP_LOGI(MQTTS_TAG, "Interval set to 2 minutes");
+						break;
+					case 300:
+						u32SetPublishInterval = 300 * 1000;
+						ESP_LOGI(MQTTS_TAG, "Interval set to 5 minutes");
+						break;
+					default:
+						ESP_LOGW(MQTTS_TAG, "Unsupported interval: %d", (int)interval->valuedouble);
+						break;
+				}
+
+			}
+			else
+			{
+				ESP_LOGW(MQTTS_TAG, "Invalid or missing 'interval' field");
+			}
+		}
+		else if (strcmp(action->valuestring, "eraseEEPROM") == 0)
+		{
+			ESP_LOGI(MQTTS_TAG, "EEPROM erase command received");
+			erase_eeprom_chip();
+			nvs_flash_erase();
+			esp_restart();
+		}
+		else
+		{
+			ESP_LOGW(MQTTS_TAG, "Unsupported action: %s", action->valuestring);
+		}
+	}
+	else
+	{
+		ESP_LOGW(MQTTS_TAG, "Missing or invalid 'action' field");
+	}
+
+	cJSON_Delete(root);  /* Free cJSON object */
+	free(ps8JsonData);     /* Free allocated memory */
+}
+
+
 void dataSendCloudTask(void *pvParameters)
 {
 	char *ps8JsonStr;
 	STR_SENSOR_DATA str_sensor_local_copy;  		/* Local copy for safe access */
 	static STR_SENSOR_DATA last_sent_sensor_data = {0};  	/* Store last sent data */
+	uint32_t u32CurrentTime = millis();
+
 
 	while (1)
 	{
-		if ((gu8wificonnectedflag == 1) && (gu8mqttstartedflag == 1))
+		/* Get the current time (in milliseconds) */
+		unsigned long u32CurrentTime = millis();  /* Or use another method to get the current time in ms */
+		/* If the desired interval has passed, send the data */
+		if (u32CurrentTime - u32LastPublishedTime >= u32SetPublishInterval)
 		{
-			/* Lock before reading shared data */
-			if (xSemaphoreTake(dataSyncSemaphore, portMAX_DELAY))
+			if ((gu8wificonnectedflag == 1) && (gu8mqttstartedflag == 1))
 			{
-				/* Copy shared data safely */
-				memcpy(&str_sensor_local_copy, &str_global_sensor_data, sizeof(STR_SENSOR_DATA));
-
-				/* Compare previous data and send only if updated */
-				if (memcmp(&last_sent_sensor_data, &str_sensor_local_copy, sizeof(STR_SENSOR_DATA)) != 0)
+				/* Lock before reading shared data */
+				if (xSemaphoreTake(dataSyncSemaphore, portMAX_DELAY))
 				{
-					/* Send latest data */
-					publish_sensor_data(&str_sensor_local_copy, mqtt_client_handle);
+					/* Copy shared data safely */
+					memcpy(&str_sensor_local_copy, &str_global_sensor_data, sizeof(STR_SENSOR_DATA));
 
-					/* Update last sent data */
-					memcpy(&last_sent_sensor_data, &str_sensor_local_copy, sizeof(STR_SENSOR_DATA));
+					/* Compare previous data and send only if updated */
+					if (memcmp(&last_sent_sensor_data, &str_sensor_local_copy, sizeof(STR_SENSOR_DATA)) != 0)
+					{
+						/* Send latest data */
+						publish_sensor_data(&str_sensor_local_copy, mqtt_client_handle);
+
+						/* Update last sent data */
+						memcpy(&last_sent_sensor_data, &str_sensor_local_copy, sizeof(STR_SENSOR_DATA));
+					}
+
+					/* Release lock AFTER publishing */
+					xSemaphoreGive(dataSyncSemaphore);
 				}
-
-				/* Release lock AFTER publishing */
-				xSemaphoreGive(dataSyncSemaphore);
 			}
+			/* Update the last publish time */
+			u32LastPublishedTime = u32CurrentTime;
 		}
-
-		vTaskDelay(500 / portTICK_PERIOD_MS);
+		vTaskDelay(100 / portTICK_PERIOD_MS);
 	}
 }
 
@@ -181,7 +379,7 @@ void publish_sensor_data(STR_SENSOR_DATA *pstrData, esp_mqtt_client_handle_t cli
 	cJSON_AddNumberToObject(root, "co2", pstrData->bme680.u16GasRes);
 	cJSON_AddNumberToObject(root, "pm25", pstrData->sds011.u16PM25Val);
 	cJSON_AddNumberToObject(root, "pm10", pstrData->sds011.u16PM10Val);
-	cJSON_AddStringToObject(root, "location", "Electronic City");
+	cJSON_AddStringToObject(root, "location", pstrData->alocation);
 
 	/* Convert timestamp to epoch */
 	struct tm time_info;
@@ -243,6 +441,13 @@ void publish_sensor_data(STR_SENSOR_DATA *pstrData, esp_mqtt_client_handle_t cli
  */
 static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data)
 {
+	char u8Location[32];
+	eeprom_read(EEPROM_LOCATION_ADDR, (uint8_t *) &u8Location, sizeof(u8Location));
+
+	/* Dynamically create the topic string */
+	char s8Topic[64];
+	sprintf(s8Topic, "esp32/%s/control", u8Location);
+
 	esp_mqtt_event_handle_t event = event_data;
 	esp_mqtt_client_handle_t client = event->client;
 
@@ -250,12 +455,13 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 	{
 		case MQTT_EVENT_CONNECTED:
 			ESP_LOGI(MQTTS_TAG, "MQTT Connected!");
-			esp_mqtt_client_subscribe(client, "command/data", 1);
+			esp_mqtt_client_subscribe(client, s8Topic, 1);
 			u8CloudConnect = 1;
 			break;
 
 		case MQTT_EVENT_DISCONNECTED:
 			ESP_LOGW(MQTTS_TAG, "MQTT Disconnected.");
+			esp_mqtt_client_reconnect(client);
 			break;
 
 		case MQTT_EVENT_ERROR:
@@ -277,6 +483,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 		case MQTT_EVENT_DATA:
 			ESP_LOGI(MQTTS_TAG, "MQTT Data Received: Topic=%.*s Data=%.*s",
 					event->topic_len, event->topic, event->data_len, event->data);
+			control_command(event->data, event->data_len);
 			break;
 
 		default:
@@ -305,26 +512,29 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
  */
 void mqtt_app_start(void)
 {
+#ifndef CONFIG_BLE
+	configure_mqtt_dynamic();
+#endif
 
 	/* Initialize the MQTT client configuration */
 	esp_mqtt_client_config_t mqtt_config = 
 	{
 		.broker = 
 		{
-			.address.uri = "mqtts://a2uhwtdvqf6gg0-ats.iot.ap-south-1.amazonaws.com",
-			.verification.certificate = aws_root_ca_pem,
+			.address.uri ="mqtts://a2uhwtdvqf6gg0-ats.iot.ap-south-1.amazonaws.com",
+			.verification.certificate = aws_endpoint,
 		},
 		.credentials = 
 		{
 			.authentication = 
 			{
-				.certificate = client_cert_pem,
-				.key = client_key_pem,
+				.certificate = aws_cert,
+				.key = aws_key,
 			},
 		},
 		.network = 
 		{
-			.timeout_ms = 2000, /* Set timeout for network operations to 2 seconds */
+			.timeout_ms = 2000, 
 		},
 	};
 
@@ -333,3 +543,4 @@ void mqtt_app_start(void)
 	esp_mqtt_client_start(mqtt_client_handle);
 	//mqtt_started_flag = 1;
 }
+
