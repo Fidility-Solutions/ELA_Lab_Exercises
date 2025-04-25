@@ -166,7 +166,7 @@ void update_current_time(void)
 	time(&now);
 
 	/* Log the raw UTC time for debugging */
-	ESP_LOGI(NTP_TAG, "Raw UTC time: %s", ctime(&now));
+	/* ESP_LOGI(NTP_TAG, "Raw UTC time: %s", ctime(&now)); */
 
 	/* Convert to local time (IST, as set in init_ntp()) */
 	localtime_r(&now, &timeinfo);
