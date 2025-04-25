@@ -22,15 +22,16 @@
 #include "main.h"
 #include "cJSON.h"
 #include "esp_timer.h"
-
+#include <nvs_flash.h>
 uint8_t u8CloudConnect = 1;
 
+#define CONFIG_BLE 
 #ifndef CONFIG_BLE
 char* aws_cert = NULL;
 char* aws_key = NULL;
 char* aws_endpoint = NULL;
 #else
-const char* aws_cert = 
+char* aws_key = 
 "-----BEGIN RSA PRIVATE KEY-----\n" \
 		"MIIEowIBAAKCAQEAv+1kRKXOflr9+71IHwEHvEGwwVXLKgJagtMpjCyVax/dbWYm\n" \
 		"LLJqB97DNXqeXHzPZojR/KplarARSsAmQVD8pqcIHb1MDPn2DxRMKXxqKKIk/aiL\n" \
@@ -58,7 +59,7 @@ const char* aws_cert =
 		"Rjw3mmwv6JFByBJdVmdBwyszeJX1ufC4T8FUqKXGyZveIMamolvIqxXll+s1xbm1\n" \
 		"IISXUUGz8r8L1kQz0lY9mrzFesNfQYicjKD1vzdm4FS2Rxt7j8EY\n" \
 		"-----END RSA PRIVATE KEY-----\n";
-const char* aws_key = 
+char* aws_cert = 
 "-----BEGIN CERTIFICATE-----\n" \
 		"MIIDWjCCAkKgAwIBAgIVAM0jQsgNtHQlcK1jDWlGFvIyF4lFMA0GCSqGSIb3DQEB\n" \
 		"CwUAME0xSzBJBgNVBAsMQkFtYXpvbiBXZWIgU2VydmljZXMgTz1BbWF6b24uY29t\n" \
@@ -80,7 +81,7 @@ const char* aws_key =
 		"lDK90f+3djUJho0rhp8oYgJKvCPK3CiqPkzWwKz/cJOym4835psmWeFcMTY0qA==\n" \
 		"-----END CERTIFICATE-----\n";
 
-const char* aws_endpoint =
+char* aws_endpoint =
 "-----BEGIN CERTIFICATE-----\n" \
 		"MIIDQTCCAimgAwIBAgITBmyfz5m/jAo54vB4ikPmljZbyjANBgkqhkiG9w0BAQsF\n" \
 		"ADA5MQswCQYDVQQGEwJVUzEPMA0GA1UEChMGQW1hem9uMRkwFwYDVQQDExBBbWF6\n" \
@@ -115,7 +116,7 @@ bool read_from_eeprom_dynamic(uint32_t sizeAddress, uint32_t dataAddress, char**
 
 uint32_t u32LastPublishedTime = 0;  		/* Tracks the last publish time */
 
-uint32_t u32SetPublishInterval = 10000;  	/* 10 seconds (in milliseconds) */
+uint32_t u32SetPublishInterval = 60000;  	/* 1 min (in milliseconds) */
 
 
 unsigned long millis() 
@@ -211,7 +212,6 @@ bool read_from_eeprom_dynamic(uint32_t sizeAddress, uint32_t dataAddress, char**
 
 static void control_command(const char *ps8Data, uint32_t u32DataLen)
 {
-	printf("\nControl Command\n");
 
 	/* Allocate memory dynamically for JSON data */
 	char *ps8JsonData = (char *)malloc(u32DataLen + 1); /* +1 for null-termination */
@@ -285,6 +285,8 @@ static void control_command(const char *ps8Data, uint32_t u32DataLen)
 		{
 			ESP_LOGI(MQTTS_TAG, "EEPROM erase command received");
 			erase_eeprom_chip();
+			nvs_flash_erase();
+			esp_restart();
 		}
 		else
 		{
@@ -313,7 +315,6 @@ void dataSendCloudTask(void *pvParameters)
 	{
 		/* Get the current time (in milliseconds) */
 		unsigned long u32CurrentTime = millis();  /* Or use another method to get the current time in ms */
-		ESP_LOGI("BLE_TAG", "Timer global variable:%d\n",(unsigned int)u32SetPublishInterval);
 		/* If the desired interval has passed, send the data */
 		if (u32CurrentTime - u32LastPublishedTime >= u32SetPublishInterval)
 		{
@@ -378,7 +379,7 @@ void publish_sensor_data(STR_SENSOR_DATA *pstrData, esp_mqtt_client_handle_t cli
 	cJSON_AddNumberToObject(root, "co2", pstrData->bme680.u16GasRes);
 	cJSON_AddNumberToObject(root, "pm25", pstrData->sds011.u16PM25Val);
 	cJSON_AddNumberToObject(root, "pm10", pstrData->sds011.u16PM10Val);
-	cJSON_AddStringToObject(root, "location", "Electronic City");
+	cJSON_AddStringToObject(root, "location", pstrData->alocation);
 
 	/* Convert timestamp to epoch */
 	struct tm time_info;
