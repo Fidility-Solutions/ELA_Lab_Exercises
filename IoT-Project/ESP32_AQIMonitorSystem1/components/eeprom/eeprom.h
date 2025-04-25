@@ -20,7 +20,6 @@
 
 /* EEPROM Configuration */
 #define EEPROM_I2C_ADDRESS              0x50
-#define EEPROM_PAGE_SIZE                128
 
 /* EEPROM Address Mapping */
 #define FACTORY_MODE_FLAG_ADDR          0x00   /* 1 byte */
@@ -39,11 +38,18 @@
 
 
 /* AWS IoT Credentials */
-#define EEPROM_AWS_CERT_ADDR            0x19E  /* 512 bytes */
-#define EEPROM_AWS_KEY_ADDR             0x39E  /* 512 bytes */
-#define EEPROM_AWS_ENDPOINT_ADDR        0x59E  /* 128 bytes */
-#define EEPROM_AWS_THING_NAME_ADDR      0x61E  /* 64 bytes */
-#define EEPROM_AWS_POLICY_NAME_ADDR     0x65E  /* 64 bytes */
+#define EEPROM_AWS_CERT_ADDR            0x19E  				/* Starting address for the certificate */
+#define EEPROM_AWS_CERT_SIZE_ADDR       (EEPROM_AWS_CERT_ADDR - 0x04) 	/* Address for storing certificate size */
+#define EEPROM_AWS_KEY_ADDR             (EEPROM_AWS_CERT_ADDR + 0x6A4)  /* 1700 bytes gap for private key */
+#define EEPROM_AWS_KEY_SIZE_ADDR        (EEPROM_AWS_KEY_ADDR - 0x04) 	/* Address for storing private key size */
+#define EEPROM_AWS_ENDPOINT_ADDR        (EEPROM_AWS_KEY_ADDR + 0x6A4) 	/* 1700 bytes gap for endpoint */
+#define EEPROM_AWS_ENDPOINT_SIZE_ADDR   (EEPROM_AWS_ENDPOINT_ADDR - 0x04) /* Address for storing endpoint size */
+#define EEPROM_AWS_THING_NAME_ADDR      0x61E  				/* 64 bytes */
+#define EEPROM_AWS_POLICY_NAME_ADDR     0x65E  				/* 64 bytes */
+#define EEPROM_START_ADDR  		0x00           			/* Starting address of EEPROM */
+#define EEPROM_TOTAL_SIZE  		32768          			/* Total size of EEPROM in bytes (e.g., 32KB) */
+#define EEPROM_PAGE_SIZE   		64             			/* EEPROM page size in bytes */
+
 
 /* Debugging */
 #define EEPROM_TAG "EEPROM_DRIVER"
@@ -56,4 +62,11 @@ esp_err_t eeprom_read(uint16_t u16ChipAddr, uint8_t *pu8Data, uint64_t u16DataLe
 bool detect_eeprom(void);
 esp_err_t eeprom_erase(uint16_t u16ChipAddr);
 uint8_t eeprom_read_byte(uint16_t u16Memaddr);
+void erase_eeprom_chip(void);
+
+
+
+
+
+
 #endif /* EEPROM_H */
