@@ -3,7 +3,8 @@
 
 /* Header files */
 #pragma once
-#include "event_manager.h"
+#include <stdbool.h>
+
 
 /* Define Macros */
 #define CONFIG_SERVICE_UUID    	0x00FF
@@ -18,7 +19,7 @@
 
 #define BLE_TAG 		"BLE"
 #define MAX_CRED_SIZE      	32
-
+#define EEPROM_SIZE 		2048  /* Define the total EEPROM size */
 
 /* Global Variables */
 extern bool wifi_configured;
