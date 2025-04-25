@@ -96,6 +96,9 @@ void app_main(void)
 {
 	esp_log_level_set("gpio", ESP_LOG_ERROR);
 	esp_log_level_set("EEPROM_DRIVER",ESP_LOG_ERROR);
+	esp_log_level_set("wifi",ESP_LOG_ERROR);
+	esp_log_level_set("wifi_init",ESP_LOG_ERROR);
+	esp_log_level_set("mqtt_client",ESP_LOG_ERROR);
 	uint8_t u8Mode = 0x01;
 	uint8_t factory_mode = 0;
 
@@ -111,7 +114,6 @@ void app_main(void)
 	/* Initialize the Drivers */
 	driver_init();
 
-	eeprom_erase(0x00);
 	factory_mode = eeprom_read_byte(FACTORY_MODE_FLAG_ADDR);
 	printf("factor mode = %x\n", factory_mode);
 
@@ -263,7 +265,7 @@ static void driver_init(void)
 {
 	esp_err_t eErrStat;
 	ESP_LOGI("DEBUG", "Free heap before driver init: %" PRIu32, esp_get_free_heap_size());
-	
+
 	/* Initialze I2C driver & bme680 sensor configurations */
 	BME680_task_start();
 
@@ -385,24 +387,21 @@ static void wifi_establish(void)
 {
 	char ssid[WIFI_SSID_MAX_LEN] = {0}, password[WIFI_PASS_MAX_LEN] = {0};
 
-	if(wifi_configured)
+	eeprom_read(EEPROM_WIFI_SSID_ADDR, (uint8_t *) ssid, WIFI_SSID_MAX_LEN);
+	vTaskDelay(500 / portTICK_PERIOD_MS);
+	eeprom_read(EEPROM_WIFI_PASS_ADDR, (uint8_t *)password,WIFI_PASS_MAX_LEN);
+
+	wifi_configured = false;
+
+	/* Initialize Wi-Fi with stored credentials */
+	if (strlen(ssid) > 0 && strlen(password) > 0)
 	{
-		eeprom_read(EEPROM_WIFI_SSID_ADDR, (uint8_t *) ssid, WIFI_SSID_MAX_LEN);
-		vTaskDelay(500 / portTICK_PERIOD_MS);
-		eeprom_read(EEPROM_WIFI_PASS_ADDR, (uint8_t *)password,WIFI_PASS_MAX_LEN);
-
-		wifi_configured = false;
-
-		/* Initialize Wi-Fi with stored credentials */
-		if (strlen(ssid) > 0 && strlen(password) > 0)
-		{
-			wifi_init(ssid, password);
-			vTaskDelay(5000 / portTICK_PERIOD_MS);
-		}
-		else
-		{
-			ESP_LOGW("WiFi", "Unable to Find Wi-Fi credentials found!");
-		}
+		wifi_init(ssid, password);
+		vTaskDelay(5000 / portTICK_PERIOD_MS);
+	}
+	else
+	{
+		ESP_LOGW("WiFi", "Unable to Find Wi-Fi credentials found!");
 	}
 }
 void read_and_print_device_info(void)

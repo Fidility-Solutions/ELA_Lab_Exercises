@@ -177,6 +177,8 @@ void wifi_event_handler(void *pArg, esp_event_base_t event_base, int32_t u32Even
  */
 void wifi_init(const char *ps8SSID, const char *ps8Password)
 {
+	ESP_LOGI(WIFI_TAG, "Wi-Fi initializing...");
+
 	/* Initialize the underlying TCP/IP stack */
 	ESP_ERROR_CHECK(esp_netif_init());
 	ESP_ERROR_CHECK(esp_event_loop_create_default());
