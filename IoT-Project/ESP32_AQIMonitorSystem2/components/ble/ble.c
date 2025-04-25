@@ -509,7 +509,6 @@ static void apply_software_version(const char *sw_version)
  *******************************************************************************/
 static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param)
 {
-	printf("This is event handler: %d\n", event);
 	switch(event)
 	{
 		case ESP_GAP_BLE_ADV_DATA_SET_COMPLETE_EVT:
