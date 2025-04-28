@@ -23,14 +23,39 @@
 #include "cJSON.h"
 #include "esp_timer.h"
 #include <nvs_flash.h>
+
+/* Macros */
+#define CONFIG_BLE 
+
+/* Global variables */
 uint8_t u8CloudConnect = 1;
 
-#define CONFIG_BLE 
+uint32_t u32LastPublishedTime = 0;              /* Tracks the last publish time */
+
+uint32_t u32SetPublishInterval = 60000;         /* 1 min (in milliseconds) */
+
+/* Structures */
+esp_mqtt_client_handle_t mqtt_client_handle = NULL;
+
+
+/* Static function prototypes */
+static SemaphoreHandle_t spi_mutex;
+
+static void control_command(const char *ps8Data, uint32_t u32DataLen);
+
+static void configure_mqtt_dynamic();
+
+static bool read_from_eeprom_dynamic(uint32_t sizeAddress, uint32_t dataAddress, char** outBuffer);
+
+
+
+/* Setting aws keys from BLE */
 #ifndef CONFIG_BLE
+
 char* aws_cert = NULL;
 char* aws_key = NULL;
 char* aws_endpoint = NULL;
-#else
+#else /* Manual AWS keys configuration */
 char* aws_key = 
 "-----BEGIN RSA PRIVATE KEY-----\n" \
 		"MIIEowIBAAKCAQEAv+1kRKXOflr9+71IHwEHvEGwwVXLKgJagtMpjCyVax/dbWYm\n" \
@@ -104,25 +129,12 @@ char* aws_endpoint =
 		"-----END CERTIFICATE-----\n";
 #endif
 
-static void control_command(const char *ps8Data, uint32_t u32DataLen);
-esp_mqtt_client_handle_t mqtt_client_handle = NULL;
-
-static SemaphoreHandle_t spi_mutex;
-
-void configure_mqtt_dynamic();
-
-bool read_from_eeprom_dynamic(uint32_t sizeAddress, uint32_t dataAddress, char** outBuffer);
-
-
-uint32_t u32LastPublishedTime = 0;  		/* Tracks the last publish time */
-
-uint32_t u32SetPublishInterval = 60000;  	/* 1 min (in milliseconds) */
-
 
 unsigned long millis() 
 {
 	return esp_timer_get_time() / 1000;  		/* Convert microseconds to milliseconds */
 }
+
 /*
  * Function     : dataSendCloudTask()
  *
@@ -141,7 +153,7 @@ unsigned long millis()
  */
 
 
-void configure_mqtt_dynamic()
+static void configure_mqtt_dynamic()
 {
 	if (!read_from_eeprom_dynamic(EEPROM_AWS_CERT_SIZE_ADDR, EEPROM_AWS_CERT_ADDR, &aws_cert)) 
 	{
@@ -172,7 +184,7 @@ void configure_mqtt_dynamic()
 
 }
 
-bool read_from_eeprom_dynamic(uint32_t sizeAddress, uint32_t dataAddress, char** outBuffer) 
+static bool read_from_eeprom_dynamic(uint32_t sizeAddress, uint32_t dataAddress, char** outBuffer) 
 {
 	uint32_t u32ChunkData = 0;
 
