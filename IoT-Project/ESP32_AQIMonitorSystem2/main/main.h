@@ -20,8 +20,8 @@
 #pragma pack(push, 1)
 
 extern int raw_value;
-/* BME680 sensor data collection structure */
 
+/* BME680 sensor data collection structure */
 typedef struct
 {
     float f32Temperature;   	/* 4 bytes 	*/
@@ -60,9 +60,6 @@ extern EventGroupHandle_t wifi_event_group;
 
 
 /* Function prototypes */
-
-void configure_mqtt_dynamic();
-
 void data_processing_task(void *pvParameters);
 
 void command_receive_task(void *pvParameters);
