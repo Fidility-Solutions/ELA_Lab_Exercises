@@ -118,7 +118,7 @@ void dataDisplayTask(void *pvParameters)
 				if (u8CurLine2 < DISPLAY_WIDTH)
 				{
 					/* Move cursor on the second line */
-					lcd_send_command(LCD_SECOND_LINE + u8CurLine1);
+					lcd_send_command(LCD_SECOND_LINE + u8CurLine2);
 
 					/* Print character */
 					lcd_send_byte(s8Buffer2[i], false);

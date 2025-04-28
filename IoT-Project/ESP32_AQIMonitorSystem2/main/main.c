@@ -99,6 +99,7 @@ void app_main(void)
 	esp_log_level_set("wifi",ESP_LOG_ERROR);
 	esp_log_level_set("wifi_init",ESP_LOG_ERROR);
 	esp_log_level_set("mqtt_client",ESP_LOG_ERROR);
+	
 	uint8_t u8Mode = 0x01;
 	uint8_t factory_mode = 0;
 
