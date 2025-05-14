@@ -70,7 +70,7 @@ void dataDisplayTask(void *pvParameters)
 						lcd_send_byte(' ', false);
 					}
 				}
-				
+
 				vTaskDelay(LCD_CMD_DELAY_300);
 			}
 		}
@@ -85,7 +85,7 @@ void dataDisplayTask(void *pvParameters)
 
 			lcd_send_command(LCD_CLEAR_DISPLAY);
 			vTaskDelay(LCD_CMD_DELAY_20);
-			
+
 			uint8_t u8CurLine1 = 0; /* Cursor for the first line */
 			uint8_t u8CurLine2 = 0; /* Cursor for the second line */
 

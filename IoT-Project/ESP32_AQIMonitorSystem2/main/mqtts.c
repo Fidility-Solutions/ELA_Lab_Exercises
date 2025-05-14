@@ -24,31 +24,13 @@
 #include "esp_timer.h"
 #include <nvs_flash.h>
 
-/* Macros */
-#define CONFIG_BLE 
 
-/* Global variables */
+
+/* Global Variables */
 uint8_t u8CloudConnect = 1;
 
-uint32_t u32LastPublishedTime = 0;              /* Tracks the last publish time */
-
-uint32_t u32SetPublishInterval = 60000;         /* 1 min (in milliseconds) */
-
-/* Structures */
-esp_mqtt_client_handle_t mqtt_client_handle = NULL;
-
-
-/* Static function prototypes */
-static SemaphoreHandle_t spi_mutex;
-
-static void control_command(const char *ps8Data, uint32_t u32DataLen);
-
-static void configure_mqtt_dynamic();
-
-static bool read_from_eeprom_dynamic(uint32_t sizeAddress, uint32_t dataAddress, char** outBuffer);
-
-
-
+/* Macros */
+#define CONFIG_BLE 
 /* Setting aws keys from BLE */
 #ifndef CONFIG_BLE
 
@@ -129,8 +111,23 @@ char* aws_endpoint =
 		"-----END CERTIFICATE-----\n";
 #endif
 
+static void control_command(const char *ps8Data, uint32_t u32DataLen);
+esp_mqtt_client_handle_t mqtt_client_handle = NULL;
 
-unsigned long millis() 
+static SemaphoreHandle_t spi_mutex;
+
+void configure_mqtt_dynamic();
+
+bool read_from_eeprom_dynamic(uint32_t sizeAddress, uint32_t dataAddress, char** outBuffer);
+
+
+uint32_t u32LastPublishedTime = 0;  		/* Tracks the last publish time */
+
+uint32_t u32SetPublishInterval = 1000;  	/* 1 min (in milliseconds) */
+
+uint32_t u32CurrentTime = 0;
+
+uint32_t millis() 
 {
 	return esp_timer_get_time() / 1000;  		/* Convert microseconds to milliseconds */
 }
@@ -153,7 +150,7 @@ unsigned long millis()
  */
 
 
-static void configure_mqtt_dynamic()
+void configure_mqtt_dynamic()
 {
 	if (!read_from_eeprom_dynamic(EEPROM_AWS_CERT_SIZE_ADDR, EEPROM_AWS_CERT_ADDR, &aws_cert)) 
 	{
@@ -184,7 +181,7 @@ static void configure_mqtt_dynamic()
 
 }
 
-static bool read_from_eeprom_dynamic(uint32_t sizeAddress, uint32_t dataAddress, char** outBuffer) 
+bool read_from_eeprom_dynamic(uint32_t sizeAddress, uint32_t dataAddress, char** outBuffer) 
 {
 	uint32_t u32ChunkData = 0;
 
@@ -320,13 +317,12 @@ void dataSendCloudTask(void *pvParameters)
 	char *ps8JsonStr;
 	STR_SENSOR_DATA str_sensor_local_copy;  		/* Local copy for safe access */
 	static STR_SENSOR_DATA last_sent_sensor_data = {0};  	/* Store last sent data */
-	uint32_t u32CurrentTime = millis();
 
 
 	while (1)
 	{
 		/* Get the current time (in milliseconds) */
-		unsigned long u32CurrentTime = millis();  /* Or use another method to get the current time in ms */
+		u32CurrentTime = millis();  /* Or use another method to get the current time in ms */
 		/* If the desired interval has passed, send the data */
 		if (u32CurrentTime - u32LastPublishedTime >= u32SetPublishInterval)
 		{
@@ -553,6 +549,5 @@ void mqtt_app_start(void)
 	mqtt_client_handle = esp_mqtt_client_init(&mqtt_config);
 	esp_mqtt_client_register_event(mqtt_client_handle, ESP_EVENT_ANY_ID, mqtt_event_handler, NULL);
 	esp_mqtt_client_start(mqtt_client_handle);
-	//mqtt_started_flag = 1;
 }
 

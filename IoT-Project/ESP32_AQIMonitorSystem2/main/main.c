@@ -340,7 +340,7 @@ static void operational_mode(void)
 	wifi_establish();
 
 	/* Wait for sometime to connect wifi */
-	vTaskDelay(5000 / portTICK_PERIOD_MS);
+	vTaskDelay(8000 / portTICK_PERIOD_MS);
 
 	/* Initialize drivers */
 	init_ntp();

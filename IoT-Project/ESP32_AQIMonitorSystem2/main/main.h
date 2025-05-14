@@ -7,6 +7,7 @@
 #include "wifi.h"
 #include "sds011.h"
 #include "adc.h"
+#include "esp_timer.h"
 
 /* Define Macros */
 #define SELECT_OPERATIONAL_MODE            	0x01
@@ -60,6 +61,9 @@ extern EventGroupHandle_t wifi_event_group;
 
 
 /* Function prototypes */
+
+void configure_mqtt_dynamic();
+
 void data_processing_task(void *pvParameters);
 
 void command_receive_task(void *pvParameters);
