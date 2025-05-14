@@ -110,7 +110,7 @@ void dataDisplayTask(void *pvParameters)
 			/* Large enough to handle a formatted string */
 			char s8Buffer2[BUFF_SIZE];
 			sprintf(s8Buffer2, "A:%.1f, C2:%.1fPPM",
-					(double)str_local_sensor_data.air_quality_index,
+					(double)str_local_sensor_data.sds011.u16PM25Val,
 					(double)str_local_sensor_data.bme680.u16GasRes);
 
 			for (int i = 0; s8Buffer2[i] != '\0'; i++)

@@ -53,6 +53,7 @@
 SemaphoreHandle_t dataSyncSemaphore = NULL;
 
 EventGroupHandle_t xEventGroup;
+
 extern uint8_t u8CloudConnect;
 
 
@@ -94,6 +95,7 @@ static void read_and_print_device_info(void);
  ******************************************************************************/
 void app_main(void)
 {
+	/* Avoid Priting Unused logs */
 	esp_log_level_set("gpio", ESP_LOG_ERROR);
 	esp_log_level_set("EEPROM_DRIVER",ESP_LOG_ERROR);
 	esp_log_level_set("wifi",ESP_LOG_ERROR);
@@ -338,7 +340,7 @@ static void operational_mode(void)
 	wifi_establish();
 
 	/* Wait for sometime to connect wifi */
-	vTaskDelay(5000 / portTICK_PERIOD_MS);
+	vTaskDelay(8000 / portTICK_PERIOD_MS);
 
 	/* Initialize drivers */
 	init_ntp();
@@ -405,6 +407,19 @@ static void wifi_establish(void)
 		ESP_LOGW("WiFi", "Unable to Find Wi-Fi credentials found!");
 	}
 }
+
+
+/*******************************************************************************
+ * Function      : read_and_print_device_info
+ *
+ * Description   : Prints the device information stored in the BLE configuration
+ *                 structure, including hardware version, software version,
+ *                 device ID, and location. Displays the output in a formatted way.
+ *
+ * Parameters    : None
+ *
+ *******************************************************************************/
+
 void read_and_print_device_info(void)
 {
 
