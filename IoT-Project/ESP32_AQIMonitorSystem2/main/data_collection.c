@@ -64,49 +64,49 @@ extern uint32_t duration;
 
 void dataCollectionTask(void *pvParameters)
 {
-    float f32PPMVal;
-    uint16_t u16RawVal;
+	float f32PPMVal;
+	uint16_t u16RawVal;
 
-    while (1)
-    {
-        if (xSemaphoreTake(dataSyncSemaphore, portMAX_DELAY))
-        {
-            /* Simulate BME680 sensor values */
-            str_global_sensor_data.bme680.f32Temperature = 20.0f + (esp_random() % 2000) / 100.0f;  /* 20°C to 40°C */
-            str_global_sensor_data.bme680.f32Humidity = 30.0f + (esp_random() % 4000) / 100.0f;     /* 30% to 70% */
+	while (1)
+	{
+		if (xSemaphoreTake(dataSyncSemaphore, portMAX_DELAY))
+		{
+			/* Simulate BME680 sensor values */
+			str_global_sensor_data.bme680.f32Temperature = 20.0f + (esp_random() % 2000) / 100.0f;  /* 20°C to 40°C */
+			str_global_sensor_data.bme680.f32Humidity = 30.0f + (esp_random() % 4000) / 100.0f;     /* 30% to 70% */
 
-            /* Keep time update logic */
-            if (isNTPSynched)
-            {
-                update_current_time();
-            }
-            else
-            {
-                get_time();
-            }
+			/* Keep time update logic */
+			if (isNTPSynched)
+			{
+				update_current_time();
+			}
+			else
+			{
+				get_time();
+			}
 
-            /* Simulate MQ135 sensor (Gas sensor) */
-            f32PPMVal = 200.0f + (esp_random() % 8000) / 10.0f;  /* 200 to 1000 PPM */
-            str_global_sensor_data.bme680.u16GasRes = f32PPMVal;
+			/* Simulate MQ135 sensor (Gas sensor) */
+			f32PPMVal = 200.0f + (esp_random() % 8000) / 10.0f;  /* 200 to 1000 PPM */
+			str_global_sensor_data.bme680.u16GasRes = f32PPMVal;
 
-            /* Simulate SDS011 (PM2.5 and PM10) */
-            uint16_t u16ScaledPM25 = (uint16_t)(esp_random() % 5000); /* PM2.5 (0 to 500, scaled by 10) */
-            uint16_t u16ScaledPM10 = (uint16_t)(esp_random() % 5000); /* PM10 (0 to 500, scaled by 10) */
+			/* Simulate SDS011 (PM2.5 and PM10) */
+			uint16_t u16ScaledPM25 = (uint16_t)(esp_random() % 5000); /* PM2.5 (0 to 500, scaled by 10) */
+			uint16_t u16ScaledPM10 = (uint16_t)(esp_random() % 5000); /* PM10 (0 to 500, scaled by 10) */
 
-            str_global_sensor_data.sds011.u16PM25Val = u16ScaledPM25;
-            str_global_sensor_data.sds011.u16PM10Val = u16ScaledPM10;
+			str_global_sensor_data.sds011.u16PM25Val = u16ScaledPM25;
+			str_global_sensor_data.sds011.u16PM10Val = u16ScaledPM10;
 
-            /* Update Air Quality Index (AQI) */
-            str_global_sensor_data.air_quality_index = get_aqi(u16ScaledPM25 / 10.0, u16ScaledPM10 / 10.0);
+			/* Update Air Quality Index (AQI) */
+			str_global_sensor_data.air_quality_index = get_aqi(u16ScaledPM25 / 10.0, u16ScaledPM10 / 10.0);
 
 
-            // control_rgb_led(str_global_sensor_data.air_quality_index);
+			control_rgb_led(str_global_sensor_data.air_quality_index);
 
-            /* Release Semaphore for other tasks */
-            xSemaphoreGive(dataSyncSemaphore);
-        }
+			/* Release Semaphore for other tasks */
+			xSemaphoreGive(dataSyncSemaphore);
+		}
 
-        vTaskDelay(800 / portTICK_PERIOD_MS);
-    }
+		vTaskDelay(800 / portTICK_PERIOD_MS);
+	}
 }
 
