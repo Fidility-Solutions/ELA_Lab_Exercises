@@ -7,6 +7,7 @@
 #include "wifi.h"
 #include "sds011.h"
 #include "adc.h"
+#include "esp_timer.h"
 
 /* Define Macros */
 #define SELECT_OPERATIONAL_MODE            	0x01
@@ -20,8 +21,8 @@
 #pragma pack(push, 1)
 
 extern int raw_value;
-/* BME680 sensor data collection structure */
 
+/* BME680 sensor data collection structure */
 typedef struct
 {
     float f32Temperature;   	/* 4 bytes 	*/

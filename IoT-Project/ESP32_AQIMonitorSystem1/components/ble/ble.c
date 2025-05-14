@@ -99,7 +99,7 @@ typedef struct
 
 
 
-
+/* Static structures */
 static STR_WIFI_CREDENTIALS strWifiCredentials;
 static STR_LOCATION strLocation;
 static STR_VERSION_INFO strVersionInfo;
@@ -380,77 +380,77 @@ static void parse_wifi_credentials(const char* ps8Data, uint64_t u64Len, STR_WIF
 /*******************************************************************************
  * Function      : parse_location
  *
- * Description   : Parses latitude and longitude values from a comma-separated
- *                 string and stores them in the provided location structure.
+ * Description   : Parses a comma-separated input string to extract location and
+ *                 device name information. Validates input length, ensures null
+ *                 termination, and stores the extracted values into the BLE
+ *                 configuration structure.
  *
  * Parameters    :
- *      - ps8Data : Pointer to the received data buffer (format: "lat,lng").
+ *      - ps8Data : Pointer to the input data buffer containing location and device name.
  *      - u64Len  : Length of the input data.
- *      - pstrPLoc : Pointer to the location structure to store the result.
- *
- * Returns       : void
+ *      - pstrLoc : Pointer to the STR_LOCATION structure (currently unused).
  *
  *******************************************************************************/
 
 static void parse_location(const char* ps8Data, uint64_t u64Len, STR_LOCATION* pstrLoc)
 {
-	char s8Buffer[100] = {0};
-	char location[50] = {0}; 		/* Adjust size as needed */
-	char device_name[50] = {0}; 	/* Adjust size as needed */
+	char as8Buffer[100] = {0};
+	char as8Location[50] = {0}; 		/* Adjust size as needed */
+	char as8DeviceName[50] = {0}; 		/* Adjust size as needed */
 
-	if (u64Len >= sizeof(s8Buffer))
+	if (u64Len >= sizeof(as8Buffer))
 	{
 		ESP_LOGE(BLE_TAG, "Received data too large");
 		return;
 	}
 
 	/* Copy and ensure null termination */
-	memcpy(s8Buffer, ps8Data, u64Len);
-	s8Buffer[u64Len] = '\0';
+	memcpy(as8Buffer, ps8Data, u64Len);
+	as8Buffer[u64Len] = '\0';
 
 	/* Parse input data using ',' as a delimiter */
-	char* token = strtok(s8Buffer, ",");
-	if (token == NULL)
+	char* ps8Token = strtok(as8Buffer, ",");
+	if (ps8Token == NULL)
 	{
 		ESP_LOGE(BLE_TAG, "Invalid data format");
 		return;
 	}
 
 	/* Extract location */
-	strncpy(location, token, sizeof(location) - 1);
-	location[sizeof(location) - 1] = '\0'; // Ensure null termination
+	strncpy(as8Location, ps8Token, sizeof(as8Location) - 1);
+	as8Location[sizeof(as8Location) - 1] = '\0'; 		/* Ensure null termination */
 
-	token = strtok(NULL, ",");
-	if (token == NULL)
+	ps8Token = strtok(NULL, ",");
+	if (ps8Token == NULL)
 	{
 		ESP_LOGE(BLE_TAG, "Device name not found in input");
 		return;
 	}
 
 	/* Extract device name */
-	strncpy(device_name, token, sizeof(device_name) - 1);
-	device_name[sizeof(device_name) - 1] = '\0'; /* Ensure null termination */
+	strncpy(as8DeviceName, ps8Token, sizeof(as8DeviceName) - 1);
+	as8DeviceName[sizeof(as8DeviceName) - 1] = '\0'; 	/* Ensure null termination */
 
 	/* Store location in EEPROM */
 	eeprom_erase(EEPROM_LOCATION_ADDR);
-	eeprom_write(EEPROM_LOCATION_ADDR, (uint8_t*)location, strlen(location) + 1);
+	eeprom_write(EEPROM_LOCATION_ADDR, (uint8_t*)as8Location, strlen(as8Location) + 1);
 
 	/* Store device name in EEPROM */
 	eeprom_erase(EEPROM_DEVICE_NAME_ADDR);
-	eeprom_write(EEPROM_DEVICE_NAME_ADDR, (uint8_t*)device_name, strlen(device_name) + 1);
+	eeprom_write(EEPROM_DEVICE_NAME_ADDR, (uint8_t*)as8DeviceName, strlen(as8DeviceName) + 1);
 
 	/* Read back and log the data */
-	char read_location[sizeof(location)] = {0};
-	char read_device_name[sizeof(device_name)] = {0};
+	char as8ReadLocation[sizeof(as8Location)] = {0};
+	char as8ReadDeviceName[sizeof(as8DeviceName)] = {0};
 
-	eeprom_read(EEPROM_LOCATION_ADDR, (uint8_t*)read_location, sizeof(read_location) - 1);
-	read_location[sizeof(read_location) - 1] = '\0'; /* Ensure null termination */
+	eeprom_read(EEPROM_LOCATION_ADDR, (uint8_t*)as8ReadLocation, sizeof(as8ReadLocation) - 1);
+	as8ReadLocation[sizeof(as8ReadLocation) - 1] = '\0'; /* Ensure null termination */
 
-	eeprom_read(EEPROM_DEVICE_NAME_ADDR, (uint8_t*)read_device_name, sizeof(read_device_name) - 1);
-	read_device_name[sizeof(read_device_name) - 1] = '\0'; /* Ensure null termination */
+	eeprom_read(EEPROM_DEVICE_NAME_ADDR, (uint8_t*)as8ReadDeviceName, sizeof(as8ReadDeviceName) - 1);
+	as8ReadDeviceName[sizeof(as8ReadDeviceName) - 1] = '\0'; /* Ensure null termination */
 
-	ESP_LOGI(BLE_TAG, "Parsed and Stored Location: %s", read_location);
-	ESP_LOGI(BLE_TAG, "Parsed and Stored Device Name: %s", read_device_name);
+	ESP_LOGI(BLE_TAG, "Parsed and Stored Location: %s", as8ReadLocation);
+	ESP_LOGI(BLE_TAG, "Parsed and Stored Device Name: %s", as8ReadDeviceName);
 }
 
 /*******************************************************************************

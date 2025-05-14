@@ -2,6 +2,7 @@
 #include "data_storage.h"
 #include "spi.h"
 #include "main.h"
+#include "mqtts.h"
 #include "driver/spi_master.h"
 #include "freertos/FreeRTOS.h"
 
@@ -31,16 +32,19 @@ static uint32_t u32CloudCounter = CLOUD_COUNTER_INITIAL_VALUE;  	/* Current clou
  */
 void dataStorageTask(void *pvParameters)
 { 
-	esp_err_t eErrStat;
-
 	STR_SENSOR_DATA last_sent_sensor_data = {0}; /* Track last sent data */
 	STR_SENSOR_DATA str_local_sensor_copy;
+
+	uint32_t u32LastFlashWriteTime = 0;
+
+	u32LastPublishedTime = millis();
 
 	while (1)
 	{
 		/* Check if Wi-Fi is disconnected (store locally) */
 		if ((gu8wificonnectedflag == 0) && (gu8initialconnectionflag == 1))
 		{
+			/* Wi-Fi is down → store locally */
 			if (xSemaphoreTake(dataSyncSemaphore, portMAX_DELAY))
 			{
 				memcpy(&str_local_sensor_copy, &str_global_sensor_data, sizeof(STR_SENSOR_DATA));
@@ -48,29 +52,38 @@ void dataStorageTask(void *pvParameters)
 				/* Check if data is new before storing */
 				if (memcmp(&last_sent_sensor_data, &str_local_sensor_copy, sizeof(STR_SENSOR_DATA)) != 0)
 				{
-					memcpy(&last_sent_sensor_data, &str_local_sensor_copy, sizeof(STR_SENSOR_DATA));
-
-					/* Compute storage location */
-					uint32_t u32SecNum = u32Counter / (16 * 256);
-					uint32_t u32PageOffset = (u32Counter % (16 * 256)) / 256;
-
-					/* Erase sector if needed */
-					if (u32PageOffset == 0)
+					/* DOUBLE-CHECK TIMER HERE */
+					u32CurrentTime = millis();  /* update again just before writing */
+					if ((u32CurrentTime - u32LastFlashWriteTime) >= u32SetPublishInterval)
 					{
-						sector_erase(u32SecNum);
-						vTaskDelay(pdMS_TO_TICKS(200));
-					}
+						u32LastFlashWriteTime = u32CurrentTime;
 
-					/* Write to storage */
-					write_data(u32Counter / 256, (uint8_t *)&str_local_sensor_copy, 
-							sizeof(str_local_sensor_copy));
+						memcpy(&last_sent_sensor_data, &str_local_sensor_copy, sizeof(STR_SENSOR_DATA));
 
-					/* Increment COUNTER_INITIAL_VALUE and handle wrap-around */
-					u32Counter += 256; /* Increment by one page */
-					if (u32Counter > MAX_ADDRESS)
-					{
-						/* Wrap around */
-						u32Counter = 16;
+						/* Compute storage location */
+						uint32_t u32SecNum = u32Counter / (16 * 256);
+						uint32_t u32PageOffset = (u32Counter % (16 * 256)) / 256;
+
+						/* Erase sector if needed */
+						if (u32PageOffset == 0)
+						{
+							printf("Erasing sector %lu at time: %lu\n", u32SecNum, millis());
+							sector_erase(u32SecNum);
+							vTaskDelay(pdMS_TO_TICKS(200));
+						}
+
+						/* Write to storage */
+						printf("Writing to flash at counter: %lu at time: %lu\n", u32Counter, millis());
+						write_data(u32Counter / 256, (uint8_t *)&str_local_sensor_copy, 
+								sizeof(str_local_sensor_copy));
+
+						/* Increment COUNTER_INITIAL_VALUE and handle wrap-around */
+						u32Counter += 256; /* Increment by one page */
+						if (u32Counter > MAX_ADDRESS)
+						{
+							/* Wrap around */
+							u32Counter = 16;
+						}
 					}
 				}
 
@@ -95,7 +108,7 @@ void dataStorageTask(void *pvParameters)
 			}
 		}
 
-		vTaskDelay(pdMS_TO_TICKS(500));  /* General delay */
+		vTaskDelay(pdMS_TO_TICKS(100));  /* General delay */
 	}
 }
 
