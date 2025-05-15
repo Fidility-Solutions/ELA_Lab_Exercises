@@ -91,6 +91,7 @@ typedef struct
         char sw_version[32];
 } STR_VERSION_INFO;
 
+/* Add AWS certificate structs */
 typedef struct
 {
         char certificate[1700];

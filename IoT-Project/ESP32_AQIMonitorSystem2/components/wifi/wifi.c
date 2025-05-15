@@ -110,18 +110,8 @@ void wifi_event_handler(void *pArg, esp_event_base_t event_base, int32_t u32Even
 					xEventGroupClearBits(xEventGroup, WIFI_CONNECTED_BIT);
 					xEventGroupSetBits(xEventGroup, WIFI_FAIL_BIT);
 
-					/* Configure watchdog timer to reset system */
-					esp_task_wdt_config_t wdt_config = 
-					{
-						.timeout_ms = WATCHDOG_TIMEOUT * 1000, /* Convert to milliseconds */
-						.idle_core_mask = (1 << portNUM_PROCESSORS) - 1, /* Enable for all cores */
-						.trigger_panic = true, 	/* Trigger a panic/reset */
-					};
+					esp_restart();
 
-					esp_task_wdt_init(&wdt_config);
-					esp_task_wdt_add(NULL);  	/* Register current task to watchdog */
-
-					while (1);  			/* Wait for watchdog to reset ESP32 */
 				}
 			} 
 			else 
