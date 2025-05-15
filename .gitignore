@@ -17,3 +17,6 @@
 
 # ignore swap files
 *.swp
+
+node_modules/
+
